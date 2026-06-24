@@ -1,152 +1,117 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
-import { appParams } from '@/lib/app-params';
-import { createAxiosClient } from '@base44/sdk/dist/utils/axios-client';
-import { clearAllCaches } from '@/lib/clearCaches';
 
 const AuthContext = createContext();
+const DEMO_STORAGE_KEY = 'hasten_user';
+
+const normalizeDemoUser = (storedUser = {}) => {
+  const businessRole = storedUser.businessRole || storedUser.role || 'admin';
+  const isAdminLike = ['super_admin', 'admin'].includes(businessRole);
+
+  return {
+    id: storedUser.id || 'demo-user',
+    email: storedUser.email || 'netzeus20@gmail.com',
+    full_name: storedUser.full_name || storedUser.fullName || storedUser.name || 'Brian M',
+    name: storedUser.name || storedUser.full_name || storedUser.fullName || 'Brian M',
+    role: isAdminLike ? 'admin' : businessRole,
+    businessRole,
+    isDemoUser: true,
+  };
+};
+
+const getStoredDemoUser = () => {
+  try {
+    const raw = localStorage.getItem(DEMO_STORAGE_KEY);
+    if (!raw) return null;
+    return normalizeDemoUser(JSON.parse(raw));
+  } catch (error) {
+    console.warn('[AuthContext] Invalid demo login state. Clearing local session.', error);
+    localStorage.removeItem(DEMO_STORAGE_KEY);
+    return null;
+  }
+};
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
-  const [isLoadingPublicSettings, setIsLoadingPublicSettings] = useState(true);
+  const [isLoadingPublicSettings, setIsLoadingPublicSettings] = useState(false);
   const [authError, setAuthError] = useState(null);
   const [authChecked, setAuthChecked] = useState(false);
-  const [appPublicSettings, setAppPublicSettings] = useState(null); // Contains only { id, public_settings }
+  const [appPublicSettings, setAppPublicSettings] = useState(null);
 
-  useEffect(() => {
-    clearAllCaches(); // Emergency: clear all permission caches on app init
-    checkAppState();
+  const applyAuthState = useCallback((nextUser) => {
+    setUser(nextUser);
+    setIsAuthenticated(Boolean(nextUser));
+    setAuthError(null);
+    setIsLoadingAuth(false);
+    setIsLoadingPublicSettings(false);
+    setAuthChecked(true);
   }, []);
 
-  const checkAppState = async () => {
-    try {
-      setIsLoadingPublicSettings(true);
-      setAuthError(null);
-      
-      // First, check app public settings (with token if available)
-      // This will tell us if auth is required, user not registered, etc.
-      const appClient = createAxiosClient({
-        baseURL: `/api/apps/public`,
-        headers: {
-          'X-App-Id': appParams.appId
-        },
-        token: appParams.token, // Include token if available
-        interceptResponses: true
-      });
-      
-      try {
-        const publicSettings = await appClient.get(`/prod/public-settings/by-id/${appParams.appId}`);
-        setAppPublicSettings(publicSettings);
-        
-        // If we got the app public settings successfully, check if user is authenticated
-        if (appParams.token) {
-          await checkUserAuth();
-        } else {
-          setIsLoadingAuth(false);
-          setIsAuthenticated(false);
-          setAuthChecked(true);
-        }
-        setIsLoadingPublicSettings(false);
-      } catch (appError) {
-        console.error('App state check failed:', appError);
-        
-        // Handle app-level errors
-        if (appError.status === 403 && appError.data?.extra_data?.reason) {
-          const reason = appError.data.extra_data.reason;
-          if (reason === 'auth_required') {
-            setAuthError({
-              type: 'auth_required',
-              message: 'Authentication required'
-            });
-          } else if (reason === 'user_not_registered') {
-            setAuthError({
-              type: 'user_not_registered',
-              message: 'User not registered for this app'
-            });
-          } else {
-            setAuthError({
-              type: reason,
-              message: appError.message
-            });
-          }
-        } else {
-          setAuthError({
-            type: 'unknown',
-            message: appError.message || 'Failed to load app'
-          });
-        }
-        setIsLoadingPublicSettings(false);
-        setIsLoadingAuth(false);
-      }
-    } catch (error) {
-      console.error('Unexpected error:', error);
-      setAuthError({
-        type: 'unknown',
-        message: error.message || 'An unexpected error occurred'
-      });
-      setIsLoadingPublicSettings(false);
-      setIsLoadingAuth(false);
+  const checkUserAuth = useCallback(async () => {
+    const demoUser = getStoredDemoUser();
+    if (demoUser) {
+      applyAuthState(demoUser);
+      return demoUser;
     }
-  };
 
-  const checkUserAuth = async () => {
     try {
-      // Now check if the user is authenticated
       setIsLoadingAuth(true);
+      setAuthError(null);
+
       const currentUser = await base44.auth.me();
-      
-      // Trigger login-time updates (driver status, user profile, routing)
-      try {
-        await base44.functions.invoke('handleUserLogin', {});
-      } catch (loginErr) {
-        console.warn('[AuthContext] handleUserLogin failed, continuing:', loginErr.message);
-      }
-      
-      setUser(currentUser);
-      setIsAuthenticated(true);
-      setIsLoadingAuth(false);
-      setAuthChecked(true);
+      const normalizedUser = {
+        ...currentUser,
+        businessRole: currentUser?.businessRole || currentUser?.role || 'admin',
+      };
+
+      applyAuthState(normalizedUser);
+      return normalizedUser;
     } catch (error) {
-      console.error('User auth check failed:', error);
-      setIsLoadingAuth(false);
-      setIsAuthenticated(false);
-      setAuthChecked(true);
-      
-      // If user auth fails, it might be an expired token
-      if (error.status === 401 || error.status === 403) {
-        setAuthError({
-          type: 'auth_required',
-          message: 'Authentication required'
-        });
-      }
+      console.warn('[AuthContext] Base44 auth unavailable locally; user is unauthenticated.', error?.message || error);
+      applyAuthState(null);
+      return null;
     }
-  };
+  }, [applyAuthState]);
+
+  const checkAppState = useCallback(async () => {
+    // Local demo login should not call Base44 public settings because local appParams.appId can be null.
+    setAppPublicSettings(null);
+    await checkUserAuth();
+  }, [checkUserAuth]);
+
+  useEffect(() => {
+    checkAppState();
+  }, [checkAppState]);
 
   const logout = (shouldRedirect = true) => {
+    localStorage.removeItem(DEMO_STORAGE_KEY);
     setUser(null);
     setIsAuthenticated(false);
-    
-    if (shouldRedirect) {
-      // Use the SDK's logout method which handles token cleanup and redirect
-      base44.auth.logout(window.location.href);
-    } else {
-      // Just remove the token without redirect
+    setAuthChecked(true);
+    setAuthError(null);
+
+    try {
       base44.auth.logout();
+    } catch (error) {
+      console.warn('[AuthContext] Base44 logout skipped:', error?.message || error);
+    }
+
+    if (shouldRedirect) {
+      window.location.href = '/login';
     }
   };
 
   const navigateToLogin = () => {
-    // Use the SDK's redirectToLogin method
-    base44.auth.redirectToLogin(window.location.href);
+    window.location.href = '/login';
   };
 
   return (
-    <AuthContext.Provider value={{ 
+    <AuthContext.Provider value={{
       user,
-      currentUser: user, // Alias for backward compatibility
-      isAuthenticated, 
+      currentUser: user,
+      isAuthenticated,
       isLoadingAuth,
       isLoadingPublicSettings,
       authError,
@@ -155,7 +120,7 @@ export const AuthProvider = ({ children }) => {
       logout,
       navigateToLogin,
       checkUserAuth,
-      checkAppState
+      checkAppState,
     }}>
       {children}
     </AuthContext.Provider>
