@@ -33,7 +33,6 @@ import LoadTemplates from '@/pages/LoadTemplates';
 import SafetyDashboard from '@/pages/SafetyDashboard';
 import IFTAReport from '@/pages/IFTAReport';
 import DocumentPortal from '@/pages/DocumentPortal';
-import Messages from '@/pages/Messages';
 import DispatcherInboxPage from '@/pages/DispatcherInboxPage';
 import ExpenseApprovals from '@/pages/ExpenseApprovals';
 import Maintenance from '@/pages/Maintenance';
@@ -72,11 +71,6 @@ import ContractorDocuments from '@/pages/ContractorDocuments';
 import OwnerOperatorSettlement from '@/pages/OwnerOperatorSettlement';
 import ContractorManagement from '@/pages/ContractorManagement';
 import PaymentProfiles from '@/pages/PaymentProfiles';
-import AdminTesting from '@/pages/AdminTesting';
-import UserProfileVerification from '@/pages/UserProfileVerification';
-import Phase1FoundationVerification from '@/pages/Phase1FoundationVerification';
-import Phase2RBACTest from '@/pages/Phase2RBACTest';
-import Phase2AuditReport from '@/pages/Phase2AuditReport';
 import LoadMarketplace from '@/pages/LoadMarketplace';
 import SuperAdminIntegrations from '@/pages/SuperAdminIntegrations';
 import TaxCenter from '@/pages/TaxCenter';
@@ -87,6 +81,7 @@ import ReportsCenter from '@/pages/ReportsCenter';
 import IncidentCenter from '@/pages/IncidentCenter';
 import ThemeShowcase from '@/pages/ThemeShowcase';
 import AppBlueprint from '@/pages/AppBlueprint';
+import UserAccess from '@/pages/UserAccess';
 import DriverEmergencyCenter from '@/pages/driver/DriverEmergencyCenter';
 
 // Driver pages
@@ -158,8 +153,6 @@ const AuthenticatedApp = () => {
 
       {/* Protected */}
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
-
-        {/* Root redirect */}
         <Route path="/" element={<Navigate to={isDriver ? "/driver/dashboard" : isCustomer ? "/client" : "/dashboard"} replace />} />
 
         {/* Admin / Dispatcher */}
@@ -223,6 +216,7 @@ const AuthenticatedApp = () => {
         <Route path="/timeline" element={<AppLayout user={user}><Timeline /></AppLayout>} />
         <Route path="/security-dashboard" element={<AppLayout user={user}><SecurityDashboard /></AppLayout>} />
         <Route path="/settings" element={<AppLayout user={user}><Settings /></AppLayout>} />
+        <Route path="/admin/users-access" element={<AppLayout user={user}><UserAccess /></AppLayout>} />
         <Route path="/theme-showcase" element={<AppLayout user={user}><ThemeShowcase /></AppLayout>} />
         <Route path="/app-blueprint" element={<AppLayout user={user}><AppBlueprint /></AppLayout>} />
         <Route path="/detention-approvals" element={<AppLayout user={user}><DetentionApprovals /></AppLayout>} />
