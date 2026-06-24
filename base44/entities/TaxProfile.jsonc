@@ -1,0 +1,99 @@
+{
+  "name": "TaxProfile",
+  "type": "object",
+  "properties": {
+    "driver_id": {
+      "type": "string"
+    },
+    "driver_name": {
+      "type": "string"
+    },
+    "employment_type": {
+      "type": "string",
+      "enum": [
+        "W2_employee",
+        "1099_contractor",
+        "owner_operator"
+      ],
+      "default": "W2_employee"
+    },
+    "ssn_last_four": {
+      "type": "string"
+    },
+    "ein": {
+      "type": "string"
+    },
+    "business_name": {
+      "type": "string"
+    },
+    "filing_status": {
+      "type": "string",
+      "enum": [
+        "single",
+        "married_filing_jointly",
+        "married_filing_separately",
+        "head_of_household",
+        "qualifying_widow"
+      ],
+      "default": "single"
+    },
+    "withholding_allowances": {
+      "type": "number",
+      "default": 0
+    },
+    "extra_withholding": {
+      "type": "number",
+      "default": 0
+    },
+    "extra_withholding_per_paycheck": {
+      "type": "number",
+      "default": 0
+    },
+    "federal_withholding_enabled": {
+      "type": "boolean",
+      "default": true
+    },
+    "state": {
+      "type": "string"
+    },
+    "state_withholding_enabled": {
+      "type": "boolean",
+      "default": true
+    },
+    "local_withholding_enabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "local_jurisdiction": {
+      "type": "string"
+    },
+    "health_insurance_deduction": {
+      "type": "number",
+      "default": 0
+    },
+    "other_deductions": {
+      "type": "number",
+      "default": 0
+    },
+    "garnishment_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "w4_form_signed_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "w9_form_signed_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "driver_id",
+    "driver_name",
+    "employment_type"
+  ]
+}

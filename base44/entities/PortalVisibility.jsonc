@@ -1,0 +1,57 @@
+{
+  "name": "PortalVisibility",
+  "type": "object",
+  "properties": {
+    "role": {
+      "type": "string",
+      "enum": [
+        "admin",
+        "system_manager",
+        "dispatcher",
+        "fleet_manager",
+        "finance",
+        "safety_compliance",
+        "driver",
+        "client",
+        "broker"
+      ]
+    },
+    "portal_type": {
+      "type": "string",
+      "enum": [
+        "admin_sidebar",
+        "dispatcher_sidebar",
+        "fleet_sidebar",
+        "finance_sidebar",
+        "driver_mobile_tabs",
+        "client_portal_tabs"
+      ]
+    },
+    "section": {
+      "type": "string"
+    },
+    "is_visible": {
+      "type": "boolean",
+      "default": true
+    },
+    "is_locked": {
+      "type": "boolean",
+      "default": false
+    },
+    "locked_reason": {
+      "type": "string"
+    },
+    "order_index": {
+      "type": "number",
+      "default": 0
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "role",
+    "portal_type",
+    "section"
+  ]
+}

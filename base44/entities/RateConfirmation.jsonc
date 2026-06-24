@@ -1,0 +1,73 @@
+{
+  "name": "RateConfirmation",
+  "type": "object",
+  "properties": {
+    "load_id": {
+      "type": "string"
+    },
+    "version": {
+      "type": "number",
+      "default": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "sent",
+        "viewed",
+        "signed",
+        "rejected",
+        "revised",
+        "expired"
+      ],
+      "default": "draft"
+    },
+    "generated_by": {
+      "type": "string"
+    },
+    "sent_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "viewed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "signed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "rejected_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "signature_image_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "signature_hash": {
+      "type": "string"
+    },
+    "revision_notes": {
+      "type": "string"
+    },
+    "pdf_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "rejection_reason": {
+      "type": "string"
+    },
+    "clarification_request": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "load_id",
+    "status"
+  ]
+}

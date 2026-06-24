@@ -1,0 +1,51 @@
+{
+  "name": "SettlementRule",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "is_default": {
+      "type": "boolean",
+      "default": false
+    },
+    "driver_percentage": {
+      "type": "number",
+      "default": 80
+    },
+    "company_percentage": {
+      "type": "number",
+      "default": 20
+    },
+    "flat_company_fee": {
+      "type": "number",
+      "default": 0
+    },
+    "default_factoring_fee_percentage": {
+      "type": "number",
+      "default": 0
+    },
+    "default_factoring_fee_paid_by": {
+      "type": "string",
+      "enum": [
+        "hasten",
+        "driver",
+        "split"
+      ],
+      "default": "hasten"
+    },
+    "auto_fuel_advance_percentage": {
+      "type": "number",
+      "default": 0
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

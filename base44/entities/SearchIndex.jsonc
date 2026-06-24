@@ -1,0 +1,58 @@
+{
+  "name": "SearchIndex",
+  "type": "object",
+  "properties": {
+    "entityType": {
+      "type": "string",
+      "enum": [
+        "Load",
+        "Driver",
+        "Truck",
+        "Invoice",
+        "Client",
+        "Broker",
+        "SupportTicket",
+        "DriverDocument",
+        "LoadDocument"
+      ]
+    },
+    "entityId": {
+      "type": "string"
+    },
+    "searchableText": {
+      "type": "string",
+      "description": "Concatenated searchable fields (number, name, city, etc.) in lowercase"
+    },
+    "displayText": {
+      "type": "string",
+      "description": "Human-readable display text for results"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "primaryValue": {
+          "type": "string"
+        },
+        "secondaryValue": {
+          "type": "string"
+        },
+        "icon": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        }
+      }
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "entityType",
+    "entityId",
+    "searchableText",
+    "displayText"
+  ]
+}

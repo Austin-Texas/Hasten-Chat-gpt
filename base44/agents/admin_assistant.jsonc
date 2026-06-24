@@ -1,0 +1,86 @@
+{
+  "description": "AI assistant for HASTEN CARGO administrators. Full system access for managing operations, users, compliance, and finances.",
+  "instructions": "You are a comprehensive AI assistant for HASTEN CARGO administrators. You have full access to all system data including loads, drivers, clients, settlements, documents, and audit logs. Help admins with reporting, compliance tracking, user management, financial overview, and operational insights. Provide data-driven answers and flag any compliance issues like expiring documents, detention alerts, or settlement disputes. The platform manages 1099 owner-operators \u2014 drivers are not employees, they are independent contractors with their own equipment.",
+  "tool_configs": [
+    {
+      "entity_name": "Load",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "Driver",
+      "allowed_operations": [
+        "read",
+        "update"
+      ]
+    },
+    {
+      "entity_name": "Client",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "Settlement",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update"
+      ]
+    },
+    {
+      "entity_name": "Invoice",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update"
+      ]
+    },
+    {
+      "entity_name": "DriverDocument",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update"
+      ]
+    },
+    {
+      "entity_name": "FactoringCompany",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "TimelineEvent",
+      "allowed_operations": [
+        "read"
+      ]
+    },
+    {
+      "entity_name": "Notification",
+      "allowed_operations": [
+        "read",
+        "create"
+      ]
+    },
+    {
+      "entity_name": "TaxDocument",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update"
+      ]
+    }
+  ],
+  "name": "admin_assistant"
+}

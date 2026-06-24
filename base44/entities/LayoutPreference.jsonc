@@ -1,0 +1,63 @@
+{
+  "name": "LayoutPreference",
+  "type": "object",
+  "properties": {
+    "role": {
+      "type": "string",
+      "enum": [
+        "admin",
+        "system_manager",
+        "dispatcher",
+        "fleet_manager",
+        "finance",
+        "safety_compliance",
+        "driver",
+        "client",
+        "broker"
+      ]
+    },
+    "layout_type": {
+      "type": "string",
+      "enum": [
+        "admin_dashboard",
+        "dispatcher_dashboard",
+        "fleet_manager_dashboard",
+        "finance_dashboard",
+        "driver_app",
+        "client_portal"
+      ]
+    },
+    "visible_modules": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "visible_tabs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "visible_kpi_cards": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "hide_empty_sections": {
+      "type": "boolean",
+      "default": true
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "role",
+    "layout_type"
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "name": "LoadTemplate",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "origin_city": {
+      "type": "string"
+    },
+    "origin_state": {
+      "type": "string"
+    },
+    "origin_address": {
+      "type": "string"
+    },
+    "origin_zip": {
+      "type": "string"
+    },
+    "destination_city": {
+      "type": "string"
+    },
+    "destination_state": {
+      "type": "string"
+    },
+    "destination_address": {
+      "type": "string"
+    },
+    "destination_zip": {
+      "type": "string"
+    },
+    "equipment_type": {
+      "type": "string",
+      "enum": [
+        "Dry Van",
+        "Flatbed",
+        "Reefer",
+        "Step Deck",
+        "Lowboy",
+        "Box Truck",
+        "Tanker",
+        "Hotshot"
+      ]
+    },
+    "commodity": {
+      "type": "string"
+    },
+    "weight": {
+      "type": "number"
+    },
+    "miles": {
+      "type": "number"
+    },
+    "rate": {
+      "type": "number"
+    },
+    "rate_per_mile": {
+      "type": "number"
+    },
+    "fuel_surcharge": {
+      "type": "number"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "standard",
+        "express",
+        "critical"
+      ],
+      "default": "standard"
+    },
+    "special_instructions": {
+      "type": "string"
+    },
+    "times_used": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "name",
+    "origin_city",
+    "destination_city",
+    "equipment_type"
+  ]
+}

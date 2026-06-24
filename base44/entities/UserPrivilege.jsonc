@@ -1,0 +1,63 @@
+{
+  "name": "UserPrivilege",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "privilege_type": {
+      "type": "string",
+      "enum": [
+        "extra_access",
+        "restricted_access",
+        "temporary_access",
+        "department_only",
+        "custom"
+      ]
+    },
+    "section": {
+      "type": "string"
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "view",
+        "create",
+        "edit",
+        "delete",
+        "approve",
+        "export",
+        "manage_settings"
+      ]
+    },
+    "granted": {
+      "type": "boolean",
+      "default": true
+    },
+    "valid_from": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "valid_until": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "department": {
+      "type": "string"
+    },
+    "granted_by": {
+      "type": "string"
+    },
+    "reason": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "user_id",
+    "privilege_type",
+    "section"
+  ]
+}

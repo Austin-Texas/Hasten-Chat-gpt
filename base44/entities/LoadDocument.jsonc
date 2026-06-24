@@ -1,0 +1,123 @@
+{
+  "name": "LoadDocument",
+  "type": "object",
+  "properties": {
+    "load_id": {
+      "type": "string"
+    },
+    "stop_id": {
+      "type": "string"
+    },
+    "driver_id": {
+      "type": "string"
+    },
+    "uploaded_by": {
+      "type": "string"
+    },
+    "document_type": {
+      "type": "string",
+      "enum": [
+        "rate_confirmation",
+        "bol",
+        "pod",
+        "scale_ticket",
+        "lumper_receipt",
+        "fuel_receipt",
+        "damage_photo",
+        "insurance",
+        "permit",
+        "other"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "uploaded",
+        "pending_review",
+        "approved",
+        "rejected",
+        "reupload_requested",
+        "archived",
+        "expired"
+      ],
+      "default": "uploaded"
+    },
+    "version": {
+      "type": "number",
+      "default": 1
+    },
+    "file_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "file_name": {
+      "type": "string"
+    },
+    "uploaded_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "approved_by": {
+      "type": "string"
+    },
+    "approved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "rejected_by": {
+      "type": "string"
+    },
+    "rejected_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "rejection_reason": {
+      "type": "string"
+    },
+    "reupload_requested_by": {
+      "type": "string"
+    },
+    "reupload_requested_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reupload_reason": {
+      "type": "string"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "visibility_scope": {
+      "type": "string",
+      "enum": [
+        "internal",
+        "driver",
+        "client",
+        "broker",
+        "finance",
+        "public"
+      ],
+      "default": "internal"
+    },
+    "hash_checksum": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "previous_version_id": {
+      "type": "string"
+    },
+    "is_required": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "load_id",
+    "document_type",
+    "file_url",
+    "uploaded_by"
+  ]
+}

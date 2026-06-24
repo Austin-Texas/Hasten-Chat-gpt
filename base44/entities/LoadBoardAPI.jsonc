@@ -1,0 +1,132 @@
+{
+  "name": "LoadBoardAPI",
+  "type": "object",
+  "properties": {
+    "source_name": {
+      "type": "string",
+      "description": "Display name e.g. 'DAT Load Board'"
+    },
+    "provider_type": {
+      "type": "string",
+      "enum": [
+        "DAT",
+        "Truckstop",
+        "123Loadboard",
+        "TQL",
+        "CHR",
+        "direct_broker",
+        "shipper_api",
+        "custom_webhook",
+        "csv_sftp"
+      ]
+    },
+    "api_base_url": {
+      "type": "string"
+    },
+    "auth_type": {
+      "type": "string",
+      "enum": [
+        "api_key",
+        "oauth2",
+        "bearer_token",
+        "webhook",
+        "sftp",
+        "csv"
+      ],
+      "default": "api_key"
+    },
+    "api_key": {
+      "type": "string",
+      "description": "Encrypted/masked in UI"
+    },
+    "client_id": {
+      "type": "string"
+    },
+    "client_secret": {
+      "type": "string",
+      "description": "Encrypted/masked in UI"
+    },
+    "sandbox_mode": {
+      "type": "boolean",
+      "default": true
+    },
+    "sync_frequency": {
+      "type": "string",
+      "enum": [
+        "realtime",
+        "5min",
+        "15min",
+        "30min",
+        "hourly",
+        "manual"
+      ],
+      "default": "15min"
+    },
+    "rate_limit": {
+      "type": "number",
+      "description": "Max requests per minute"
+    },
+    "equipment_filters": {
+      "type": "string",
+      "description": "Comma-separated equipment types to import"
+    },
+    "lane_filters": {
+      "type": "string",
+      "description": "Comma-separated state pairs e.g. TX-CA,FL-GA"
+    },
+    "radius_filters": {
+      "type": "string",
+      "description": "Pickup/delivery radius in miles e.g. 250"
+    },
+    "minimum_rate_filter": {
+      "type": "number"
+    },
+    "max_weight_filter": {
+      "type": "number"
+    },
+    "auto_import_enabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "webhook_url": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "connected",
+        "disconnected",
+        "error",
+        "pending"
+      ],
+      "default": "pending"
+    },
+    "last_sync": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "loads_imported_count": {
+      "type": "number",
+      "default": 0
+    },
+    "error_count": {
+      "type": "number",
+      "default": 0
+    },
+    "last_error": {
+      "type": "string"
+    },
+    "capabilities": {
+      "type": "string",
+      "description": "Comma-separated: get_loads,get_details,submit_bid,bid_status,update_status,cancel,documents,webhooks"
+    },
+    "configured_by": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "source_name",
+    "provider_type",
+    "auth_type"
+  ]
+}

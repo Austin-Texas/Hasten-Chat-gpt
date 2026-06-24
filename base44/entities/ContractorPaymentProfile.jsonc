@@ -1,0 +1,74 @@
+{
+  "name": "ContractorPaymentProfile",
+  "type": "object",
+  "properties": {
+    "driver_id": {
+      "type": "string"
+    },
+    "legal_business_name": {
+      "type": "string"
+    },
+    "driver_name": {
+      "type": "string"
+    },
+    "w9_uploaded": {
+      "type": "boolean",
+      "default": false
+    },
+    "w9_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "w9_uploaded_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ach_authorization_uploaded": {
+      "type": "boolean",
+      "default": false
+    },
+    "ach_authorization_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "ach_authorization_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "bank_name": {
+      "type": "string"
+    },
+    "routing_number_last4": {
+      "type": "string"
+    },
+    "account_number_last4": {
+      "type": "string"
+    },
+    "payout_method": {
+      "type": "string",
+      "enum": [
+        "manual_ach",
+        "check",
+        "wire",
+        "zelle",
+        "direct_deposit",
+        "factoring_company"
+      ]
+    },
+    "factoring_company_id": {
+      "type": "string"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "driver_id",
+    "legal_business_name",
+    "driver_name"
+  ]
+}

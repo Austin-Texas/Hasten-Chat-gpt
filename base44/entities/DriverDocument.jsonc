@@ -1,0 +1,111 @@
+{
+  "name": "DriverDocument",
+  "type": "object",
+  "properties": {
+    "driver_id": {
+      "type": "string"
+    },
+    "driver_name": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "compliance",
+        "receipt",
+        "maintenance",
+        "bol",
+        "pod",
+        "fuel",
+        "insurance",
+        "other"
+      ],
+      "default": "other"
+    },
+    "doc_type": {
+      "type": "string"
+    },
+    "file_name": {
+      "type": "string"
+    },
+    "file_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "load_id": {
+      "type": "string"
+    },
+    "amount": {
+      "type": "number"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "uploaded",
+        "pending_review",
+        "approved",
+        "rejected",
+        "reupload_requested",
+        "archived",
+        "expired"
+      ],
+      "default": "uploaded"
+    },
+    "version": {
+      "type": "number",
+      "default": 1
+    },
+    "reviewed_by": {
+      "type": "string"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "approved_by": {
+      "type": "string"
+    },
+    "approved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "rejected_by": {
+      "type": "string"
+    },
+    "rejected_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "rejection_reason": {
+      "type": "string"
+    },
+    "reupload_requested_by": {
+      "type": "string"
+    },
+    "reupload_requested_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reupload_reason": {
+      "type": "string"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "hash_checksum": {
+      "type": "string"
+    },
+    "previous_version_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "driver_id",
+    "category",
+    "file_url"
+  ]
+}

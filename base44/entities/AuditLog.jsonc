@@ -1,0 +1,86 @@
+{
+  "name": "AuditLog",
+  "type": "object",
+  "properties": {
+    "action": {
+      "type": "string",
+      "enum": [
+        "payroll_viewed",
+        "payroll_edited",
+        "tax_profile_edited",
+        "document_approved",
+        "document_rejected",
+        "compliance_override",
+        "role_changed",
+        "user_disabled",
+        "user_enabled",
+        "invoice_payment_status_changed",
+        "sensitive_data_accessed",
+        "unauthorized_access_attempt",
+        "backend_function_denied",
+        "field_redacted",
+        "export_requested",
+        "report_generated"
+      ]
+    },
+    "user_id": {
+      "type": "string"
+    },
+    "user_role": {
+      "type": "string"
+    },
+    "entity_type": {
+      "type": "string"
+    },
+    "entity_id": {
+      "type": "string"
+    },
+    "target_user_id": {
+      "type": "string"
+    },
+    "action_details": {
+      "type": "string"
+    },
+    "ip_address": {
+      "type": "string"
+    },
+    "user_agent": {
+      "type": "string"
+    },
+    "result": {
+      "type": "string",
+      "enum": [
+        "success",
+        "failed",
+        "denied"
+      ],
+      "default": "success"
+    },
+    "reason_denied": {
+      "type": "string"
+    },
+    "sensitive_fields_accessed": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "old_value": {
+      "type": "string"
+    },
+    "new_value": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "action",
+    "user_id",
+    "user_role",
+    "result",
+    "timestamp"
+  ]
+}

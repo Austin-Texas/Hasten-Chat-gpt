@@ -1,0 +1,52 @@
+{
+  "name": "GPSTrackPoint",
+  "type": "object",
+  "properties": {
+    "driver_id": {
+      "type": "string"
+    },
+    "load_id": {
+      "type": "string"
+    },
+    "lat": {
+      "type": "number"
+    },
+    "lng": {
+      "type": "number"
+    },
+    "speed": {
+      "type": "number"
+    },
+    "heading": {
+      "type": "number"
+    },
+    "accuracy": {
+      "type": "number"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "track",
+        "geofence_arrival",
+        "geofence_departure",
+        "deviation",
+        "idle",
+        "stop"
+      ],
+      "default": "track"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "driver_id",
+    "lat",
+    "lng",
+    "timestamp"
+  ]
+}

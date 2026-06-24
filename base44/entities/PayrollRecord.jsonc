@@ -1,0 +1,178 @@
+{
+  "name": "PayrollRecord",
+  "type": "object",
+  "properties": {
+    "driver_id": {
+      "type": "string"
+    },
+    "driver_name": {
+      "type": "string"
+    },
+    "pay_type": {
+      "type": "string",
+      "enum": [
+        "per_mile",
+        "percentage",
+        "flat_rate",
+        "hourly"
+      ]
+    },
+    "employment_type": {
+      "type": "string",
+      "enum": [
+        "W2_employee",
+        "1099_contractor",
+        "owner_operator"
+      ],
+      "default": "W2_employee"
+    },
+    "pay_period_start": {
+      "type": "string",
+      "format": "date"
+    },
+    "pay_period_end": {
+      "type": "string",
+      "format": "date"
+    },
+    "loads_completed": {
+      "type": "number",
+      "default": 0
+    },
+    "total_miles": {
+      "type": "number",
+      "default": 0
+    },
+    "total_hours": {
+      "type": "number",
+      "default": 0
+    },
+    "base_pay": {
+      "type": "number",
+      "default": 0
+    },
+    "bonuses": {
+      "type": "number",
+      "default": 0
+    },
+    "reimbursements": {
+      "type": "number",
+      "default": 0
+    },
+    "gross_pay": {
+      "type": "number",
+      "default": 0
+    },
+    "federal_withholding": {
+      "type": "number",
+      "default": 0
+    },
+    "fica_social_security": {
+      "type": "number",
+      "default": 0
+    },
+    "fica_medicare": {
+      "type": "number",
+      "default": 0
+    },
+    "state_withholding": {
+      "type": "number",
+      "default": 0
+    },
+    "local_withholding": {
+      "type": "number",
+      "default": 0
+    },
+    "health_insurance": {
+      "type": "number",
+      "default": 0
+    },
+    "approved_expenses_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "fuel_deduction": {
+      "type": "number",
+      "default": 0
+    },
+    "maintenance_deduction": {
+      "type": "number",
+      "default": 0
+    },
+    "insurance_deduction": {
+      "type": "number",
+      "default": 0
+    },
+    "tolls_deduction": {
+      "type": "number",
+      "default": 0
+    },
+    "lumper_detention_deduction": {
+      "type": "number",
+      "default": 0
+    },
+    "other_deductions": {
+      "type": "number",
+      "default": 0
+    },
+    "total_deductions": {
+      "type": "number",
+      "default": 0
+    },
+    "net_pay": {
+      "type": "number",
+      "default": 0
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "calculated",
+        "approved",
+        "pending_review",
+        "paid",
+        "cancelled"
+      ],
+      "default": "calculated"
+    },
+    "approved_by": {
+      "type": "string"
+    },
+    "approved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "paid_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "direct_deposit",
+        "check",
+        "wire",
+        "manual"
+      ]
+    },
+    "notes": {
+      "type": "string"
+    },
+    "loads_included": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "expenses_included": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "driver_id",
+    "driver_name",
+    "pay_period_start",
+    "pay_period_end"
+  ]
+}

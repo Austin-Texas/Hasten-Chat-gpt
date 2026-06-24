@@ -1,0 +1,112 @@
+{
+  "name": "PayrollRecord",
+  "type": "object",
+  "properties": {
+    "driver_id": {
+      "type": "string"
+    },
+    "driver_name": {
+      "type": "string"
+    },
+    "pay_period_start": {
+      "type": "string",
+      "format": "date"
+    },
+    "pay_period_end": {
+      "type": "string",
+      "format": "date"
+    },
+    "pay_type": {
+      "type": "string",
+      "enum": [
+        "per_mile",
+        "percentage",
+        "flat_rate",
+        "hourly"
+      ]
+    },
+    "pay_rate": {
+      "type": "number"
+    },
+    "loads_completed": {
+      "type": "number"
+    },
+    "total_miles": {
+      "type": "number"
+    },
+    "total_revenue": {
+      "type": "number"
+    },
+    "base_pay": {
+      "type": "number"
+    },
+    "bonuses": {
+      "type": "number",
+      "default": 0
+    },
+    "deductions": {
+      "type": "number",
+      "default": 0
+    },
+    "net_pay": {
+      "type": "number"
+    },
+    "loads": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "load_id": {
+            "type": "string"
+          },
+          "load_number": {
+            "type": "string"
+          },
+          "miles": {
+            "type": "number"
+          },
+          "revenue": {
+            "type": "number"
+          },
+          "pay_amount": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "calculated",
+        "approved",
+        "paid",
+        "void"
+      ],
+      "default": "pending"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "check",
+        "ach",
+        "wire",
+        "cash"
+      ]
+    },
+    "payment_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "driver_id",
+    "driver_name",
+    "pay_period_start",
+    "pay_period_end",
+    "pay_type"
+  ]
+}

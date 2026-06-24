@@ -1,0 +1,51 @@
+{
+  "name": "ContractorNote",
+  "type": "object",
+  "properties": {
+    "contractor_profile_id": {
+      "type": "string"
+    },
+    "driver_id": {
+      "type": "string"
+    },
+    "note_type": {
+      "type": "string",
+      "enum": [
+        "onboarding",
+        "compliance",
+        "performance",
+        "incident",
+        "general"
+      ],
+      "default": "general"
+    },
+    "title": {
+      "type": "string"
+    },
+    "content": {
+      "type": "string"
+    },
+    "created_by": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "visibility": {
+      "type": "string",
+      "enum": [
+        "admin_only",
+        "dispatcher_visible",
+        "finance_visible",
+        "driver_visible"
+      ],
+      "default": "admin_only"
+    }
+  },
+  "required": [
+    "contractor_profile_id",
+    "note_type",
+    "content"
+  ]
+}

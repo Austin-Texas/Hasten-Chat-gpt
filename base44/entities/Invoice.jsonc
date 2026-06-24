@@ -1,0 +1,99 @@
+{
+  "name": "Invoice",
+  "type": "object",
+  "properties": {
+    "invoice_number": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "sent",
+        "viewed",
+        "partial",
+        "paid",
+        "overdue",
+        "void"
+      ],
+      "default": "draft"
+    },
+    "load_id": {
+      "type": "string"
+    },
+    "shipment_id": {
+      "type": "string"
+    },
+    "client_id": {
+      "type": "string"
+    },
+    "broker_id": {
+      "type": "string"
+    },
+    "driver_id": {
+      "type": "string"
+    },
+    "issue_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "paid_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "line_haul": {
+      "type": "number"
+    },
+    "fuel_surcharge": {
+      "type": "number"
+    },
+    "accessorial_charges": {
+      "type": "number"
+    },
+    "detention": {
+      "type": "number"
+    },
+    "lumper": {
+      "type": "number"
+    },
+    "total_amount": {
+      "type": "number"
+    },
+    "amount_paid": {
+      "type": "number",
+      "default": 0
+    },
+    "balance_due": {
+      "type": "number"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "check",
+        "ach",
+        "wire",
+        "factoring",
+        "credit_card"
+      ]
+    },
+    "payment_terms": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "pdf_url": {
+      "type": "string",
+      "format": "uri"
+    }
+  },
+  "required": [
+    "invoice_number",
+    "load_id",
+    "total_amount"
+  ]
+}

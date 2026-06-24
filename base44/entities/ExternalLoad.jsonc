@@ -1,0 +1,198 @@
+{
+  "name": "ExternalLoad",
+  "type": "object",
+  "properties": {
+    "source_provider": {
+      "type": "string",
+      "description": "DAT, Truckstop, 123Loadboard, TQL, C.H.Robinson, direct_broker, etc."
+    },
+    "external_load_id": {
+      "type": "string",
+      "description": "Load ID from the external provider"
+    },
+    "broker_customer_id": {
+      "type": "string",
+      "description": "Linked Customer entity if resolved"
+    },
+    "broker_name": {
+      "type": "string"
+    },
+    "pickup_city": {
+      "type": "string"
+    },
+    "pickup_state": {
+      "type": "string"
+    },
+    "pickup_zip": {
+      "type": "string"
+    },
+    "pickup_datetime_start": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "pickup_datetime_end": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "delivery_city": {
+      "type": "string"
+    },
+    "delivery_state": {
+      "type": "string"
+    },
+    "delivery_zip": {
+      "type": "string"
+    },
+    "delivery_datetime_start": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "delivery_datetime_end": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "required_equipment": {
+      "type": "string",
+      "enum": [
+        "Sprinter",
+        "Cargo Van",
+        "Box Truck",
+        "Hot Shot",
+        "Gooseneck",
+        "Dry Van",
+        "Power Only",
+        "Flatbed",
+        "Car Hauler",
+        "Reefer",
+        "Step Deck",
+        "Conestoga",
+        "Final Mile",
+        "LTL/Partial",
+        "Expedited",
+        "White Glove"
+      ]
+    },
+    "trailer_type": {
+      "type": "string"
+    },
+    "weight": {
+      "type": "number"
+    },
+    "length": {
+      "type": "number"
+    },
+    "width": {
+      "type": "number"
+    },
+    "height": {
+      "type": "number"
+    },
+    "pieces": {
+      "type": "number"
+    },
+    "pallets": {
+      "type": "number"
+    },
+    "commodity": {
+      "type": "string"
+    },
+    "hazmat": {
+      "type": "boolean",
+      "default": false
+    },
+    "temperature_controlled": {
+      "type": "boolean",
+      "default": false
+    },
+    "team_required": {
+      "type": "boolean",
+      "default": false
+    },
+    "miles_total": {
+      "type": "number"
+    },
+    "deadhead_miles": {
+      "type": "number"
+    },
+    "rate_available": {
+      "type": "number",
+      "description": "Rate shown to drivers (may differ from broker rate)"
+    },
+    "broker_rate_hidden": {
+      "type": "boolean",
+      "default": false
+    },
+    "rate_type": {
+      "type": "string",
+      "enum": [
+        "flat",
+        "per_mile",
+        "negotiable"
+      ],
+      "default": "flat"
+    },
+    "fuel_surcharge": {
+      "type": "number"
+    },
+    "accessorials": {
+      "type": "string"
+    },
+    "payment_terms": {
+      "type": "string"
+    },
+    "references": {
+      "type": "string"
+    },
+    "contact_name": {
+      "type": "string"
+    },
+    "contact_phone": {
+      "type": "string"
+    },
+    "contact_email": {
+      "type": "string"
+    },
+    "raw_payload_json": {
+      "type": "string",
+      "description": "Full raw JSON from provider for audit/debugging"
+    },
+    "normalized_status": {
+      "type": "string",
+      "enum": [
+        "available",
+        "matched",
+        "bidding",
+        "assigned",
+        "imported",
+        "expired",
+        "cancelled"
+      ],
+      "default": "available"
+    },
+    "imported_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "imported_load_id": {
+      "type": "string",
+      "description": "Reference to Load entity if imported into HASTEN dispatch"
+    }
+  },
+  "required": [
+    "source_provider",
+    "external_load_id",
+    "pickup_city",
+    "pickup_state",
+    "delivery_city",
+    "delivery_state",
+    "required_equipment"
+  ]
+}

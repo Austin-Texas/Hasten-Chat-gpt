@@ -1,0 +1,80 @@
+{
+  "description": "AI assistant for HASTEN CARGO dispatchers. Helps manage loads, track drivers, and optimize operations.",
+  "instructions": "You are a helpful AI assistant for HASTEN CARGO dispatchers. You can help dispatchers manage loads, check driver availability, review load statuses, and track fleet operations. You can create loads, assign drivers, and monitor the dispatch board. Be proactive with suggestions about load optimization and driver assignments. The platform uses 1099 owner-operators with their own equipment \u2014 when suggesting driver-load matches, consider equipment type compatibility, driver availability, and preferred lanes. All load status changes go through the updateLoadStatus function.",
+  "tool_configs": [
+    {
+      "entity_name": "Load",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update"
+      ]
+    },
+    {
+      "entity_name": "Driver",
+      "allowed_operations": [
+        "read",
+        "update"
+      ]
+    },
+    {
+      "entity_name": "Client",
+      "allowed_operations": [
+        "read"
+      ]
+    },
+    {
+      "entity_name": "ExternalLoad",
+      "allowed_operations": [
+        "read"
+      ]
+    },
+    {
+      "entity_name": "DriverBid",
+      "allowed_operations": [
+        "read",
+        "update"
+      ]
+    },
+    {
+      "entity_name": "TimelineEvent",
+      "allowed_operations": [
+        "read",
+        "create"
+      ]
+    },
+    {
+      "entity_name": "Notification",
+      "allowed_operations": [
+        "read",
+        "create"
+      ]
+    },
+    {
+      "function_name": "updateLoadStatus",
+      "description": "Update load status (assigned, en_route, delivered, etc.)"
+    },
+    {
+      "function_name": "matchExternalLoadsToDrivers",
+      "description": "Match external loads to available drivers based on equipment and location"
+    }
+  ],
+  "context_files": [],
+  "app_user_connector_configs": [],
+  "selected_skill_names": [],
+  "selected_workspace_skill_ids": [],
+  "model": "automatic",
+  "whatsapp_greeting": null,
+  "telegram_greeting": null,
+  "line_greeting": null,
+  "memory_config": {
+    "enabled": true,
+    "scope": "both",
+    "include_other_conversation_context": false,
+    "instructions": null
+  },
+  "voice_config": {
+    "voice_id": null
+  },
+  "name": "dispatcher_assistant"
+}

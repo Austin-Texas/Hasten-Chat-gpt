@@ -1,0 +1,123 @@
+{
+  "name": "Shipment",
+  "type": "object",
+  "properties": {
+    "shipment_number": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "quote_received",
+        "quote_approved",
+        "load_created",
+        "dispatched",
+        "in_transit",
+        "delivered",
+        "invoiced",
+        "paid",
+        "cancelled"
+      ],
+      "default": "quote_received"
+    },
+    "client_id": {
+      "type": "string"
+    },
+    "broker_id": {
+      "type": "string"
+    },
+    "load_id": {
+      "type": "string"
+    },
+    "origin_address": {
+      "type": "string"
+    },
+    "origin_city": {
+      "type": "string"
+    },
+    "origin_state": {
+      "type": "string"
+    },
+    "origin_zip": {
+      "type": "string"
+    },
+    "destination_address": {
+      "type": "string"
+    },
+    "destination_city": {
+      "type": "string"
+    },
+    "destination_state": {
+      "type": "string"
+    },
+    "destination_zip": {
+      "type": "string"
+    },
+    "pickup_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "delivery_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "commodity": {
+      "type": "string"
+    },
+    "weight": {
+      "type": "number"
+    },
+    "pieces": {
+      "type": "number"
+    },
+    "equipment_type": {
+      "type": "string"
+    },
+    "quoted_rate": {
+      "type": "number"
+    },
+    "final_rate": {
+      "type": "number"
+    },
+    "miles": {
+      "type": "number"
+    },
+    "tracking_number": {
+      "type": "string"
+    },
+    "po_number": {
+      "type": "string"
+    },
+    "reference_number": {
+      "type": "string"
+    },
+    "special_instructions": {
+      "type": "string"
+    },
+    "is_hazmat": {
+      "type": "boolean",
+      "default": false
+    },
+    "insurance_amount": {
+      "type": "number"
+    },
+    "payment_terms": {
+      "type": "string",
+      "enum": [
+        "net15",
+        "net30",
+        "net45",
+        "net60",
+        "quick_pay"
+      ],
+      "default": "net30"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "origin_city",
+    "destination_city"
+  ]
+}

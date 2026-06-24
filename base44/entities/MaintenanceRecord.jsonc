@@ -1,0 +1,81 @@
+{
+  "name": "MaintenanceRecord",
+  "type": "object",
+  "properties": {
+    "truck_id": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "preventive",
+        "corrective",
+        "inspection",
+        "tire",
+        "brake",
+        "engine",
+        "transmission",
+        "electrical",
+        "body",
+        "other"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "scheduled",
+        "in_progress",
+        "completed",
+        "cancelled"
+      ],
+      "default": "scheduled"
+    },
+    "description": {
+      "type": "string"
+    },
+    "scheduled_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "completed_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "odometer_at_service": {
+      "type": "number"
+    },
+    "next_service_odometer": {
+      "type": "number"
+    },
+    "vendor": {
+      "type": "string"
+    },
+    "technician": {
+      "type": "string"
+    },
+    "labor_cost": {
+      "type": "number"
+    },
+    "parts_cost": {
+      "type": "number"
+    },
+    "total_cost": {
+      "type": "number"
+    },
+    "parts_used": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "receipt_url": {
+      "type": "string",
+      "format": "uri"
+    }
+  },
+  "required": [
+    "truck_id",
+    "type",
+    "scheduled_date"
+  ]
+}

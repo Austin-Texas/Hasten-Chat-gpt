@@ -1,0 +1,89 @@
+{
+  "name": "Expense",
+  "type": "object",
+  "properties": {
+    "category": {
+      "type": "string",
+      "enum": [
+        "fuel",
+        "maintenance",
+        "tolls",
+        "lumper",
+        "detention",
+        "scales",
+        "permits",
+        "insurance",
+        "registration",
+        "tires",
+        "parts",
+        "labor",
+        "meals",
+        "lodging",
+        "other"
+      ]
+    },
+    "amount": {
+      "type": "number"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "driver_id": {
+      "type": "string"
+    },
+    "truck_id": {
+      "type": "string"
+    },
+    "load_id": {
+      "type": "string"
+    },
+    "vendor": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "receipt_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected",
+        "reimbursed"
+      ],
+      "default": "pending"
+    },
+    "gallons": {
+      "type": "number"
+    },
+    "price_per_gallon": {
+      "type": "number"
+    },
+    "location_city": {
+      "type": "string"
+    },
+    "location_state": {
+      "type": "string"
+    },
+    "is_reimbursable": {
+      "type": "boolean",
+      "default": true
+    },
+    "approved_by": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "category",
+    "amount",
+    "date"
+  ]
+}

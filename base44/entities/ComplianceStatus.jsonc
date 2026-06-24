@@ -1,0 +1,72 @@
+{
+  "name": "ComplianceStatus",
+  "type": "object",
+  "properties": {
+    "entity_type": {
+      "type": "string",
+      "enum": [
+        "driver",
+        "truck"
+      ]
+    },
+    "entity_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "compliant",
+        "warning",
+        "expired",
+        "blocked"
+      ],
+      "default": "compliant"
+    },
+    "blocking_reasons": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "warning_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "item": {
+            "type": "string"
+          },
+          "expiry_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "days_remaining": {
+            "type": "number"
+          }
+        }
+      },
+      "default": []
+    },
+    "last_checked": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "locked_reason": {
+      "type": "string"
+    },
+    "locked_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "unlocked_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "entity_type",
+    "entity_id",
+    "status"
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "name": "SettlementBrandingConfig",
+  "type": "object",
+  "properties": {
+    "company_name": {
+      "type": "string",
+      "default": "HASTEN"
+    },
+    "company_tagline": {
+      "type": "string",
+      "default": "Freight & Transport Management"
+    },
+    "logo_url": {
+      "type": "string",
+      "format": "uri",
+      "description": "URL to company logo (SVG, PNG, or JPG)"
+    },
+    "header_color": {
+      "type": "string",
+      "default": "#EA580C",
+      "description": "Primary brand color for PDF header (hex code)"
+    },
+    "accent_color": {
+      "type": "string",
+      "default": "#22C55E",
+      "description": "Accent color for highlights and badges (hex code)"
+    },
+    "footer_text": {
+      "type": "string",
+      "description": "Custom footer text or contact info for PDF"
+    },
+    "footer_contact_email": {
+      "type": "string",
+      "format": "email",
+      "default": "dispatch@hasten.com"
+    },
+    "enable_custom_branding": {
+      "type": "boolean",
+      "default": false,
+      "description": "Toggle to use custom branding vs HASTEN defaults"
+    },
+    "created_by": {
+      "type": "string"
+    },
+    "updated_by": {
+      "type": "string"
+    }
+  }
+}

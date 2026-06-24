@@ -1,0 +1,47 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "role": {
+      "type": "string",
+      "description": "Base44 auth role (admin or user only)",
+      "enum": [
+        "admin",
+        "user"
+      ]
+    },
+    "businessRole": {
+      "type": "string",
+      "description": "Business-specific role for permissions and routing",
+      "enum": [
+        "admin",
+        "system_manager",
+        "dispatcher",
+        "fleet_manager",
+        "finance",
+        "safety_compliance",
+        "driver",
+        "client",
+        "broker"
+      ]
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "invited": {
+      "type": "boolean",
+      "default": true
+    },
+    "invite_token": {
+      "type": "string"
+    },
+    "last_login": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "role"
+  ]
+}

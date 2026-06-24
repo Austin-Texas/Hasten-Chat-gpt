@@ -1,0 +1,46 @@
+{
+  "name": "Branding",
+  "type": "object",
+  "properties": {
+    "company_display_name": {
+      "type": "string"
+    },
+    "company_tagline": {
+      "type": "string"
+    },
+    "support_email": {
+      "type": "string",
+      "format": "email"
+    },
+    "support_phone": {
+      "type": "string"
+    },
+    "brand_accent_color": {
+      "type": "string"
+    },
+    "logo_light": {
+      "type": "string",
+      "format": "uri"
+    },
+    "logo_dark": {
+      "type": "string",
+      "format": "uri"
+    },
+    "logo_mode": {
+      "type": "string",
+      "enum": [
+        "light",
+        "dark",
+        "automatic"
+      ],
+      "default": "automatic"
+    },
+    "app_icon": {
+      "type": "string",
+      "format": "uri"
+    }
+  },
+  "required": [
+    "company_display_name"
+  ]
+}

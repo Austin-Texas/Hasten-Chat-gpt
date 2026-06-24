@@ -1,0 +1,66 @@
+{
+  "name": "UserProfile",
+  "type": "object",
+  "properties": {
+    "authUserId": {
+      "type": "string",
+      "description": "Reference to Base44 auth user ID"
+    },
+    "email": {
+      "type": "string",
+      "format": "email"
+    },
+    "fullName": {
+      "type": "string"
+    },
+    "businessRole": {
+      "type": "string",
+      "enum": [
+        "super_admin",
+        "admin",
+        "dispatcher",
+        "driver",
+        "customer"
+      ],
+      "description": "HASTEN MVP roles only"
+    },
+    "linkedDriverId": {
+      "type": "string",
+      "description": "Reference to Driver entity (if businessRole=driver)"
+    },
+    "linkedDispatcherId": {
+      "type": "string",
+      "description": "Reference to Dispatcher entity (if businessRole=dispatcher)"
+    },
+    "linkedCustomerId": {
+      "type": "string",
+      "description": "Reference to Client/Customer entity (if businessRole=customer)"
+    },
+    "linkedPaymentProfileId": {
+      "type": "string",
+      "description": "Reference to ContractorPaymentProfile entity (if businessRole=driver)"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    },
+    "lastLogin": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "lastLoginStatus": {
+      "type": "string",
+      "enum": [
+        "available",
+        "on_duty",
+        "offline"
+      ],
+      "default": "offline"
+    }
+  },
+  "required": [
+    "authUserId",
+    "email",
+    "businessRole"
+  ]
+}

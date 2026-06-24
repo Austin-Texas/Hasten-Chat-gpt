@@ -1,0 +1,228 @@
+{
+  "name": "Load",
+  "type": "object",
+  "properties": {
+    "load_number": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "available",
+        "assigned",
+        "accepted",
+        "en_route",
+        "arrived_pickup",
+        "loaded",
+        "in_transit",
+        "arrived_delivery",
+        "delivered",
+        "pod_uploaded",
+        "completed",
+        "cancelled"
+      ],
+      "default": "available"
+    },
+    "rc_status": {
+      "type": "string",
+      "enum": [
+        "not_sent",
+        "pending_signature",
+        "signed",
+        "rejected",
+        "re_sign_required"
+      ],
+      "default": "not_sent",
+      "description": "Rate Confirmation signature status"
+    },
+    "origin_city": {
+      "type": "string"
+    },
+    "origin_state": {
+      "type": "string"
+    },
+    "origin_address": {
+      "type": "string"
+    },
+    "origin_zip": {
+      "type": "string"
+    },
+    "origin_lat": {
+      "type": "number"
+    },
+    "origin_lng": {
+      "type": "number"
+    },
+    "destination_city": {
+      "type": "string"
+    },
+    "destination_state": {
+      "type": "string"
+    },
+    "destination_address": {
+      "type": "string"
+    },
+    "destination_zip": {
+      "type": "string"
+    },
+    "destination_lat": {
+      "type": "number"
+    },
+    "destination_lng": {
+      "type": "number"
+    },
+    "pickup_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "delivery_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "weight": {
+      "type": "number"
+    },
+    "miles": {
+      "type": "number"
+    },
+    "rate": {
+      "type": "number"
+    },
+    "rate_per_mile": {
+      "type": "number"
+    },
+    "equipment_type": {
+      "type": "string",
+      "enum": [
+        "Sprinter",
+        "Cargo Van",
+        "Box Truck",
+        "Hot Shot",
+        "Gooseneck",
+        "Dry Van",
+        "Power Only",
+        "Flatbed",
+        "Car Hauler",
+        "Reefer",
+        "Step Deck",
+        "Conestoga",
+        "Final Mile",
+        "LTL/Partial",
+        "Expedited",
+        "White Glove"
+      ]
+    },
+    "commodity": {
+      "type": "string"
+    },
+    "driver_id": {
+      "type": "string"
+    },
+    "truck_id": {
+      "type": "string"
+    },
+    "trailer_id": {
+      "type": "string"
+    },
+    "customer_id": {
+      "type": "string",
+      "description": "Reference to Client/Customer entity (broker or direct client)"
+    },
+    "dispatcher_id": {
+      "type": "string"
+    },
+    "bol_number": {
+      "type": "string"
+    },
+    "po_number": {
+      "type": "string"
+    },
+    "special_instructions": {
+      "type": "string"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "standard",
+        "express",
+        "critical"
+      ],
+      "default": "standard"
+    },
+    "temperature_min": {
+      "type": "number"
+    },
+    "temperature_max": {
+      "type": "number"
+    },
+    "pieces": {
+      "type": "number"
+    },
+    "eta": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "actual_pickup": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "actual_delivery": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "pod_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "bol_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "pod_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "verified",
+        "rejected"
+      ],
+      "default": "pending"
+    },
+    "bol_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "verified",
+        "rejected"
+      ],
+      "default": "pending"
+    },
+    "invoice_id": {
+      "type": "string"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "is_hazmat": {
+      "type": "boolean",
+      "default": false
+    },
+    "fuel_surcharge": {
+      "type": "number"
+    },
+    "accessorial_charges": {
+      "type": "number"
+    },
+    "total_revenue": {
+      "type": "number"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "origin_city",
+    "destination_city",
+    "equipment_type"
+  ]
+}

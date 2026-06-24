@@ -1,0 +1,114 @@
+{
+  "name": "IncidentReport",
+  "type": "object",
+  "properties": {
+    "driver_id": {
+      "type": "string",
+      "description": "Reference to Driver entity"
+    },
+    "incident_type": {
+      "type": "string",
+      "enum": [
+        "accident",
+        "breakdown",
+        "mechanical_failure",
+        "safety_violation",
+        "weather_incident",
+        "theft",
+        "injury",
+        "citation",
+        "other"
+      ]
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "latitude": {
+      "type": "number"
+    },
+    "longitude": {
+      "type": "number"
+    },
+    "incident_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "medium"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "reported",
+        "acknowledged",
+        "investigating",
+        "resolved",
+        "closed"
+      ],
+      "default": "reported"
+    },
+    "evidence_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Photos, videos, documents"
+    },
+    "witness_names": {
+      "type": "string"
+    },
+    "witness_contact": {
+      "type": "string"
+    },
+    "reported_by": {
+      "type": "string"
+    },
+    "reported_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "assigned_to": {
+      "type": "string",
+      "description": "Admin user ID assigned to investigate"
+    },
+    "resolution_notes": {
+      "type": "string"
+    },
+    "resolved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "related_load_id": {
+      "type": "string"
+    },
+    "insurance_claim_filed": {
+      "type": "boolean",
+      "default": false
+    },
+    "claim_number": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "driver_id",
+    "incident_type",
+    "title",
+    "description"
+  ]
+}

@@ -1,0 +1,235 @@
+{
+  "name": "Driver",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "first_name": {
+      "type": "string"
+    },
+    "last_name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string",
+      "format": "email"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "license_number": {
+      "type": "string"
+    },
+    "license_state": {
+      "type": "string"
+    },
+    "license_expiry": {
+      "type": "string",
+      "format": "date"
+    },
+    "license_class": {
+      "type": "string",
+      "enum": [
+        "A",
+        "B",
+        "C"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "available",
+        "on_load",
+        "off_duty",
+        "hos_violation",
+        "inactive"
+      ],
+      "default": "available"
+    },
+    "current_load_id": {
+      "type": "string"
+    },
+    "truck_id": {
+      "type": "string"
+    },
+    "home_city": {
+      "type": "string"
+    },
+    "home_state": {
+      "type": "string"
+    },
+    "home_zip": {
+      "type": "string"
+    },
+    "current_lat": {
+      "type": "number"
+    },
+    "current_lng": {
+      "type": "number"
+    },
+    "current_city": {
+      "type": "string"
+    },
+    "current_state": {
+      "type": "string"
+    },
+    "last_location_update": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "miles_ytd": {
+      "type": "number",
+      "default": 0
+    },
+    "loads_completed": {
+      "type": "number",
+      "default": 0
+    },
+    "earnings_ytd": {
+      "type": "number",
+      "default": 0
+    },
+    "safety_score": {
+      "type": "number",
+      "default": 100
+    },
+    "hours_driving_today": {
+      "type": "number",
+      "default": 0
+    },
+    "hours_on_duty_today": {
+      "type": "number",
+      "default": 0
+    },
+    "hos_status": {
+      "type": "string",
+      "enum": [
+        "off_duty",
+        "sleeper_berth",
+        "driving",
+        "on_duty"
+      ],
+      "default": "off_duty"
+    },
+    "medical_expiry": {
+      "type": "string",
+      "format": "date"
+    },
+    "twic_expiry": {
+      "type": "string",
+      "format": "date"
+    },
+    "work_authorization_expiry": {
+      "type": "string",
+      "format": "date"
+    },
+    "hazmat_cert": {
+      "type": "boolean",
+      "default": false
+    },
+    "endorsements": {
+      "type": "string"
+    },
+    "avatar_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "profile_photo_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "hire_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "pay_type": {
+      "type": "string",
+      "enum": [
+        "per_mile",
+        "percentage",
+        "flat_rate",
+        "hourly"
+      ],
+      "default": "per_mile"
+    },
+    "pay_rate": {
+      "type": "number"
+    },
+    "dispatcher_id": {
+      "type": "string"
+    },
+    "driver_type": {
+      "type": "string",
+      "enum": [
+        "company_driver",
+        "owner_driver",
+        "contractor"
+      ],
+      "default": "company_driver"
+    },
+    "preferred_language": {
+      "type": "string",
+      "default": "en"
+    },
+    "preferred_distance_unit": {
+      "type": "string",
+      "enum": [
+        "miles",
+        "km"
+      ],
+      "default": "miles"
+    },
+    "preferred_weight_unit": {
+      "type": "string",
+      "enum": [
+        "lbs",
+        "kg"
+      ],
+      "default": "lbs"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "emergency_contact_name": {
+      "type": "string"
+    },
+    "emergency_contact_phone": {
+      "type": "string"
+    },
+    "license_front_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "license_back_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "medical_card_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "insurance_doc_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "registration_doc_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "tax_doc_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "other_docs_url": {
+      "type": "string",
+      "format": "uri"
+    }
+  },
+  "required": [
+    "first_name",
+    "last_name",
+    "email",
+    "phone"
+  ]
+}

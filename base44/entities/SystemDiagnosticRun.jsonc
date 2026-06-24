@@ -1,0 +1,65 @@
+{
+  "name": "SystemDiagnosticRun",
+  "type": "object",
+  "properties": {
+    "run_id": {
+      "type": "string",
+      "description": "Unique run identifier (timestamp-based)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "running",
+        "completed",
+        "failed"
+      ],
+      "default": "pending"
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "duration_ms": {
+      "type": "number",
+      "description": "Milliseconds to complete"
+    },
+    "diagnostics_run": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Array of diagnostic module names that ran (auth, database, entities, api, integrations, etc.)"
+    },
+    "issue_count": {
+      "type": "number",
+      "default": 0
+    },
+    "warning_count": {
+      "type": "number",
+      "default": 0
+    },
+    "summary": {
+      "type": "string",
+      "description": "Overall summary of results"
+    },
+    "run_by": {
+      "type": "string",
+      "description": "Admin user ID who initiated the run"
+    },
+    "error_message": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "run_id",
+    "status"
+  ]
+}

@@ -1,0 +1,95 @@
+{
+  "name": "ThemeSetting",
+  "type": "object",
+  "properties": {
+    "scope": {
+      "type": "string",
+      "enum": [
+        "global",
+        "role",
+        "user"
+      ],
+      "default": "global"
+    },
+    "target_id": {
+      "type": "string",
+      "description": "User ID (for scope=user)"
+    },
+    "target_role": {
+      "type": "string",
+      "description": "User role (for scope=role)"
+    },
+    "theme_mode": {
+      "type": "string",
+      "enum": [
+        "dark",
+        "light",
+        "system",
+        "high_contrast"
+      ],
+      "default": "dark"
+    },
+    "accent_color": {
+      "type": "string",
+      "default": "#22C55E",
+      "description": "Primary accent color (hex) \u2014 neon green default"
+    },
+    "secondary_accent_color": {
+      "type": "string",
+      "default": "#3B82F6",
+      "description": "Secondary accent color (hex) \u2014 electric blue default"
+    },
+    "density": {
+      "type": "string",
+      "enum": [
+        "comfortable",
+        "compact",
+        "ultra_compact"
+      ],
+      "default": "compact",
+      "description": "UI density mode"
+    },
+    "font_size": {
+      "type": "string",
+      "enum": [
+        "small",
+        "default",
+        "large"
+      ],
+      "default": "default"
+    },
+    "glassmorphism_intensity": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "default": "medium"
+    },
+    "custom_accent_enabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Allow custom accent color override"
+    },
+    "skin_preset": {
+      "type": "string",
+      "description": "Selected skin preset ID from themeSkins.js"
+    },
+    "logo_mode": {
+      "type": "string",
+      "enum": [
+        "light",
+        "dark",
+        "automatic"
+      ],
+      "default": "automatic"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "scope"
+  ]
+}

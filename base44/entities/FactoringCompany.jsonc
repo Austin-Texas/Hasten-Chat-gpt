@@ -1,0 +1,55 @@
+{
+  "name": "FactoringCompany",
+  "type": "object",
+  "properties": {
+    "company_name": {
+      "type": "string"
+    },
+    "contact_name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string",
+      "format": "email"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "website": {
+      "type": "string",
+      "format": "uri"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive"
+      ],
+      "default": "active"
+    },
+    "fee_percentage": {
+      "type": "number"
+    },
+    "advance_percentage": {
+      "type": "number"
+    },
+    "payment_terms_days": {
+      "type": "number"
+    },
+    "bank_name": {
+      "type": "string"
+    },
+    "routing_number_last4": {
+      "type": "string"
+    },
+    "account_number_last4": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "company_name"
+  ]
+}

@@ -1,0 +1,180 @@
+{
+  "name": "Settlement",
+  "type": "object",
+  "properties": {
+    "load_id": {
+      "type": "string"
+    },
+    "driver_id": {
+      "type": "string"
+    },
+    "broker_id": {
+      "type": "string"
+    },
+    "invoice_id": {
+      "type": "string"
+    },
+    "settlement_number": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "pending_review",
+        "approved",
+        "pending_payment",
+        "paid",
+        "disputed",
+        "voided"
+      ],
+      "default": "draft"
+    },
+    "gross_load_amount": {
+      "type": "number"
+    },
+    "driver_percentage": {
+      "type": "number",
+      "default": 80
+    },
+    "company_percentage": {
+      "type": "number",
+      "default": 20
+    },
+    "flat_company_fee": {
+      "type": "number",
+      "default": 0
+    },
+    "factoring_fee_percentage": {
+      "type": "number",
+      "default": 0
+    },
+    "factoring_fee_paid_by": {
+      "type": "string",
+      "enum": [
+        "hasten",
+        "driver",
+        "split"
+      ],
+      "default": "hasten"
+    },
+    "factoring_company_id": {
+      "type": "string"
+    },
+    "fuel_advance": {
+      "type": "number",
+      "default": 0
+    },
+    "escrow_hold": {
+      "type": "number",
+      "default": 0
+    },
+    "insurance_deduction": {
+      "type": "number",
+      "default": 0
+    },
+    "other_deduction": {
+      "type": "number",
+      "default": 0
+    },
+    "bonus": {
+      "type": "number",
+      "default": 0
+    },
+    "factoring_fee_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "company_fee_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "driver_gross_share": {
+      "type": "number",
+      "default": 0
+    },
+    "total_deductions": {
+      "type": "number",
+      "default": 0
+    },
+    "driver_net_pay": {
+      "type": "number",
+      "default": 0
+    },
+    "hasten_net_revenue": {
+      "type": "number",
+      "default": 0
+    },
+    "payout_method": {
+      "type": "string",
+      "enum": [
+        "manual_ach",
+        "check",
+        "wire",
+        "zelle",
+        "direct_deposit",
+        "factoring_company"
+      ]
+    },
+    "payout_recipient": {
+      "type": "string"
+    },
+    "payment_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "processing",
+        "completed",
+        "failed"
+      ],
+      "default": "pending"
+    },
+    "created_by": {
+      "type": "string"
+    },
+    "approved_by": {
+      "type": "string"
+    },
+    "approved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "paid_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "payment_proof_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "dispute_reason": {
+      "type": "string"
+    },
+    "disputed_by": {
+      "type": "string"
+    },
+    "disputed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "void_reason": {
+      "type": "string"
+    },
+    "voided_by": {
+      "type": "string"
+    },
+    "voided_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "load_id",
+    "driver_id",
+    "gross_load_amount",
+    "status"
+  ]
+}

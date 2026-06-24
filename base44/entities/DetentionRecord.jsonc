@@ -1,0 +1,130 @@
+{
+  "name": "DetentionRecord",
+  "type": "object",
+  "properties": {
+    "load_id": {
+      "type": "string"
+    },
+    "stop_id": {
+      "type": "string"
+    },
+    "driver_id": {
+      "type": "string"
+    },
+    "stop_number": {
+      "type": "number"
+    },
+    "facility_name": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "free_wait",
+        "active",
+        "resolved",
+        "pending_approval",
+        "approved",
+        "waived",
+        "disputed"
+      ],
+      "default": "free_wait"
+    },
+    "arrived_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "free_until": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "detention_started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "detention_ended_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "total_minutes": {
+      "type": "number",
+      "default": 0
+    },
+    "billable_minutes": {
+      "type": "number",
+      "default": 0
+    },
+    "billable_minutes_reviewed": {
+      "type": "number",
+      "default": 0
+    },
+    "rate_per_hour": {
+      "type": "number",
+      "default": 50
+    },
+    "billable_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "billable_amount_reviewed": {
+      "type": "number",
+      "default": 0
+    },
+    "waived": {
+      "type": "boolean",
+      "default": false
+    },
+    "waived_reason": {
+      "type": "string"
+    },
+    "waived_by": {
+      "type": "string"
+    },
+    "waived_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "dispute_notes": {
+      "type": "string"
+    },
+    "disputed_by": {
+      "type": "string"
+    },
+    "disputed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reviewed_by": {
+      "type": "string"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "review_notes": {
+      "type": "string"
+    },
+    "approved_by": {
+      "type": "string"
+    },
+    "approved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "invoice_id": {
+      "type": "string"
+    },
+    "settlement_id": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "load_id",
+    "stop_id",
+    "driver_id",
+    "arrived_at"
+  ]
+}

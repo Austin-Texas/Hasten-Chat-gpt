@@ -1,0 +1,82 @@
+{
+  "name": "DriverBid",
+  "type": "object",
+  "properties": {
+    "external_load_id": {
+      "type": "string",
+      "description": "Reference to ExternalLoad entity"
+    },
+    "load_id": {
+      "type": "string",
+      "description": "Reference to Load entity if imported"
+    },
+    "driver_id": {
+      "type": "string"
+    },
+    "bid_amount": {
+      "type": "number",
+      "description": "Driver's proposed rate"
+    },
+    "bid_type": {
+      "type": "string",
+      "enum": [
+        "interest",
+        "bid",
+        "counter"
+      ],
+      "default": "interest"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "reviewing",
+        "accepted",
+        "rejected",
+        "expired",
+        "withdrawn"
+      ],
+      "default": "pending"
+    },
+    "driver_rate_per_mile": {
+      "type": "number"
+    },
+    "estimated_profit": {
+      "type": "number"
+    },
+    "estimated_deadhead": {
+      "type": "number"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "available_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "submitted_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reviewed_by": {
+      "type": "string"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "review_notes": {
+      "type": "string"
+    },
+    "match_score": {
+      "type": "number",
+      "description": "Equipment + location match score 0-100"
+    }
+  },
+  "required": [
+    "external_load_id",
+    "driver_id",
+    "bid_type",
+    "status"
+  ]
+}

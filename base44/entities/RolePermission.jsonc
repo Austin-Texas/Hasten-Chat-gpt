@@ -1,0 +1,73 @@
+{
+  "name": "RolePermission",
+  "type": "object",
+  "properties": {
+    "role": {
+      "type": "string",
+      "enum": [
+        "super_admin",
+        "admin",
+        "dispatcher",
+        "driver",
+        "customer"
+      ],
+      "description": "HASTEN MVP businessRole"
+    },
+    "module": {
+      "type": "string",
+      "enum": [
+        "dashboard",
+        "dispatch",
+        "loads",
+        "tracking",
+        "drivers",
+        "fleet",
+        "compliance",
+        "settlements",
+        "payment_profiles",
+        "finance",
+        "invoices",
+        "documents",
+        "signatures",
+        "customers",
+        "support",
+        "settings",
+        "testing_dashboard"
+      ],
+      "description": "Feature module"
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "view",
+        "create",
+        "edit",
+        "delete",
+        "approve",
+        "export",
+        "assign",
+        "upload",
+        "sign",
+        "pay",
+        "settle",
+        "invite",
+        "manage_permissions"
+      ],
+      "description": "Action type"
+    },
+    "allowed": {
+      "type": "boolean",
+      "default": true,
+      "description": "Is action allowed for this role on this module"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Why this permission is set"
+    }
+  },
+  "required": [
+    "role",
+    "module",
+    "action"
+  ]
+}

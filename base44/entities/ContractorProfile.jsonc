@@ -1,0 +1,179 @@
+{
+  "name": "ContractorProfile",
+  "type": "object",
+  "properties": {
+    "driver_id": {
+      "type": "string"
+    },
+    "user_id": {
+      "type": "string"
+    },
+    "first_name": {
+      "type": "string"
+    },
+    "last_name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string",
+      "format": "email"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "legal_business_name": {
+      "type": "string"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "owner_operator",
+        "independent_contractor",
+        "company_driver"
+      ],
+      "default": "owner_operator"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "prospect",
+        "onboarding",
+        "active",
+        "suspended",
+        "inactive",
+        "terminated"
+      ],
+      "default": "prospect"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "assigned_dispatcher_id": {
+      "type": "string"
+    },
+    "settlement_rule_id": {
+      "type": "string"
+    },
+    "payment_profile_id": {
+      "type": "string"
+    },
+    "w9_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "uploaded",
+        "verified",
+        "expired"
+      ],
+      "default": "pending"
+    },
+    "w9_uploaded_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ach_authorization_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "uploaded",
+        "verified",
+        "expired"
+      ],
+      "default": "pending"
+    },
+    "ach_authorization_uploaded_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "agreement_signed": {
+      "type": "boolean",
+      "default": false
+    },
+    "agreement_signed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "insurance_certificate_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "uploaded",
+        "verified",
+        "expired"
+      ],
+      "default": "pending"
+    },
+    "insurance_expiration_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "cdl_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "verified",
+        "expired"
+      ],
+      "default": "pending"
+    },
+    "cdl_number": {
+      "type": "string"
+    },
+    "cdl_expiration_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "medical_card_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "verified",
+        "expired"
+      ],
+      "default": "pending"
+    },
+    "medical_card_expiration_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "factoring_preference": {
+      "type": "string",
+      "enum": [
+        "none",
+        "optional",
+        "required"
+      ],
+      "default": "none"
+    },
+    "factoring_company_id": {
+      "type": "string"
+    },
+    "compliance_status": {
+      "type": "string",
+      "enum": [
+        "compliant",
+        "at_risk",
+        "non_compliant"
+      ],
+      "default": "at_risk"
+    },
+    "onboarding_complete": {
+      "type": "boolean",
+      "default": false
+    },
+    "onboarding_completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "first_name",
+    "last_name",
+    "email",
+    "role"
+  ]
+}

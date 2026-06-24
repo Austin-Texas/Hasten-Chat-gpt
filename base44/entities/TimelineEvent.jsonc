@@ -1,0 +1,145 @@
+{
+  "name": "TimelineEvent",
+  "type": "object",
+  "properties": {
+    "actorId": {
+      "type": "string",
+      "description": "User ID of who triggered the event"
+    },
+    "actorRole": {
+      "type": "string",
+      "enum": [
+        "admin",
+        "dispatcher",
+        "fleet_manager",
+        "finance",
+        "driver",
+        "client",
+        "broker",
+        "system"
+      ],
+      "description": "Role of actor"
+    },
+    "actorName": {
+      "type": "string",
+      "description": "Display name of actor"
+    },
+    "entityType": {
+      "type": "string",
+      "enum": [
+        "Load",
+        "Driver",
+        "Truck",
+        "Invoice",
+        "Document",
+        "Message",
+        "SupportTicket",
+        "Manifest",
+        "Detention",
+        "Settlement",
+        "Payroll",
+        "Quote"
+      ],
+      "description": "Type of entity affected"
+    },
+    "entityId": {
+      "type": "string",
+      "description": "ID of entity affected"
+    },
+    "entityDisplay": {
+      "type": "string",
+      "description": "Human-readable entity identifier (e.g., load number, driver name)"
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "created",
+        "updated",
+        "assigned",
+        "uploaded",
+        "approved",
+        "rejected",
+        "signed",
+        "invoiced",
+        "paid",
+        "completed",
+        "cancelled",
+        "viewed",
+        "commented"
+      ],
+      "description": "Action performed"
+    },
+    "summary": {
+      "type": "string",
+      "description": "Human-readable summary of event (e.g., 'Assigned load #123 to Marcus Johnson')"
+    },
+    "details": {
+      "type": "string",
+      "description": "Additional context or notes about the event"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "oldValue": {
+          "type": "string"
+        },
+        "newValue": {
+          "type": "string"
+        },
+        "changedFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "relatedEntityType": {
+          "type": "string"
+        },
+        "relatedEntityId": {
+          "type": "string"
+        },
+        "documentType": {
+          "type": "string"
+        },
+        "amount": {
+          "type": "number"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "description": "Additional structured data"
+    },
+    "icon": {
+      "type": "string",
+      "description": "Icon name for UI display"
+    },
+    "color": {
+      "type": "string",
+      "enum": [
+        "orange",
+        "green",
+        "blue",
+        "red",
+        "amber",
+        "purple",
+        "cyan",
+        "slate"
+      ],
+      "description": "Color coding for timeline visualization"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "actorId",
+    "actorRole",
+    "entityType",
+    "entityId",
+    "action",
+    "summary",
+    "timestamp"
+  ]
+}

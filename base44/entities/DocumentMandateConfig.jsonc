@@ -1,0 +1,71 @@
+{
+  "name": "DocumentMandateConfig",
+  "type": "object",
+  "properties": {
+    "config_name": {
+      "type": "string"
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": true
+    },
+    "require_before_invoicing": {
+      "type": "boolean",
+      "default": true
+    },
+    "require_before_completion": {
+      "type": "boolean",
+      "default": false
+    },
+    "required_load_documents": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "rate_confirmation",
+          "bol",
+          "pod",
+          "scale_ticket",
+          "lumper_receipt",
+          "fuel_receipt",
+          "damage_photo",
+          "insurance",
+          "permit"
+        ]
+      },
+      "default": [
+        "bol",
+        "pod"
+      ]
+    },
+    "required_stop_documents": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "document_expiry_days": {
+      "type": "number",
+      "default": 365
+    },
+    "auto_archive_after_days": {
+      "type": "number",
+      "default": 730
+    },
+    "allow_invoice_override": {
+      "type": "boolean",
+      "default": false
+    },
+    "block_invoice_missing_docs": {
+      "type": "boolean",
+      "default": true
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "config_name"
+  ]
+}

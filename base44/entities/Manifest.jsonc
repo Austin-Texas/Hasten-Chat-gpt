@@ -1,0 +1,81 @@
+{
+  "name": "Manifest",
+  "type": "object",
+  "properties": {
+    "manifest_number": {
+      "type": "string"
+    },
+    "load_id": {
+      "type": "string"
+    },
+    "shipment_id": {
+      "type": "string"
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "quote_received",
+        "quote_approved",
+        "load_created",
+        "broker_assigned",
+        "driver_assigned",
+        "truck_assigned",
+        "pickup_arrived",
+        "pickup_completed",
+        "transit_started",
+        "delay_event",
+        "delivery_arrived",
+        "delivered",
+        "pod_uploaded",
+        "invoice_generated",
+        "payment_received",
+        "cancelled",
+        "note_added"
+      ]
+    },
+    "event_title": {
+      "type": "string"
+    },
+    "event_description": {
+      "type": "string"
+    },
+    "event_timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "performed_by": {
+      "type": "string"
+    },
+    "performed_by_role": {
+      "type": "string"
+    },
+    "location_city": {
+      "type": "string"
+    },
+    "location_state": {
+      "type": "string"
+    },
+    "lat": {
+      "type": "number"
+    },
+    "lng": {
+      "type": "number"
+    },
+    "attachment_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "is_system_event": {
+      "type": "boolean",
+      "default": false
+    },
+    "metadata": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "load_id",
+    "event_type",
+    "event_timestamp"
+  ]
+}

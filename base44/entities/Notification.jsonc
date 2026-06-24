@@ -1,0 +1,126 @@
+{
+  "name": "Notification",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "admin",
+        "dispatcher",
+        "driver",
+        "client"
+      ]
+    },
+    "title": {
+      "type": "string"
+    },
+    "message": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "load_assigned",
+        "driver_status_changed",
+        "dispatcher_message",
+        "support_reply",
+        "document_approved",
+        "document_rejected",
+        "pod_uploaded",
+        "quote_accepted",
+        "quote_rejected",
+        "invoice_paid",
+        "invoice_overdue",
+        "payroll_ready",
+        "settlement_ready",
+        "compliance_expiring",
+        "route_deviation",
+        "idle_truck",
+        "delay_alert",
+        "system_alert",
+        "custom"
+      ]
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "normal",
+        "high",
+        "critical"
+      ],
+      "default": "normal"
+    },
+    "related_entity_type": {
+      "type": "string",
+      "enum": [
+        "Load",
+        "Driver",
+        "Truck",
+        "Message",
+        "SupportTicket",
+        "DriverDocument",
+        "Invoice",
+        "PayrollRecord",
+        "SettlementRecord",
+        "QuoteRequest",
+        "Manifest",
+        "GPSTrackPoint"
+      ]
+    },
+    "related_entity_id": {
+      "type": "string"
+    },
+    "read": {
+      "type": "boolean",
+      "default": false
+    },
+    "read_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "delivered": {
+      "type": "boolean",
+      "default": false
+    },
+    "failed": {
+      "type": "boolean",
+      "default": false
+    },
+    "delivery_channels": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "in_app",
+          "email",
+          "push",
+          "sms"
+        ]
+      },
+      "default": [
+        "in_app"
+      ]
+    },
+    "action_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "cta_label": {
+      "type": "string"
+    },
+    "metadata": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "user_id",
+    "role",
+    "title",
+    "message",
+    "type"
+  ]
+}

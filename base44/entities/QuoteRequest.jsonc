@@ -1,0 +1,90 @@
+{
+  "name": "QuoteRequest",
+  "type": "object",
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "quoted",
+        "approved",
+        "rejected",
+        "expired"
+      ],
+      "default": "pending"
+    },
+    "requester_name": {
+      "type": "string"
+    },
+    "requester_email": {
+      "type": "string",
+      "format": "email"
+    },
+    "requester_phone": {
+      "type": "string"
+    },
+    "company_name": {
+      "type": "string"
+    },
+    "origin_city": {
+      "type": "string"
+    },
+    "origin_state": {
+      "type": "string"
+    },
+    "origin_zip": {
+      "type": "string"
+    },
+    "destination_city": {
+      "type": "string"
+    },
+    "destination_state": {
+      "type": "string"
+    },
+    "destination_zip": {
+      "type": "string"
+    },
+    "pickup_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "delivery_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "equipment_type": {
+      "type": "string"
+    },
+    "commodity": {
+      "type": "string"
+    },
+    "weight": {
+      "type": "number"
+    },
+    "pieces": {
+      "type": "number"
+    },
+    "is_hazmat": {
+      "type": "boolean",
+      "default": false
+    },
+    "estimated_miles": {
+      "type": "number"
+    },
+    "quoted_rate": {
+      "type": "number"
+    },
+    "special_requirements": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "requester_name",
+    "requester_email",
+    "origin_city",
+    "destination_city"
+  ]
+}

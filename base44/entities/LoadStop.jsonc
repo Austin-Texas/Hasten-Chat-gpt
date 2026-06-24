@@ -1,0 +1,118 @@
+{
+  "name": "LoadStop",
+  "type": "object",
+  "properties": {
+    "load_id": {
+      "type": "string"
+    },
+    "stop_number": {
+      "type": "number"
+    },
+    "stop_type": {
+      "type": "string",
+      "enum": [
+        "pickup",
+        "delivery"
+      ]
+    },
+    "facility_name": {
+      "type": "string"
+    },
+    "address": {
+      "type": "string"
+    },
+    "city": {
+      "type": "string"
+    },
+    "state": {
+      "type": "string"
+    },
+    "zip": {
+      "type": "string"
+    },
+    "latitude": {
+      "type": "number"
+    },
+    "longitude": {
+      "type": "number"
+    },
+    "appointment_start": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "appointment_end": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "contact_name": {
+      "type": "string"
+    },
+    "contact_phone": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "en_route",
+        "arrived",
+        "loading",
+        "completed",
+        "skipped",
+        "issue"
+      ],
+      "default": "pending"
+    },
+    "arrived_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "departed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "documents_required": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "detention_started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "detention_ended_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "detention_free_minutes": {
+      "type": "number",
+      "default": 120
+    },
+    "detention_rate_per_hour": {
+      "type": "number",
+      "default": 50
+    },
+    "geofence_radius_meters": {
+      "type": "number",
+      "default": 500
+    },
+    "issue_reported": {
+      "type": "string"
+    },
+    "issue_reported_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "load_id",
+    "stop_number",
+    "stop_type",
+    "city",
+    "state"
+  ]
+}

@@ -1,0 +1,123 @@
+{
+  "name": "Client",
+  "type": "object",
+  "properties": {
+    "customer_type": {
+      "type": "string",
+      "enum": [
+        "broker",
+        "direct_client",
+        "shipper"
+      ],
+      "default": "direct_client",
+      "description": "Unified customer type \u2014 broker, direct client, or shipper"
+    },
+    "company_name": {
+      "type": "string"
+    },
+    "contact_name": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string",
+      "format": "email"
+    },
+    "billing_address": {
+      "type": "string"
+    },
+    "billing_city": {
+      "type": "string"
+    },
+    "billing_state": {
+      "type": "string"
+    },
+    "billing_zip": {
+      "type": "string"
+    },
+    "address": {
+      "type": "string"
+    },
+    "city": {
+      "type": "string"
+    },
+    "state": {
+      "type": "string"
+    },
+    "zip": {
+      "type": "string"
+    },
+    "mc_number": {
+      "type": "string",
+      "description": "MC number \u2014 required if customer_type=broker"
+    },
+    "dot_number": {
+      "type": "string",
+      "description": "DOT number \u2014 required if customer_type=broker"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "prospect",
+        "suspended"
+      ],
+      "default": "active"
+    },
+    "payment_terms": {
+      "type": "string",
+      "enum": [
+        "net15",
+        "net30",
+        "net45",
+        "net60",
+        "quick_pay"
+      ],
+      "default": "net30"
+    },
+    "factoring_risk": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "default": "medium",
+      "description": "Factoring risk assessment"
+    },
+    "credit_limit": {
+      "type": "number"
+    },
+    "total_revenue": {
+      "type": "number",
+      "default": 0
+    },
+    "total_loads": {
+      "type": "number",
+      "default": 0
+    },
+    "sla_hours": {
+      "type": "number"
+    },
+    "preferred_equipment": {
+      "type": "string"
+    },
+    "lanes": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "user_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "company_name",
+    "email",
+    "customer_type"
+  ]
+}

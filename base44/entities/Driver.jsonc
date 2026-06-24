@@ -1,0 +1,432 @@
+{
+  "name": "Driver",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "first_name": {
+      "type": "string"
+    },
+    "last_name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string",
+      "format": "email"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "address_line1": {
+      "type": "string"
+    },
+    "address_line2": {
+      "type": "string"
+    },
+    "address_city": {
+      "type": "string"
+    },
+    "address_state": {
+      "type": "string"
+    },
+    "address_zip": {
+      "type": "string"
+    },
+    "emergency_contact_name": {
+      "type": "string"
+    },
+    "emergency_contact_phone": {
+      "type": "string"
+    },
+    "llc_name": {
+      "type": "string",
+      "description": "Legal business name for owner-operators"
+    },
+    "ein_ssn": {
+      "type": "string",
+      "description": "EIN or SSN \u2014 masked in UI, admin-only"
+    },
+    "w9_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "uploaded",
+        "verified",
+        "expired"
+      ],
+      "default": "pending"
+    },
+    "w9_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "w9_uploaded_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "is_1099_eligible": {
+      "type": "boolean",
+      "default": true
+    },
+    "agreement_signed": {
+      "type": "boolean",
+      "default": false
+    },
+    "agreement_signed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "truck_id": {
+      "type": "string"
+    },
+    "trailer_id": {
+      "type": "string"
+    },
+    "truck_vin": {
+      "type": "string"
+    },
+    "truck_plate": {
+      "type": "string"
+    },
+    "trailer_vin": {
+      "type": "string"
+    },
+    "trailer_plate": {
+      "type": "string"
+    },
+    "vehicle_type": {
+      "type": "string",
+      "enum": [
+        "Sprinter",
+        "Cargo Van",
+        "Box Truck",
+        "Hot Shot",
+        "Gooseneck",
+        "Dry Van",
+        "Power Only",
+        "Flatbed",
+        "Car Hauler",
+        "Reefer",
+        "Step Deck",
+        "Conestoga",
+        "Final Mile",
+        "LTL/Partial",
+        "Expedited",
+        "White Glove"
+      ]
+    },
+    "trailer_type": {
+      "type": "string"
+    },
+    "max_payload": {
+      "type": "number"
+    },
+    "cargo_length": {
+      "type": "number"
+    },
+    "cargo_width": {
+      "type": "number"
+    },
+    "cargo_height": {
+      "type": "number"
+    },
+    "dock_high": {
+      "type": "boolean",
+      "default": false
+    },
+    "liftgate": {
+      "type": "boolean",
+      "default": false
+    },
+    "reefer": {
+      "type": "boolean",
+      "default": false
+    },
+    "hazmat_cert": {
+      "type": "boolean",
+      "default": false
+    },
+    "hazmat_expiry": {
+      "type": "string",
+      "format": "date"
+    },
+    "team_driver": {
+      "type": "boolean",
+      "default": false
+    },
+    "team_partner_id": {
+      "type": "string"
+    },
+    "license_number": {
+      "type": "string"
+    },
+    "license_state": {
+      "type": "string"
+    },
+    "license_expiry": {
+      "type": "string",
+      "format": "date"
+    },
+    "license_class": {
+      "type": "string",
+      "enum": [
+        "A",
+        "B",
+        "C"
+      ]
+    },
+    "medical_card_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "medical_expiry": {
+      "type": "string",
+      "format": "date"
+    },
+    "insurance_doc_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "insurance_expiry": {
+      "type": "string",
+      "format": "date"
+    },
+    "registration_doc_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "twic_expiry": {
+      "type": "string",
+      "format": "date"
+    },
+    "endorsements": {
+      "type": "string"
+    },
+    "license_front_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "license_back_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "tax_doc_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "other_docs_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "available",
+        "on_load",
+        "off_duty",
+        "will_available",
+        "hos_violation",
+        "inactive"
+      ],
+      "default": "available"
+    },
+    "availability": {
+      "type": "string",
+      "enum": [
+        "available",
+        "on_load",
+        "off_duty",
+        "will_available",
+        "unavailable"
+      ],
+      "default": "available"
+    },
+    "compliance_status": {
+      "type": "string",
+      "enum": [
+        "compliant",
+        "at_risk",
+        "non_compliant"
+      ],
+      "default": "at_risk"
+    },
+    "current_load_id": {
+      "type": "string"
+    },
+    "current_lat": {
+      "type": "number"
+    },
+    "current_lng": {
+      "type": "number"
+    },
+    "current_city": {
+      "type": "string"
+    },
+    "current_state": {
+      "type": "string"
+    },
+    "last_location_update": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "home_city": {
+      "type": "string"
+    },
+    "home_state": {
+      "type": "string"
+    },
+    "home_zip": {
+      "type": "string"
+    },
+    "preferred_lanes": {
+      "type": "string",
+      "description": "Comma-separated state pairs e.g. TX-CA,FL-GA"
+    },
+    "miles_ytd": {
+      "type": "number",
+      "default": 0
+    },
+    "loads_completed": {
+      "type": "number",
+      "default": 0
+    },
+    "earnings_ytd": {
+      "type": "number",
+      "default": 0
+    },
+    "safety_score": {
+      "type": "number",
+      "default": 100
+    },
+    "hos_status": {
+      "type": "string",
+      "enum": [
+        "off_duty",
+        "sleeper_berth",
+        "driving",
+        "on_duty"
+      ],
+      "default": "off_duty"
+    },
+    "hours_driving_today": {
+      "type": "number",
+      "default": 0
+    },
+    "hours_on_duty_today": {
+      "type": "number",
+      "default": 0
+    },
+    "driver_type": {
+      "type": "string",
+      "enum": [
+        "company_driver",
+        "owner_operator",
+        "contractor"
+      ],
+      "default": "owner_operator"
+    },
+    "employment_type": {
+      "type": "string",
+      "enum": [
+        "W2_employee",
+        "1099_contractor",
+        "owner_operator"
+      ],
+      "default": "1099_contractor"
+    },
+    "hire_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "pay_type": {
+      "type": "string",
+      "enum": [
+        "per_mile",
+        "percentage",
+        "flat_rate",
+        "hourly"
+      ],
+      "default": "percentage"
+    },
+    "pay_rate": {
+      "type": "number"
+    },
+    "payment_profile_id": {
+      "type": "string"
+    },
+    "settlement_rule_id": {
+      "type": "string"
+    },
+    "factoring_company_id": {
+      "type": "string"
+    },
+    "dispatcher_id": {
+      "type": "string"
+    },
+    "avatar_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "profile_photo_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "preferred_language": {
+      "type": "string",
+      "default": "en"
+    },
+    "preferred_distance_unit": {
+      "type": "string",
+      "enum": [
+        "miles",
+        "km"
+      ],
+      "default": "miles"
+    },
+    "preferred_weight_unit": {
+      "type": "string",
+      "enum": [
+        "lbs",
+        "kg",
+        "ton"
+      ],
+      "default": "lbs"
+    },
+    "preferred_font_size": {
+      "type": "string",
+      "enum": [
+        "small",
+        "normal",
+        "big"
+      ],
+      "default": "normal"
+    },
+    "preferred_color_scheme": {
+      "type": "string",
+      "enum": [
+        "dark",
+        "light",
+        "system"
+      ],
+      "default": "dark"
+    },
+    "notification_preferences": {
+      "type": "boolean",
+      "default": true
+    },
+    "availability_reminders": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "first_name",
+    "last_name",
+    "email",
+    "phone"
+  ]
+}

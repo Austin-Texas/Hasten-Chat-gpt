@@ -1,0 +1,92 @@
+{
+  "name": "ContractorChecklist",
+  "type": "object",
+  "properties": {
+    "contractor_profile_id": {
+      "type": "string"
+    },
+    "profile_complete": {
+      "type": "boolean",
+      "default": false
+    },
+    "profile_complete_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "w9_uploaded": {
+      "type": "boolean",
+      "default": false
+    },
+    "w9_uploaded_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ach_authorization_uploaded": {
+      "type": "boolean",
+      "default": false
+    },
+    "ach_authorization_uploaded_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "agreement_signed": {
+      "type": "boolean",
+      "default": false
+    },
+    "agreement_signed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "cdl_uploaded": {
+      "type": "boolean",
+      "default": false
+    },
+    "cdl_uploaded_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "medical_card_uploaded": {
+      "type": "boolean",
+      "default": false
+    },
+    "medical_card_uploaded_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "insurance_uploaded": {
+      "type": "boolean",
+      "default": false
+    },
+    "insurance_uploaded_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "payment_profile_complete": {
+      "type": "boolean",
+      "default": false
+    },
+    "payment_profile_complete_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "settlement_rule_assigned": {
+      "type": "boolean",
+      "default": false
+    },
+    "settlement_rule_assigned_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "overall_progress": {
+      "type": "number",
+      "default": 0
+    },
+    "completion_timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "contractor_profile_id"
+  ]
+}

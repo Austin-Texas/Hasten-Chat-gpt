@@ -1,0 +1,88 @@
+{
+  "name": "SystemDiagnosticIssue",
+  "type": "object",
+  "properties": {
+    "diagnostic_run_id": {
+      "type": "string",
+      "description": "Reference to SystemDiagnosticRun"
+    },
+    "module": {
+      "type": "string",
+      "enum": [
+        "auth",
+        "database",
+        "entities",
+        "api",
+        "integrations",
+        "webhooks",
+        "automations",
+        "backend_functions",
+        "cache",
+        "notifications",
+        "payments"
+      ]
+    },
+    "issue_type": {
+      "type": "string",
+      "enum": [
+        "error",
+        "warning",
+        "info"
+      ]
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "critical",
+        "high",
+        "medium",
+        "low"
+      ]
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "affected_resource": {
+      "type": "string",
+      "description": "Entity name, function name, integration type, etc."
+    },
+    "recommendation": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "acknowledged",
+        "in_progress",
+        "resolved",
+        "ignored"
+      ],
+      "default": "open"
+    },
+    "assigned_to": {
+      "type": "string",
+      "description": "Admin user ID"
+    },
+    "resolution_notes": {
+      "type": "string"
+    },
+    "resolved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "test_case_ref": {
+      "type": "string",
+      "description": "Reference to test case or documentation"
+    }
+  },
+  "required": [
+    "diagnostic_run_id",
+    "module",
+    "issue_type",
+    "title"
+  ]
+}

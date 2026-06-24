@@ -1,0 +1,233 @@
+/* ============================================================
+   HASTEN GLOBAL UI SYSTEM
+   Premium visuals + enterprise density — self-contained
+   Loaded at app entry alongside index.css
+   ============================================================ */
+
+:root {
+  /* Density Tokens */
+  --h-font-default: 14px;
+  --h-font-small: 13px;
+  --h-font-large: 16px;
+  --h-pad-comfort: 10px;
+  --h-pad-compact: 6px;
+  --h-pad-ultra: 4px;
+  --h-radius-comfort: 10px;
+  --h-radius-compact: 6px;
+  --h-radius-ultra: 4px;
+  --h-row-comfort: 40px;
+  --h-row-compact: 32px;
+  --h-row-ultra: 28px;
+
+  /* Color Tokens */
+  --h-accent: #00ff7f;
+  --h-accent-secondary: #009dff;
+  --h-accent-glow: #a020f0;
+  --h-warning: #ff8c00;
+  --h-danger: #ff3b3b;
+
+  /* Glass Tokens */
+  --h-glass-bg: rgba(10, 20, 35, 0.55);
+  --h-glass-border: rgba(255, 255, 255, 0.06);
+  --h-glass-blur-low: blur(8px);
+  --h-glass-blur-med: blur(14px);
+  --h-glass-blur-high: blur(20px);
+  --h-glass-blur: var(--h-glass-blur-med);
+
+  /* Active density vars (overridden by density classes) */
+  --h-card-pad: var(--h-pad-compact);
+  --h-card-radius: var(--h-radius-compact);
+  --h-row-height: var(--h-row-compact);
+  --h-font-size: var(--h-font-default);
+}
+
+/* ============================================================
+   DENSITY MODES
+   ============================================================ */
+
+.h-density-comfortable {
+  --h-card-pad: var(--h-pad-comfort);
+  --h-card-radius: var(--h-radius-comfort);
+  --h-row-height: var(--h-row-comfort);
+  --h-font-size: var(--h-font-default);
+}
+
+.h-density-compact {
+  --h-card-pad: var(--h-pad-compact);
+  --h-card-radius: var(--h-radius-compact);
+  --h-row-height: var(--h-row-compact);
+  --h-font-size: var(--h-font-default);
+}
+
+.h-density-ultra {
+  --h-card-pad: var(--h-pad-ultra);
+  --h-card-radius: var(--h-radius-ultra);
+  --h-row-height: var(--h-row-ultra);
+  --h-font-size: var(--h-font-small);
+}
+
+/* ============================================================
+   ROLE DEFAULTS (composes replaced with inline properties)
+   ============================================================ */
+
+.role-admin, .role-dispatcher, .role-superadmin {
+  --h-card-pad: var(--h-pad-compact);
+  --h-card-radius: var(--h-radius-compact);
+  --h-row-height: var(--h-row-compact);
+  --h-font-size: var(--h-font-default);
+}
+
+.role-driver, .role-customer {
+  --h-card-pad: var(--h-pad-comfort);
+  --h-card-radius: var(--h-radius-comfort);
+  --h-row-height: var(--h-row-comfort);
+  --h-font-size: var(--h-font-default);
+}
+
+/* ============================================================
+   THEMES
+   ============================================================ */
+
+.theme-dark {
+  --h-bg: #0a0f1a;
+  --h-bg-alt: #0f1625;
+  --h-text: #e6e6e6;
+}
+
+.theme-light {
+  --h-bg: #f5f7fb;
+  --h-bg-alt: #ffffff;
+  --h-text: #1a1a1a;
+}
+
+.theme-high-contrast {
+  --h-bg: #000000;
+  --h-bg-alt: #000000;
+  --h-text: #ffffff;
+  --h-accent: #00ffff;
+  --h-accent-secondary: #ffff00;
+}
+
+/* Glass Levels */
+.glass-low { --h-glass-blur: var(--h-glass-blur-low); }
+.glass-medium { --h-glass-blur: var(--h-glass-blur-med); }
+.glass-high { --h-glass-blur: var(--h-glass-blur-high); }
+
+/* Font Size Options */
+.font-small { --h-font-size: var(--h-font-small); }
+.font-default { --h-font-size: var(--h-font-default); }
+.font-large { --h-font-size: var(--h-font-large); }
+
+/* ============================================================
+   CORE COMPONENT UTILITY CLASSES
+   (prefixed with h- to avoid breaking shadcn/ui)
+   ============================================================ */
+
+/* Cards / Panels */
+.h-card, .h-panel {
+  background: var(--h-glass-bg);
+  backdrop-filter: var(--h-glass-blur);
+  -webkit-backdrop-filter: var(--h-glass-blur);
+  border-radius: var(--h-card-radius, var(--h-radius-compact));
+  padding: var(--h-card-pad, var(--h-pad-compact));
+  border: 1px solid var(--h-glass-border);
+}
+
+/* Headers */
+.h-header {
+  height: 48px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  background: var(--h-bg-alt);
+}
+
+/* Sidebar */
+.h-sidebar {
+  width: 56px;
+  padding: 4px;
+  background: var(--h-bg-alt);
+  transition: width 0.2s ease;
+}
+.h-sidebar:hover { width: 220px; }
+
+/* Tables */
+.h-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.h-table tr {
+  height: var(--h-row-height, var(--h-row-compact));
+}
+.h-table td, .h-table th {
+  padding: 4px 6px;
+  font-size: var(--h-font-size, var(--h-font-default));
+}
+.h-table-header, .h-table-filters {
+  position: sticky;
+  top: 0;
+  background: var(--h-bg-alt);
+  z-index: 10;
+}
+
+/* Buttons */
+.h-btn {
+  padding: 4px 10px;
+  border-radius: var(--h-card-radius, var(--h-radius-compact));
+  background: var(--h-accent);
+  color: #000;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.h-btn:hover { filter: brightness(1.1); }
+.h-btn.secondary { background: var(--h-accent-secondary); }
+
+/* Alerts */
+.h-badge-warning, .h-text-warning { color: var(--h-warning); }
+.h-badge-danger, .h-text-danger { color: var(--h-danger); }
+.h-text-accent { color: var(--h-accent); }
+.h-text-accent-secondary { color: var(--h-accent-secondary); }
+
+/* Form Drawer */
+.h-form-drawer, .h-form-page {
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+/* Split Views */
+.h-split-view, .h-ops-layout {
+  display: grid;
+  grid-template-columns: minmax(320px, 40%) minmax(0, 1fr);
+  gap: 8px;
+}
+@media (max-width: 1024px) {
+  .h-split-view, .h-ops-layout { grid-template-columns: 1fr; }
+}
+
+/* Premium Visual Cards (map, dashboard hero) */
+.h-map-card, .h-visual-card {
+  background: var(--h-glass-bg);
+  backdrop-filter: var(--h-glass-blur);
+  -webkit-backdrop-filter: var(--h-glass-blur);
+  border-radius: var(--h-card-radius, var(--h-radius-compact));
+  border: 1px solid var(--h-glass-border);
+  box-shadow:
+    0 0 24px rgba(0, 255, 127, 0.15),
+    0 0 32px rgba(0, 157, 255, 0.1),
+    0 0 40px rgba(160, 32, 240, 0.08);
+}
+
+/* Enterprise vs Premium Layouts */
+.layout-enterprise { padding: 6px; }
+.layout-premium { padding: 12px; gap: 12px; }
+
+/* Whitespace Control */
+.h-main-content, .h-page-content { padding: 6px; }
+.h-section, .h-block { margin-bottom: 6px; }
+
+/* App container font size */
+.app-container, .main-layout {
+  font-size: var(--h-font-size, var(--h-font-default));
+}

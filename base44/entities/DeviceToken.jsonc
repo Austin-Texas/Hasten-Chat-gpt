@@ -1,0 +1,52 @@
+{
+  "name": "DeviceToken",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "token": {
+      "type": "string"
+    },
+    "platform": {
+      "type": "string",
+      "enum": [
+        "web",
+        "android",
+        "ios"
+      ]
+    },
+    "app_version": {
+      "type": "string"
+    },
+    "device_model": {
+      "type": "string"
+    },
+    "os_version": {
+      "type": "string"
+    },
+    "last_seen": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    },
+    "push_enabled": {
+      "type": "boolean",
+      "default": true
+    },
+    "fcm_token": {
+      "type": "string"
+    },
+    "apns_token": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "user_id",
+    "token",
+    "platform"
+  ]
+}

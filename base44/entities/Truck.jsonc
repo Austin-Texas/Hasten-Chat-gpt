@@ -1,0 +1,119 @@
+{
+  "name": "Truck",
+  "type": "object",
+  "properties": {
+    "unit_number": {
+      "type": "string"
+    },
+    "make": {
+      "type": "string"
+    },
+    "model": {
+      "type": "string"
+    },
+    "year": {
+      "type": "number"
+    },
+    "vin": {
+      "type": "string"
+    },
+    "license_plate": {
+      "type": "string"
+    },
+    "license_plate_state": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "idle",
+        "maintenance",
+        "out_of_service",
+        "sold"
+      ],
+      "default": "idle"
+    },
+    "driver_id": {
+      "type": "string"
+    },
+    "current_lat": {
+      "type": "number"
+    },
+    "current_lng": {
+      "type": "number"
+    },
+    "current_city": {
+      "type": "string"
+    },
+    "current_state": {
+      "type": "string"
+    },
+    "odometer": {
+      "type": "number"
+    },
+    "fuel_type": {
+      "type": "string",
+      "enum": [
+        "diesel",
+        "gasoline",
+        "electric",
+        "natural_gas"
+      ],
+      "default": "diesel"
+    },
+    "fuel_capacity": {
+      "type": "number"
+    },
+    "mpg": {
+      "type": "number"
+    },
+    "registration_expiry": {
+      "type": "string",
+      "format": "date"
+    },
+    "insurance_expiry": {
+      "type": "string",
+      "format": "date"
+    },
+    "annual_inspection_expiry": {
+      "type": "string",
+      "format": "date"
+    },
+    "last_service_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "next_service_miles": {
+      "type": "number"
+    },
+    "last_service_odometer": {
+      "type": "number"
+    },
+    "engine_hours": {
+      "type": "number"
+    },
+    "trailer_id": {
+      "type": "string"
+    },
+    "ifta_required": {
+      "type": "boolean",
+      "default": true
+    },
+    "eld_device_id": {
+      "type": "string"
+    },
+    "color": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "unit_number",
+    "make",
+    "model",
+    "year"
+  ]
+}

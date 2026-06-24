@@ -1,0 +1,93 @@
+{
+  "name": "TaxDocument",
+  "type": "object",
+  "properties": {
+    "driver_id": {
+      "type": "string",
+      "description": "Reference to Driver entity"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Auth user ID of the driver/contractor"
+    },
+    "driver_name": {
+      "type": "string"
+    },
+    "tax_year": {
+      "type": "number"
+    },
+    "document_type": {
+      "type": "string",
+      "enum": [
+        "1099_nec",
+        "w2",
+        "settlement_summary",
+        "payroll_summary"
+      ],
+      "default": "1099_nec"
+    },
+    "employment_type": {
+      "type": "string",
+      "enum": [
+        "owner_operator_1099",
+        "employee_w2"
+      ],
+      "default": "owner_operator_1099"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "generated",
+        "published",
+        "downloaded",
+        "voided"
+      ],
+      "default": "draft"
+    },
+    "gross_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "taxable_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "deductions_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "advances_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "reimbursements_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "file_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "published_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "downloaded_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "generated_by": {
+      "type": "string",
+      "description": "Admin user ID who generated the document"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "driver_id",
+    "tax_year",
+    "document_type"
+  ]
+}

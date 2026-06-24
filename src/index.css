@@ -1,0 +1,897 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* HASTEN Cargo LLC — Driver App UI Kit Palette */
+    /* Neon Green #00E678 | Deep Charcoal #151B23 / #1E2630 | Steel Grey #2A323C */
+    --background: 224 71% 4%;
+    --foreground: 210 20% 98%;
+    --card: 214 25% 11%;
+    --card-foreground: 0 0% 100%;
+    --popover: 214 25% 11%;
+    --popover-foreground: 125 0% 100%;
+    --primary: 209 100% 45%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 213 23% 15%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 213 23% 15%;
+    --muted-foreground: 213 12% 49%;
+    --accent: 213 18% 20%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 213 18% 20%;
+    --input: 213 23% 15%;
+    --ring: 151 100% 45%;
+    --radius: 0.5rem;
+
+    /* HASTEN Custom Tokens */
+    --hasten-green: 151 100% 45%;
+    --hasten-green-glow: 151 100% 45%;
+    --hasten-blue: 217 91% 60%;
+    --hasten-blue-glow: 217 91% 60%;
+    --hasten-purple: 262 83% 58%;
+    --hasten-purple-glow: 262 83% 58%;
+    --hasten-orange: 25 100% 55%;
+    --hasten-orange-glow: 25 100% 55%;
+    --hasten-navy: 210 21% 5%;
+    --hasten-surface: 220 13% 91%;
+    --hasten-surface-2: 213 23% 15%;
+    --hasten-surface-3: 213 18% 20%;
+    --hasten-gold: 45 100% 55%;
+    --hasten-amber: 38 92% 50%;
+    --hasten-red: 0 84% 60%;
+    --hasten-glass: 213 23% 15%;
+
+    /* Chart Colors */
+    --chart-1: 142 70% 45%;
+    --chart-2: 217 91% 60%;
+    --chart-3: 262 83% 58%;
+    --chart-4: 25 100% 55%;
+    --chart-5: 195 100% 50%;
+
+    /* Sidebar */
+    --sidebar-background: 222 47% 5%;
+    --sidebar-foreground: 210 25% 91%;
+    --sidebar-primary: 142 70% 45%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 222 35% 10%;
+    --sidebar-accent-foreground: 210 40% 96%;
+    --sidebar-border: 222 30% 12%;
+    --sidebar-ring: 142 70% 45%;
+
+    /* Density variables */
+    --density-card-padding: 0.875rem;
+    --density-card-gap: 0.5rem;
+    --density-row-padding-y: 0.625rem;
+    --density-row-padding-x: 0.875rem;
+    --density-text-sm: 0.8125rem;
+    --density-text-xs: 0.6875rem;
+    --density-header-height: 3rem;
+    --density-section-gap: 0.75rem;
+
+    --font-heading: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+    --font-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+
+  .dark {
+    --background: 210 21% 5%;
+    --foreground: 0 0% 100%;
+    --card: 214 25% 11%;
+    --card-foreground: 0 0% 100%;
+    --popover: 214 25% 11%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 151 100% 45%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 213 23% 15%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 213 23% 15%;
+    --muted-foreground: 213 12% 49%;
+    --accent: 213 18% 20%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 213 18% 20%;
+    --input: 213 23% 15%;
+    --ring: 151 100% 45%;
+    --sidebar-background: 210 21% 5%;
+    --sidebar-foreground: 0 0% 85%;
+    --sidebar-primary: 151 100% 45%;
+    --sidebar-primary-foreground: 0 0% 0%;
+    --sidebar-accent: 213 23% 15%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 213 18% 20%;
+    --sidebar-ring: 151 100% 45%;
+  }
+
+  /* High Contrast mode */
+  .high-contrast {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --card: 0 0% 5%;
+    --card-foreground: 0 0% 100%;
+    --popover: 0 0% 5%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 142 100% 50%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 217 100% 60%;
+    --secondary-foreground: 0 0% 0%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 80%;
+    --accent: 217 100% 60%;
+    --accent-foreground: 0 0% 0%;
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 25%;
+    --input: 0 0% 10%;
+    --ring: 142 100% 50%;
+    --sidebar-background: 0 0% 0%;
+    --sidebar-foreground: 0 0% 90%;
+    --sidebar-primary: 142 100% 50%;
+    --sidebar-primary-foreground: 0 0% 0%;
+    --sidebar-accent: 0 0% 10%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 20%;
+    --sidebar-ring: 142 100% 50%;
+  }
+
+  /* Light mode */
+  .light {
+    --background: 210 20% 98%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 142 70% 40%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 217 91% 55%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 210 20% 94%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 217 91% 55%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 72% 50%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 214 20% 88%;
+    --input: 214 20% 90%;
+    --ring: 142 70% 40%;
+    --sidebar-background: 222 47% 5%;
+    --sidebar-foreground: 210 40% 85%;
+    --sidebar-primary: 142 70% 45%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 222 35% 10%;
+    --sidebar-accent-foreground: 210 40% 96%;
+    --sidebar-border: 222 30% 12%;
+    --sidebar-ring: 142 70% 45%;
+  }
+
+  /* Density: Comfortable (default — more padding) */
+  .density-comfortable {
+    --density-card-padding: 1.125rem;
+    --density-card-gap: 0.75rem;
+    --density-row-padding-y: 0.875rem;
+    --density-row-padding-x: 1rem;
+    --density-text-sm: 0.875rem;
+    --density-text-xs: 0.75rem;
+    --density-header-height: 3.5rem;
+    --density-section-gap: 1rem;
+  }
+
+  /* Density: Compact (admin/dispatcher default) */
+  .density-compact {
+    --density-card-padding: 0.875rem;
+    --density-card-gap: 0.5rem;
+    --density-row-padding-y: 0.625rem;
+    --density-row-padding-x: 0.875rem;
+    --density-text-sm: 0.8125rem;
+    --density-text-xs: 0.6875rem;
+    --density-header-height: 3rem;
+    --density-section-gap: 0.75rem;
+  }
+
+  /* Density: Ultra Compact (maximum information density) */
+  .density-ultra-compact {
+    --density-card-padding: 0.625rem;
+    --density-card-gap: 0.375rem;
+    --density-row-padding-y: 0.375rem;
+    --density-row-padding-x: 0.625rem;
+    --density-text-sm: 0.75rem;
+    --density-text-xs: 0.625rem;
+    --density-header-height: 2.5rem;
+    --density-section-gap: 0.5rem;
+  }
+
+  /* Font size overrides */
+  .font-size-small { font-size: 0.875rem; }
+  .font-size-default { font-size: 1rem; }
+  .font-size-large { font-size: 1.125rem; }
+
+  /* Compact card utility */
+  .compact-card {
+    padding: var(--density-card-padding);
+    border-radius: var(--radius);
+  }
+
+  /* Compact table row utility */
+  .compact-row {
+    padding-top: var(--density-row-padding-y);
+    padding-bottom: var(--density-row-padding-y);
+    padding-left: var(--density-row-padding-x);
+    padding-right: var(--density-row-padding-x);
+  }
+
+  /* Sticky filter utility */
+  .sticky-filter {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  /* ── Hybrid Portal System ─────────────────────────────────────────── */
+  /* Enterprise (Admin/Dispatcher): dense tables, compact boards, split views */
+  /* Premium (Driver/Customer): glass cards, rounded corners, generous spacing */
+
+  /* Premium glass card — driver app & customer portal */
+  .premium-card {
+    background: rgba(21, 27, 35, 0.6);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(0, 230, 120, 0.08);
+    border-radius: 1rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+
+  /* Premium rounded glass for mobile cards */
+  .premium-glass {
+    background: rgba(30, 38, 48, 0.5);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 1.25rem;
+  }
+
+  /* Premium button — neon green primary */
+  .btn-premium {
+    background: linear-gradient(135deg, #00E678, #00C865);
+    color: #000000;
+    font-weight: 700;
+    border-radius: 0.875rem;
+    box-shadow: 0 4px 20px rgba(0, 230, 120, 0.3);
+    transition: all 0.2s ease;
+  }
+  .btn-premium:hover {
+    box-shadow: 0 6px 28px rgba(0, 230, 120, 0.45);
+    transform: translateY(-1px);
+  }
+  .btn-premium:active {
+    transform: scale(0.98);
+  }
+
+  /* Premium secondary button */
+  .btn-premium-secondary {
+    background: rgba(30, 38, 48, 0.8);
+    color: #FFFFFF;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 0.875rem;
+    backdrop-filter: blur(12px);
+    transition: all 0.2s ease;
+  }
+  .btn-premium-secondary:hover {
+    background: rgba(42, 50, 60, 0.9);
+    border-color: rgba(0, 230, 120, 0.2);
+  }
+
+  /* Enterprise dense table */
+  .enterprise-table {
+    width: 100%;
+    font-size: var(--density-text-sm);
+  }
+  .enterprise-table th {
+    padding: var(--density-row-padding-y) var(--density-row-padding-x);
+    text-align: left;
+    font-weight: 600;
+    color: hsl(213 12% 49%);
+    border-bottom: 1px solid hsl(var(--border));
+    white-space: nowrap;
+  }
+  .enterprise-table td {
+    padding: var(--density-row-padding-y) var(--density-row-padding-x);
+    border-bottom: 1px solid hsl(var(--border));
+  }
+
+  /* Enterprise split view */
+  .split-view {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--density-card-gap);
+  }
+  @media (max-width: 1024px) {
+    .split-view { grid-template-columns: 1fr; }
+  }
+
+  /* Portal-mode targeted overrides */
+  [data-portal="premium"] .glass-card {
+    border-radius: 1rem;
+    background: rgba(21, 27, 35, 0.6);
+  }
+
+  [data-portal="enterprise"] .glass-card {
+    border-radius: var(--radius);
+    background: rgba(21, 27, 35, 0.75);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body;
+    font-feature-settings: "cv11", "ss01";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading;
+  }
+}
+
+@layer components {
+  /* Glass Morphism Cards — HASTEN Cargo LLC */
+  .glass-card {
+    background: rgba(21, 27, 35, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .glass-card-blue {
+    background: rgba(30, 38, 48, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 230, 120, 0.15);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(0, 230, 120, 0.05);
+  }
+
+  .glass-card-purple {
+    background: rgba(30, 38, 48, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(168, 85, 247, 0.2);
+    box-shadow: 0 4px 24px rgba(168, 85, 247, 0.1), inset 0 1px 0 rgba(168, 85, 247, 0.05);
+  }
+
+  /* Neon Glow Effects — #00E678 */
+  .glow-green {
+    box-shadow: 0 0 20px rgba(0, 230, 120, 0.4), 0 0 40px rgba(0, 230, 120, 0.15);
+  }
+
+  .glow-blue {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.4), 0 0 40px rgba(59, 130, 246, 0.15);
+  }
+
+  .glow-purple {
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.4), 0 0 40px rgba(168, 85, 247, 0.15);
+  }
+
+  .glow-orange {
+    box-shadow: 0 0 20px rgba(234, 88, 12, 0.4), 0 0 40px rgba(234, 88, 12, 0.15);
+  }
+
+  .glow-red {
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.4), 0 0 40px rgba(239, 68, 68, 0.15);
+  }
+
+  /* Animated gradient border */
+  .border-glow {
+    position: relative;
+    border: 1px solid transparent;
+    background: linear-gradient(rgba(21, 27, 35, 0.9), rgba(21, 27, 35, 0.9)) padding-box,
+                linear-gradient(135deg, rgba(0, 230, 120, 0.4), rgba(59, 130, 246, 0.2), rgba(168, 85, 247, 0.15)) border-box;
+  }
+
+  /* Status badges */
+  .status-active {
+    @apply bg-green-500/15 text-green-400 border border-green-500/25;
+  }
+
+  .status-transit {
+    @apply bg-blue-500/15 text-blue-400 border border-blue-500/25;
+  }
+
+  .status-pending {
+    @apply bg-amber-500/15 text-amber-400 border border-amber-500/25;
+  }
+
+  .status-delayed {
+    @apply bg-red-500/15 text-red-400 border border-red-500/25;
+  }
+
+  .status-completed {
+    @apply bg-slate-500/15 text-slate-400 border border-slate-500/25;
+  }
+
+  /* KPI Card Hover */
+  .kpi-card {
+    transition: transform 200ms ease, box-shadow 200ms ease;
+  }
+
+  .kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(234, 88, 12, 0.15);
+  }
+
+  /* Sidebar nav items */
+  .nav-item {
+    @apply flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150;
+    color: hsl(215 20% 55%);
+  }
+
+  .nav-item:hover {
+    background: rgba(34, 197, 94, 0.08);
+    color: hsl(142 70% 45%);
+  }
+
+  .nav-item.active {
+    background: rgba(34, 197, 94, 0.12);
+    color: hsl(142 70% 45%);
+    border-left: 2px solid hsl(142 70% 45%);
+  }
+
+  /* Glowing route line animation */
+  @keyframes routePulse {
+    0%, 100% { opacity: 1; stroke-width: 2; }
+    50% { opacity: 0.6; stroke-width: 3; }
+  }
+
+  @keyframes truckMove {
+    0% { transform: translateX(-10px); }
+    100% { transform: translateX(10px); }
+  }
+
+  @keyframes counterUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 10px rgba(0, 230, 120, 0.3); }
+    50% { box-shadow: 0 0 25px rgba(0, 230, 120, 0.6), 0 0 50px rgba(0, 230, 120, 0.2); }
+  }
+
+  @keyframes slideInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate-counter { animation: counterUp 0.5s ease-out; }
+  .animate-slide-up { animation: slideInUp 0.4s ease-out; }
+  .animate-pulse-glow { animation: pulseGlow 2s ease-in-out infinite; }
+
+  .skeleton {
+    background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.07) 50%, rgba(255,255,255,0.03) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  /* Leaflet dark map tile filter */
+  .map-tiles-dark { filter: invert(1) hue-rotate(200deg) brightness(0.85) contrast(0.9); }
+  .leaflet-container { background: #0B0E11; }
+  .leaflet-popup-content-wrapper { background: #151B23; border: 1px solid rgba(255,255,255,0.08); color: #e2e8f0; border-radius: 12px; }
+  .leaflet-popup-tip { background: #151B23; }
+  .leaflet-control-zoom { border: 1px solid rgba(255,255,255,0.1) !important; }
+  .leaflet-control-zoom a { background: #1E2630 !important; color: #94a3b8 !important; border-color: rgba(255,255,255,0.05) !important; }
+  .leaflet-control-zoom a:hover { background: #2A323C !important; color: #fff !important; }
+
+  /* iOS safe area support */
+  .pt-safe-top { padding-top: env(safe-area-inset-top, 0px); }
+  .pb-safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+
+  /* Mobile touch improvements */
+  button, a { -webkit-tap-highlight-color: transparent; }
+  * { touch-action: manipulation; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(0, 230, 120, 0.3); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(0, 230, 120, 0.5); }
+}
+
+/* ============================================================
+   HASTEN GLOBAL UI SYSTEM
+   Premium visuals + enterprise density — role-aware
+   ============================================================ */
+
+:root {
+  /* Density Tokens */
+  --h-font-default: 14px;
+  --h-font-small: 13px;
+  --h-font-large: 16px;
+  --h-pad-comfort: 10px;
+  --h-pad-compact: 6px;
+  --h-pad-ultra: 4px;
+  --h-radius-comfort: 10px;
+  --h-radius-compact: 6px;
+  --h-radius-ultra: 4px;
+  --h-row-comfort: 40px;
+  --h-row-compact: 32px;
+  --h-row-ultra: 28px;
+
+  /* Color Tokens */
+  --h-accent: #00ff7f;
+  --h-accent-secondary: #009dff;
+  --h-accent-glow: #a020f0;
+  --h-warning: #ff8c00;
+  --h-danger: #ff3b3b;
+
+  /* Glass Tokens */
+  --h-glass-bg: rgba(10, 20, 35, 0.55);
+  --h-glass-border: rgba(255, 255, 255, 0.06);
+  --h-glass-blur-low: blur(8px);
+  --h-glass-blur-med: blur(14px);
+  --h-glass-blur-high: blur(20px);
+  --h-glass-blur: var(--h-glass-blur-med);
+
+  /* Active density vars (set by density classes) */
+  --h-card-pad: var(--h-pad-compact);
+  --h-card-radius: var(--h-radius-compact);
+  --h-row-height: var(--h-row-compact);
+  --h-font-size: var(--h-font-default);
+}
+
+/* ── Density Modes (bridged with existing --density-* system) ── */
+.h-density-comfortable {
+  --h-card-pad: var(--h-pad-comfort);
+  --h-card-radius: var(--h-radius-comfort);
+  --h-row-height: var(--h-row-comfort);
+  --h-font-size: var(--h-font-default);
+  --density-card-padding: 1.125rem;
+  --density-card-gap: 0.75rem;
+  --density-row-padding-y: 0.875rem;
+  --density-row-padding-x: 1rem;
+  --density-text-sm: 0.875rem;
+  --density-text-xs: 0.75rem;
+  --density-header-height: 3.5rem;
+  --density-section-gap: 1rem;
+}
+.h-density-compact {
+  --h-card-pad: var(--h-pad-compact);
+  --h-card-radius: var(--h-radius-compact);
+  --h-row-height: var(--h-row-compact);
+  --h-font-size: var(--h-font-default);
+  --density-card-padding: 0.875rem;
+  --density-card-gap: 0.5rem;
+  --density-row-padding-y: 0.625rem;
+  --density-row-padding-x: 0.875rem;
+  --density-text-sm: 0.8125rem;
+  --density-text-xs: 0.6875rem;
+  --density-header-height: 3rem;
+  --density-section-gap: 0.75rem;
+}
+.h-density-ultra {
+  --h-card-pad: var(--h-pad-ultra);
+  --h-card-radius: var(--h-radius-ultra);
+  --h-row-height: var(--h-row-ultra);
+  --h-font-size: var(--h-font-small);
+  --density-card-padding: 0.625rem;
+  --density-card-gap: 0.375rem;
+  --density-row-padding-y: 0.375rem;
+  --density-row-padding-x: 0.625rem;
+  --density-text-sm: 0.75rem;
+  --density-text-xs: 0.625rem;
+  --density-header-height: 2.5rem;
+  --density-section-gap: 0.5rem;
+}
+
+/* ── Role Defaults (composes replaced with inline properties) ── */
+.role-admin, .role-dispatcher, .role-superadmin {
+  --h-card-pad: var(--h-pad-compact);
+  --h-card-radius: var(--h-radius-compact);
+  --h-row-height: var(--h-row-compact);
+  --h-font-size: var(--h-font-default);
+}
+.role-driver, .role-customer {
+  --h-card-pad: var(--h-pad-comfort);
+  --h-card-radius: var(--h-radius-comfort);
+  --h-row-height: var(--h-row-comfort);
+  --h-font-size: var(--h-font-default);
+}
+
+/* ── Theme Classes (set --h-* color tokens) ── */
+.theme-dark {
+  --h-bg: #0a0f1a;
+  --h-bg-alt: #0f1625;
+  --h-text: #e6e6e6;
+}
+.theme-light {
+  --h-bg: #f5f7fb;
+  --h-bg-alt: #ffffff;
+  --h-text: #1a1a1a;
+}
+.theme-high-contrast {
+  --h-bg: #000000;
+  --h-bg-alt: #000000;
+  --h-text: #ffffff;
+  --h-accent: #00ffff;
+  --h-accent-secondary: #ffff00;
+}
+
+/* ── Glass Levels ── */
+.glass-low { --h-glass-blur: var(--h-glass-blur-low); --glass-blur: blur(8px); }
+.glass-medium { --h-glass-blur: var(--h-glass-blur-med); --glass-blur: blur(14px); }
+.glass-high { --h-glass-blur: var(--h-glass-blur-high); --glass-blur: blur(20px); }
+
+/* ── Font Size Options ── */
+.font-small { --h-font-size: var(--h-font-small); font-size: var(--h-font-small); }
+.font-default { --h-font-size: var(--h-font-default); font-size: var(--h-font-default); }
+.font-large { --h-font-size: var(--h-font-large); font-size: var(--h-font-large); }
+
+/* ── Core Component Utility Classes ── */
+
+/* Cards / Panels */
+.h-card, .h-panel {
+  background: var(--h-glass-bg);
+  backdrop-filter: var(--h-glass-blur);
+  -webkit-backdrop-filter: var(--h-glass-blur);
+  border-radius: var(--h-card-radius, var(--h-radius-compact));
+  padding: var(--h-card-pad, var(--h-pad-compact));
+  border: 1px solid var(--h-glass-border);
+}
+
+/* Enterprise Dense Table */
+.h-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--h-font-size, var(--h-font-default));
+}
+.h-table tr {
+  height: var(--h-row-height, var(--h-row-compact));
+}
+.h-table td, .h-table th {
+  padding: 4px 6px;
+  font-size: var(--h-font-size, var(--h-font-default));
+}
+.h-table-header, .h-table-filters {
+  position: sticky;
+  top: 0;
+  background: var(--h-bg-alt, hsl(var(--card)));
+  z-index: 10;
+}
+
+/* Buttons */
+.h-btn {
+  padding: var(--h-card-pad, var(--h-pad-compact)) 10px;
+  border-radius: var(--h-card-radius, var(--h-radius-compact));
+  background: var(--h-accent);
+  color: #000;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.h-btn:hover { filter: brightness(1.1); }
+.h-btn.secondary {
+  background: var(--h-accent-secondary);
+}
+
+/* Split Views */
+.h-split-view, .h-ops-layout {
+  display: grid;
+  grid-template-columns: minmax(320px, 40%) minmax(0, 1fr);
+  gap: 8px;
+}
+@media (max-width: 1024px) {
+  .h-split-view, .h-ops-layout { grid-template-columns: 1fr; }
+}
+
+/* Premium Visual Cards (map, dashboard hero) */
+.h-map-card, .h-visual-card {
+  background: var(--h-glass-bg);
+  backdrop-filter: var(--h-glass-blur);
+  -webkit-backdrop-filter: var(--h-glass-blur);
+  border-radius: var(--h-card-radius, var(--h-radius-compact));
+  border: 1px solid var(--h-glass-border);
+  box-shadow:
+    0 0 24px rgba(0, 255, 127, 0.15),
+    0 0 32px rgba(0, 157, 255, 0.1),
+    0 0 40px rgba(160, 32, 240, 0.08);
+}
+
+/* Enterprise vs Premium Layouts */
+.layout-enterprise { padding: 6px; }
+.layout-premium { padding: 12px; gap: 12px; }
+
+/* Whitespace Control */
+.h-main-content, .h-page-content { padding: 6px; }
+.h-section, .h-block { margin-bottom: 6px; }
+
+/* Form Drawer (not full-page) */
+.h-form-drawer, .h-form-page {
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+/* Alert / Text Colors */
+.h-badge-warning, .h-text-warning { color: var(--h-warning); }
+.h-badge-danger, .h-text-danger { color: var(--h-danger); }
+.h-text-accent { color: var(--h-accent); }
+.h-text-accent-secondary { color: var(--h-accent-secondary); }
+/* ============================================================
+   HASTEN ENTERPRISE MULTI-THEME PACK — Phase B1.5
+   Modes: Enterprise Dark, Clean White, Hybrid Glass, Executive Graphite
+   ============================================================ */
+@layer base {
+  .skin-enterprise-dark {
+    --background: 216 40% 4%;
+    --foreground: 210 40% 98%;
+    --card: 215 30% 9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 215 30% 9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 151 100% 45%;
+    --primary-foreground: 220 40% 4%;
+    --secondary: 211 100% 65%;
+    --secondary-foreground: 220 40% 4%;
+    --muted: 215 24% 13%;
+    --muted-foreground: 215 14% 62%;
+    --accent: 214 100% 65%;
+    --accent-foreground: 220 40% 4%;
+    --border: 215 22% 18%;
+    --input: 215 24% 13%;
+    --ring: 151 100% 45%;
+    --sidebar-background: 218 45% 4%;
+    --sidebar-foreground: 210 25% 88%;
+    --sidebar-primary: 151 100% 45%;
+    --sidebar-primary-foreground: 220 40% 4%;
+    --sidebar-accent: 215 30% 9%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 215 22% 14%;
+  }
+
+  .skin-clean-white {
+    --background: 220 33% 98%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 152 77% 39%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 211 95% 58%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 220 22% 94%;
+    --muted-foreground: 215 16% 45%;
+    --accent: 211 95% 58%;
+    --accent-foreground: 0 0% 100%;
+    --border: 220 20% 88%;
+    --input: 220 20% 90%;
+    --ring: 152 77% 39%;
+    --sidebar-background: 222 47% 6%;
+    --sidebar-foreground: 210 40% 90%;
+    --sidebar-primary: 152 77% 45%;
+    --sidebar-primary-foreground: 222 47% 6%;
+    --sidebar-accent: 222 40% 10%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 222 30% 14%;
+  }
+
+  .skin-hybrid-glass {
+    --background: 250 42% 7%;
+    --foreground: 220 30% 98%;
+    --card: 252 34% 15%;
+    --card-foreground: 220 30% 98%;
+    --popover: 252 34% 15%;
+    --popover-foreground: 220 30% 98%;
+    --primary: 151 78% 56%;
+    --primary-foreground: 250 42% 7%;
+    --secondary: 252 100% 68%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 252 28% 18%;
+    --muted-foreground: 250 18% 72%;
+    --accent: 211 100% 65%;
+    --accent-foreground: 250 42% 7%;
+    --border: 250 28% 25%;
+    --input: 252 28% 18%;
+    --ring: 151 78% 56%;
+    --sidebar-background: 246 45% 6%;
+    --sidebar-foreground: 250 22% 88%;
+    --sidebar-primary: 151 78% 56%;
+    --sidebar-primary-foreground: 246 45% 6%;
+    --sidebar-accent: 252 34% 15%;
+    --sidebar-accent-foreground: 220 30% 98%;
+    --sidebar-border: 250 28% 20%;
+  }
+
+  .skin-executive-graphite {
+    --background: 220 18% 7%;
+    --foreground: 210 25% 96%;
+    --card: 220 14% 12%;
+    --card-foreground: 210 25% 96%;
+    --popover: 220 14% 12%;
+    --popover-foreground: 210 25% 96%;
+    --primary: 142 70% 45%;
+    --primary-foreground: 220 18% 7%;
+    --secondary: 215 16% 55%;
+    --secondary-foreground: 220 18% 7%;
+    --muted: 220 12% 16%;
+    --muted-foreground: 215 14% 68%;
+    --accent: 142 70% 45%;
+    --accent-foreground: 220 18% 7%;
+    --border: 220 12% 22%;
+    --input: 220 12% 16%;
+    --ring: 142 70% 45%;
+    --sidebar-background: 220 18% 6%;
+    --sidebar-foreground: 215 18% 82%;
+    --sidebar-primary: 142 70% 45%;
+    --sidebar-primary-foreground: 220 18% 6%;
+    --sidebar-accent: 220 14% 12%;
+    --sidebar-accent-foreground: 210 25% 96%;
+    --sidebar-border: 220 12% 18%;
+  }
+}
+
+@layer components {
+  .hasten-theme-shell {
+    background:
+      radial-gradient(circle at 18% 0%, hsl(var(--primary) / 0.18), transparent 28%),
+      radial-gradient(circle at 82% 12%, hsl(var(--secondary) / 0.14), transparent 30%),
+      hsl(var(--background));
+  }
+
+  .skin-clean-white .hasten-theme-shell,
+  .skin-clean-white body {
+    background:
+      radial-gradient(circle at 16% 0%, rgba(22,179,100,.10), transparent 28%),
+      radial-gradient(circle at 82% 12%, rgba(46,144,250,.10), transparent 30%),
+      hsl(var(--background));
+  }
+
+  .hasten-theme-card {
+    background: hsl(var(--card) / 0.84);
+    border: 1px solid hsl(var(--border) / 0.72);
+    box-shadow: 0 20px 60px hsl(220 60% 2% / 0.28), inset 0 1px 0 hsl(0 0% 100% / 0.05);
+    backdrop-filter: var(--glass-blur, blur(20px));
+    -webkit-backdrop-filter: var(--glass-blur, blur(20px));
+  }
+
+  .skin-clean-white .hasten-theme-card {
+    background: rgba(255,255,255,.92);
+    box-shadow: 0 18px 50px rgba(16,24,40,.08);
+  }
+
+  .skin-hybrid-glass .hasten-theme-card {
+    background: hsl(var(--card) / 0.58);
+    border-color: hsl(var(--primary) / 0.18);
+    box-shadow: 0 22px 80px hsl(252 100% 20% / .28), inset 0 1px 0 hsl(0 0% 100% / .08);
+  }
+
+  .hasten-theme-button {
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
+    color: hsl(var(--primary-foreground));
+    box-shadow: 0 12px 32px hsl(var(--primary) / .22);
+  }
+
+  .hasten-theme-pill {
+    color: hsl(var(--primary));
+    background: hsl(var(--primary) / .12);
+    border: 1px solid hsl(var(--primary) / .24);
+  }
+}

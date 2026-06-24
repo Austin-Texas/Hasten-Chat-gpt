@@ -1,0 +1,96 @@
+{
+  "name": "ContractorDocument",
+  "type": "object",
+  "properties": {
+    "contractor_profile_id": {
+      "type": "string"
+    },
+    "driver_id": {
+      "type": "string"
+    },
+    "document_type": {
+      "type": "string",
+      "enum": [
+        "w9",
+        "ach_authorization",
+        "contractor_agreement",
+        "cdl",
+        "medical_card",
+        "insurance_certificate",
+        "factoring_agreement",
+        "other"
+      ]
+    },
+    "file_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "file_name": {
+      "type": "string"
+    },
+    "uploaded_by": {
+      "type": "string"
+    },
+    "uploaded_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "verified": {
+      "type": "boolean",
+      "default": false
+    },
+    "verified_by": {
+      "type": "string"
+    },
+    "verified_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expiration_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "version": {
+      "type": "number",
+      "default": 1
+    },
+    "previous_version_id": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "requires_signature": {
+      "type": "boolean",
+      "default": true
+    },
+    "signature_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "signed",
+        "expired"
+      ],
+      "default": "pending"
+    },
+    "signature_image_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "signed_by": {
+      "type": "string"
+    },
+    "signed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "signature_hash": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "contractor_profile_id",
+    "document_type",
+    "file_url"
+  ]
+}
