@@ -7,6 +7,7 @@ const commands = [
   ["Core route verification", "scripts/verifyCoreRoutes.mjs"],
   ["Driver readiness", "scripts/verifyDriverReadiness.mjs"],
   ["Driver load access", "scripts/verifyDriverLoadAccess.mjs"],
+  ["Driver load status flow", "scripts/verifyDriverLoadStatusFlow.mjs"],
   ["Driver load detail gate", "scripts/checkDriverLoadDetailGate.mjs"],
   ["Sidebar Bid Review", "scripts/checkSidebarBidReview.mjs"],
   ["Settlement approval wiring", "scripts/checkSettlementApprovalAction.mjs"],
