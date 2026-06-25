@@ -6,6 +6,7 @@ const patches = [
   ["Compliance readiness shortcut", "scripts/applyComplianceReadinessShortcut.mjs"],
   ["Settlement approval confirmation", "scripts/applySettlementApprovalAction.mjs"],
   ["Camera upload validation", "scripts/applyCameraUploadValidation.mjs"],
+  ["Camera pending upload helper", "scripts/applyCameraUploadPendingHelper.mjs"],
 ];
 
 for (const [label, script] of patches) {
