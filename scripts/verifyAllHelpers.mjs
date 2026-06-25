@@ -5,6 +5,7 @@ const commands = [
   ["Patch script verification", "scripts/verifyPatchScripts.mjs"],
   ["Workflow verification", "scripts/verifyWorkflows.mjs"],
   ["Core route verification", "scripts/verifyCoreRoutes.mjs"],
+  ["Mobile packaging readiness", "scripts/checkMobilePackagingReady.mjs"],
   ["Driver readiness", "scripts/verifyDriverReadiness.mjs"],
   ["Driver load access", "scripts/verifyDriverLoadAccess.mjs"],
   ["Driver load status flow", "scripts/verifyDriverLoadStatusFlow.mjs"],
