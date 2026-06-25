@@ -5,6 +5,7 @@ const checks = [
   ["Driver readiness center", "src/pages/DriverReadinessCenter.jsx", "Driver Readiness Center"],
   ["Driver readiness panel", "src/components/compliance/DriverReadinessPanel.jsx", "Readiness Completion"],
   ["Driver load access helper", "src/lib/driverLoadAccess.js", "getLoadDriverIds"],
+  ["Driver load status flow", "src/lib/driverLoadStatusFlow.js", "isValidDriverStatusTransition"],
   ["Driver load access gate", "src/pages/driver/DriverLoadDetailAccessGate.jsx", "fetchLoadById"],
   ["Driver scan", "src/pages/driver/DriverScan.jsx", "Document Scanner"],
   ["OCR processor", "src/components/driver/DocumentOCRProcessor.jsx", "MAX_UPLOAD_MB"],
