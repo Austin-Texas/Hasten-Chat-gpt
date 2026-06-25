@@ -63,6 +63,16 @@ export const AuthProvider = ({ children }) => {
     setIsLoadingAuth(false);
     setIsLoadingPublicSettings(false);
     setAuthChecked(true);
+
+    // The current Login page redirects every demo user to /dashboard.
+    // If the local demo user is a driver, move them to the driver shell immediately.
+    if (
+      nextUser?.businessRole === 'driver' &&
+      typeof window !== 'undefined' &&
+      window.location.pathname === '/dashboard'
+    ) {
+      window.location.replace('/driver/dashboard');
+    }
   }, []);
 
   const checkUserAuth = useCallback(async () => {
