@@ -1,9 +1,14 @@
 import {
   getSettlementPolicyWarnings,
+  isOwnerOperatorDriver,
   settlementNeedsReview,
 } from "../src/lib/settlementPolicy.js";
 
 const ownerOperator = { driver_type: "owner_operator", employment_type: "1099_contractor" };
+const contractorDriver = { driver_type: "contractor" };
+const unknownDriver = {};
+const companyDriver = { driver_type: "company_driver", employment_type: "w2" };
+
 const cleanSettlement = {
   payout_recipient: "Driver LLC",
   company_fee_amount: 250,
@@ -23,8 +28,13 @@ const reviewSettlement = {
 };
 
 const checks = [
+  ["owner operator recognized", isOwnerOperatorDriver(ownerOperator)],
+  ["contractor recognized", isOwnerOperatorDriver(contractorDriver)],
+  ["unknown driver defaults to review path", isOwnerOperatorDriver(unknownDriver)],
+  ["company driver bypasses owner operator warnings", !isOwnerOperatorDriver(companyDriver)],
   ["clean settlement has no warnings", getSettlementPolicyWarnings(cleanSettlement, ownerOperator).length === 0],
   ["review settlement has warnings", getSettlementPolicyWarnings(reviewSettlement, ownerOperator).length > 0],
+  ["unknown driver review settlement has warnings", getSettlementPolicyWarnings(reviewSettlement, unknownDriver).length > 0],
   ["review settlement needs review", settlementNeedsReview(reviewSettlement, ownerOperator)],
 ];
 
