@@ -12,6 +12,7 @@ const checks = [
   ["Pending uploads helper", "src/lib/pendingUploads.js", "listPendingUploads"],
   ["Pending uploads notice", "src/components/driver/PendingUploadsNotice.jsx", "PendingUploadsNotice"],
   ["Settlement policy", "src/lib/settlementPolicy.js", "getSettlementPolicyWarnings"],
+  ["Settlement status flow", "src/lib/settlementStatusFlow.js", "isValidSettlementStatusTransition"],
   ["Settlement warning UI", "src/components/settlement/SettlementPolicyWarnings.jsx", "Settlement review needed"],
   ["Settlement approval UI", "src/components/settlement/SettlementApprovalAction.jsx", "Continue with approval"],
   ["Patch runner", "scripts/applyRecommendedPatches.mjs", "applyCameraUploadValidationSafe"],
