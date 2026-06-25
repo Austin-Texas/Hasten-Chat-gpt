@@ -11,6 +11,8 @@ const checks = [
   ["OCR processor", "src/components/driver/DocumentOCRProcessor.jsx", "MAX_UPLOAD_MB"],
   ["Pending uploads helper", "src/lib/pendingUploads.js", "listPendingUploads"],
   ["Pending uploads notice", "src/components/driver/PendingUploadsNotice.jsx", "PendingUploadsNotice"],
+  ["Pending uploads retry helper", "src/lib/pendingUploadRetry.js", "retryPendingUploads"],
+  ["Pending uploads retry UI", "src/components/driver/PendingUploadsRetry.jsx", "PendingUploadsRetry"],
   ["Settlement policy", "src/lib/settlementPolicy.js", "getSettlementPolicyWarnings"],
   ["Settlement status flow", "src/lib/settlementStatusFlow.js", "isValidSettlementStatusTransition"],
   ["Settlement status progress", "src/components/settlement/SettlementStatusProgress.jsx", "SettlementStatusProgress"],
