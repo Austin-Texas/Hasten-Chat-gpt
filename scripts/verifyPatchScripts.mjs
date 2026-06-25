@@ -2,13 +2,18 @@ import fs from "node:fs";
 
 const requiredScripts = [
   "scripts/applyDriverLoadDetailGate.mjs",
+  "scripts/checkDriverLoadDetailGate.mjs",
   "scripts/applySidebarBidReview.mjs",
+  "scripts/checkSidebarBidReview.mjs",
   "scripts/applyComplianceReadinessShortcut.mjs",
   "scripts/applySettlementApprovalAction.mjs",
   "scripts/applyCameraUploadValidationSafe.mjs",
   "scripts/applyCameraUploadPendingHelper.mjs",
   "scripts/applyRecommendedPatches.mjs",
+  "scripts/applyAndVerifyRecommendedPatches.mjs",
   "scripts/reportPendingPatches.mjs",
+  "scripts/smokeCheckProjectFiles.mjs",
+  "scripts/verifyAllHelpers.mjs",
 ];
 
 const missing = requiredScripts.filter((file) => !fs.existsSync(file));
