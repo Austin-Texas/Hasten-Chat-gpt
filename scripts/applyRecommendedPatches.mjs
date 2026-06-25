@@ -16,7 +16,7 @@ for (const [label, script] of patches) {
   console.log(`\n▶ Applying ${label}`);
   const result = spawnSync("node", [script], { stdio: "inherit" });
   if (result.status !== 0) {
-    console.error(`\n${label} patch failed. Stop and inspect ${script}.");
+    console.error(`\n${label} patch failed. Stop and inspect ${script}.`);
     process.exit(result.status || 1);
   }
 }
