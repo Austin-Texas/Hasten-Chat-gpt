@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Link } from "react-router-dom";
-import { Users, Plus, Search, Phone, Mail, MapPin, ChevronRight, Star } from "lucide-react";
+import { Users, Plus, Search, Phone, Mail, MapPin, ChevronRight, Star, ShieldCheck } from "lucide-react";
 import StatusBadge from "@/components/hasten/StatusBadge";
 import { listLocalDrivers } from "@/lib/localDriverStore";
+import { getDriverReadinessStats } from "@/lib/driverReadiness";
 
 export default function Drivers() {
   const [drivers, setDrivers] = useState([]);
@@ -37,28 +38,43 @@ export default function Drivers() {
   }, []);
 
   const STATUS_OPTS = ["all", "available", "on_load", "off_duty", "inactive"];
+  const readinessStats = getDriverReadinessStats(drivers);
   const filtered = drivers.filter(d => {
     const matchStatus = statusFilter === "all" || d.status === statusFilter;
     const q = search.toLowerCase();
     const matchSearch = !search ||
-      `${d.first_name} ${d.last_name}`.toLowerCase().includes(q) ||
+      `${d.first_name || ""} ${d.last_name || ""} ${d.full_name || ""}`.toLowerCase().includes(q) ||
       (d.email || "").toLowerCase().includes(q) ||
-      (d.license_number || "").toLowerCase().includes(q);
+      (d.license_number || "").toLowerCase().includes(q) ||
+      (d.vehicle_type || "").toLowerCase().includes(q);
     return matchStatus && matchSearch;
   });
 
   return (
     <div className="space-y-5 animate-slide-up">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h1 className="text-white font-heading font-bold text-2xl">Drivers</h1>
           <p className="text-slate-400 text-sm mt-0.5">{drivers.length} total drivers</p>
         </div>
-        <Link to="/drivers/new"
-          className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-white text-sm"
-          style={{ background: "linear-gradient(135deg, #EA580C, #F97316)" }}>
-          <Plus className="w-4 h-4" /> Add Driver
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link to="/drivers/readiness"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-green-300 text-sm border border-green-500/20 bg-green-500/10 hover:text-white">
+            <ShieldCheck className="w-4 h-4" /> Readiness
+          </Link>
+          <Link to="/drivers/new"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-white text-sm"
+            style={{ background: "linear-gradient(135deg, #EA580C, #F97316)" }}>
+            <Plus className="w-4 h-4" /> Add Driver
+          </Link>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <ReadinessMini label="Total" value={readinessStats.total} />
+        <ReadinessMini label="Ready" value={readinessStats.ready} tone="green" />
+        <ReadinessMini label="Review" value={readinessStats.warning} tone="amber" />
+        <ReadinessMini label="Setup" value={readinessStats.blocked} tone="red" />
       </div>
 
       <div className="flex gap-2 flex-wrap">
@@ -95,12 +111,12 @@ export default function Drivers() {
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-orange-500/15 border border-orange-500/25 flex items-center justify-center flex-shrink-0">
                     <span className="text-orange-400 font-bold text-sm">
-                      {(driver.first_name || "?").charAt(0)}{(driver.last_name || "").charAt(0)}
+                      {(driver.first_name || driver.full_name || "?").charAt(0)}{(driver.last_name || "").charAt(0)}
                     </span>
                   </div>
                   <div>
-                    <div className="text-white font-medium">{driver.first_name} {driver.last_name}</div>
-                    <div className="text-slate-500 text-xs">CDL-{driver.license_class || "A"}</div>
+                    <div className="text-white font-medium">{driver.full_name || `${driver.first_name || ""} ${driver.last_name || ""}`.trim() || "Driver"}</div>
+                    <div className="text-slate-500 text-xs">{driver.vehicle_type || `CDL-${driver.license_class || "A"}`}</div>
                   </div>
                 </div>
                 <StatusBadge status={driver.status || "available"} />
@@ -128,6 +144,21 @@ export default function Drivers() {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+function ReadinessMini({ label, value, tone = "blue" }) {
+  const tones = {
+    blue: "border-blue-500/20 bg-blue-500/10 text-blue-300",
+    green: "border-green-500/20 bg-green-500/10 text-green-300",
+    amber: "border-amber-500/20 bg-amber-500/10 text-amber-300",
+    red: "border-red-500/20 bg-red-500/10 text-red-300",
+  };
+  return (
+    <div className={`rounded-xl border p-3 ${tones[tone]}`}>
+      <div className="text-lg font-bold text-white">{value}</div>
+      <div className="text-[10px] uppercase tracking-wide opacity-80">{label}</div>
     </div>
   );
 }
