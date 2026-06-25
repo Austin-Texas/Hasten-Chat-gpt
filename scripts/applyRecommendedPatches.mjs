@@ -9,13 +9,14 @@ const patches = [
   ["Settlement status progress", "scripts/applySettlementStatusProgress.mjs"],
   ["Camera upload validation", "scripts/applyCameraUploadValidationSafe.mjs"],
   ["Camera pending upload helper", "scripts/applyCameraUploadPendingHelper.mjs"],
+  ["Driver scan pending upload retry", "scripts/applyPendingUploadsRetryToScan.mjs"],
 ];
 
 for (const [label, script] of patches) {
   console.log(`\n▶ Applying ${label}`);
   const result = spawnSync("node", [script], { stdio: "inherit" });
   if (result.status !== 0) {
-    console.error(`\n${label} patch failed. Stop and inspect ${script}.`);
+    console.error(`\n${label} patch failed. Stop and inspect ${script}.");
     process.exit(result.status || 1);
   }
 }
