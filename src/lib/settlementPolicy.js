@@ -5,12 +5,18 @@ export const OWNER_OPERATOR_ADJUSTMENT_FIELDS = [
   "escrow_hold",
 ];
 
+function normalize(value) {
+  return String(value || "").toLowerCase().trim();
+}
+
 export function isOwnerOperatorDriver(driver = {}) {
-  return (
-    driver.driver_type === "owner_operator" ||
-    driver.employment_type === "1099_contractor" ||
-    driver.employment_type === "owner_operator"
-  );
+  const driverType = normalize(driver.driver_type);
+  const employmentType = normalize(driver.employment_type);
+
+  if (!driverType && !employmentType) return true;
+
+  return ["owner_operator", "contractor", "1099_contractor"].includes(driverType) ||
+    ["owner_operator", "contractor", "1099_contractor"].includes(employmentType);
 }
 
 export function getSettlementPolicyWarnings(settlement = {}, driver = {}) {
