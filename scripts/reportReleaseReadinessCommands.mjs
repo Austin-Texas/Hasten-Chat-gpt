@@ -7,6 +7,7 @@ const commands = [
   "node scripts/checkConsoleReleaseReady.mjs",
   "node scripts/checkMobilePackagingReady.mjs",
   "node scripts/reportExternalPortalStatus.mjs",
+  "node scripts/reportExternalPortalRouteMatrix.mjs",
   "node scripts/reportNativePackagingStatus.mjs",
   "npm run build",
 ];
