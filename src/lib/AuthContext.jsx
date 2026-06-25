@@ -1,21 +1,37 @@
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
-import { base44 } from '@/api/base44Client';
+import { base44, isLocalDemoMode } from '@/api/base44Client';
 
 const AuthContext = createContext();
 const DEMO_STORAGE_KEY = 'hasten_user';
 
 const normalizeDemoUser = (storedUser = {}) => {
-  const businessRole = storedUser.businessRole || storedUser.role || 'admin';
-  const isAdminLike = ['super_admin', 'admin'].includes(businessRole);
+  const email = String(storedUser.email || 'netzeus20@gmail.com').toLowerCase();
+  const isDriver = email === 'driver@hasten.com';
+
+  if (isDriver) {
+    return {
+      id: storedUser.id || 'local-driver-user',
+      email,
+      full_name: storedUser.full_name || storedUser.fullName || storedUser.name || 'Demo Driver',
+      name: storedUser.name || storedUser.full_name || storedUser.fullName || 'Demo Driver',
+      role: 'driver',
+      businessRole: 'driver',
+      accountType: 'driver',
+      isDemoUser: true,
+      localDemo: true,
+    };
+  }
 
   return {
-    id: storedUser.id || 'demo-user',
-    email: storedUser.email || 'netzeus20@gmail.com',
+    id: storedUser.id || 'local-admin-user',
+    email,
     full_name: storedUser.full_name || storedUser.fullName || storedUser.name || 'Brian M',
     name: storedUser.name || storedUser.full_name || storedUser.fullName || 'Brian M',
-    role: isAdminLike ? 'admin' : businessRole,
-    businessRole,
+    role: 'admin',
+    businessRole: 'super_admin',
+    accountType: 'admin',
     isDemoUser: true,
+    localDemo: true,
   };
 };
 
@@ -69,15 +85,22 @@ export const AuthProvider = ({ children }) => {
       applyAuthState(normalizedUser);
       return normalizedUser;
     } catch (error) {
-      console.warn('[AuthContext] Base44 auth unavailable locally; user is unauthenticated.', error?.message || error);
+      if (!isLocalDemoMode) {
+        console.warn('[AuthContext] Base44 auth unavailable; user is unauthenticated.', error?.message || error);
+      }
       applyAuthState(null);
       return null;
     }
   }, [applyAuthState]);
 
   const checkAppState = useCallback(async () => {
-    // Local demo login should not call Base44 public settings because local appParams.appId can be null.
-    setAppPublicSettings(null);
+    // Local demo login must not call Base44 public settings because local appParams.appId can be null.
+    if (isLocalDemoMode) {
+      setAppPublicSettings({ id: 'local-demo', public_settings: { local_demo: true } });
+    } else {
+      setAppPublicSettings(null);
+    }
+
     await checkUserAuth();
   }, [checkUserAuth]);
 
@@ -121,6 +144,7 @@ export const AuthProvider = ({ children }) => {
       navigateToLogin,
       checkUserAuth,
       checkAppState,
+      isLocalDemoMode,
     }}>
       {children}
     </AuthContext.Provider>
