@@ -26,6 +26,7 @@ import {
   matchExternalLoadsToDrivers,
 } from "@/lib/equipmentMatching";
 import { getDriverReadiness, readinessClass } from "@/lib/driverReadiness";
+import { getExistingBidDriverIds } from "@/lib/phase2dGuards";
 
 const LOCAL_EXTERNAL_LOADS = [
   {
@@ -260,7 +261,15 @@ export default function LoadMarketplace() {
         return;
       }
 
-      await Promise.all(readyDrivers.slice(0, 10).map((match) => base44.entities.DriverLoadBid.create({
+      const existingDriverIds = await getExistingBidDriverIds(base44, load.id);
+      const newReadyDrivers = readyDrivers.filter((match) => !existingDriverIds.has(match.driver_id));
+      if (!newReadyDrivers.length) {
+        setNotice("All ready compatible drivers already have auction invitations for this load.");
+        setMatches(matchedDrivers);
+        return;
+      }
+
+      await Promise.all(newReadyDrivers.slice(0, 10).map((match) => base44.entities.DriverLoadBid.create({
         external_load_id: load.id,
         driver_id: match.driver_id,
         status: "pending",
@@ -275,8 +284,9 @@ export default function LoadMarketplace() {
         updated_at: new Date().toISOString(),
       });
 
-      const skipped = matchedDrivers.length - readyDrivers.length;
-      setNotice(`Sent to ${Math.min(readyDrivers.length, 10)} ready driver${readyDrivers.length === 1 ? "" : "s"}${skipped ? `; skipped ${skipped} not-ready driver${skipped === 1 ? "" : "s"}.` : "."}`);
+      const skippedNotReady = matchedDrivers.length - readyDrivers.length;
+      const skippedDuplicate = readyDrivers.length - newReadyDrivers.length;
+      setNotice(`Sent to ${Math.min(newReadyDrivers.length, 10)} new ready driver${newReadyDrivers.length === 1 ? "" : "s"}${skippedNotReady ? `; skipped ${skippedNotReady} not-ready driver${skippedNotReady === 1 ? "" : "s"}` : ""}${skippedDuplicate ? `; skipped ${skippedDuplicate} duplicate invitation${skippedDuplicate === 1 ? "" : "s"}` : ""}.`);
       await fetchLoads();
     } catch (error) {
       console.error(error);
