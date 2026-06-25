@@ -13,6 +13,12 @@ const checks = [
     apply: "node scripts/applyDriverLoadDetailGate.mjs",
   },
   {
+    label: "Driver Load Status Flow",
+    file: "src/pages/driver/DriverLoadDetail.jsx",
+    wired: (source) => source.includes("driverLoadStatusFlow") && source.includes("isValidDriverStatusTransition"),
+    apply: "node scripts/applyDriverLoadStatusFlow.mjs",
+  },
+  {
     label: "Sidebar Bid Review shortcut",
     file: "src/components/HastenLayout.jsx",
     wired: (source) => source.includes("/dispatch/bid-review"),
