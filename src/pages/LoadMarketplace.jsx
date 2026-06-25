@@ -25,6 +25,7 @@ import {
   getLoadEquipment,
   matchExternalLoadsToDrivers,
 } from "@/lib/equipmentMatching";
+import { getDriverReadiness, readinessClass } from "@/lib/driverReadiness";
 
 const LOCAL_EXTERNAL_LOADS = [
   {
@@ -94,7 +95,12 @@ const LOCAL_DRIVERS = [
     vehicle_type: "Sprinter",
     max_payload: 3000,
     status: "available",
+    availability: "available",
     compliance_status: "valid",
+    license_status: "valid",
+    insurance_status: "valid",
+    w9_status: "valid",
+    contract_status: "valid",
     home_city: "Fayetteville",
     home_state: "NC",
   },
@@ -104,7 +110,12 @@ const LOCAL_DRIVERS = [
     vehicle_type: "Hot Shot",
     max_payload: 12000,
     status: "available",
+    availability: "available",
     compliance_status: "valid",
+    license_status: "valid",
+    insurance_status: "valid",
+    w9_status: "valid",
+    contract_status: "valid",
     home_city: "Charlotte",
     home_state: "NC",
   },
@@ -114,7 +125,12 @@ const LOCAL_DRIVERS = [
     vehicle_type: "Dry Van",
     max_payload: 44000,
     status: "available",
+    availability: "available",
     compliance_status: "valid",
+    license_status: "valid",
+    insurance_status: "valid",
+    w9_status: "valid",
+    contract_status: "valid",
     home_city: "Greensboro",
     home_state: "NC",
   },
@@ -187,6 +203,21 @@ export default function LoadMarketplace() {
     }
   };
 
+  const enrichMatchesWithReadiness = async (rawMatches = []) => {
+    const availableDrivers = drivers.length ? drivers : await fetchDrivers();
+    const driverById = new Map(availableDrivers.map((driver) => [driver.id, driver]));
+    return rawMatches.map((match) => {
+      const driver = driverById.get(match.driver_id) || match.driver || {};
+      const readiness = getDriverReadiness(driver);
+      return {
+        ...match,
+        driver,
+        readiness,
+        driver_ready: readiness.level === "ready",
+      };
+    });
+  };
+
   const findMatches = async (load) => {
     let functionMatches = [];
     try {
@@ -196,10 +227,10 @@ export default function LoadMarketplace() {
       console.warn("[LoadMarketplace] Match function fallback:", err?.message || err);
     }
 
-    if (functionMatches.length > 0) return functionMatches;
+    if (functionMatches.length > 0) return enrichMatchesWithReadiness(functionMatches);
 
     const availableDrivers = drivers.length ? drivers : await fetchDrivers();
-    return matchExternalLoadsToDrivers(load, availableDrivers);
+    return enrichMatchesWithReadiness(matchExternalLoadsToDrivers(load, availableDrivers));
   };
 
   const handleMatch = async (load) => {
@@ -218,12 +249,18 @@ export default function LoadMarketplace() {
     setNotice("");
     try {
       const matchedDrivers = await findMatches(load);
+      const readyDrivers = matchedDrivers.filter((match) => match.driver_ready);
       if (!matchedDrivers.length) {
         setNotice("No compatible drivers found for this equipment class.");
         return;
       }
+      if (!readyDrivers.length) {
+        setNotice("Compatible drivers found, but none are ready/compliant. Fix driver readiness before sending auction.");
+        setMatches(matchedDrivers);
+        return;
+      }
 
-      await Promise.all(matchedDrivers.slice(0, 10).map((match) => base44.entities.DriverLoadBid.create({
+      await Promise.all(readyDrivers.slice(0, 10).map((match) => base44.entities.DriverLoadBid.create({
         external_load_id: load.id,
         driver_id: match.driver_id,
         status: "pending",
@@ -238,7 +275,8 @@ export default function LoadMarketplace() {
         updated_at: new Date().toISOString(),
       });
 
-      setNotice(`Sent to ${Math.min(matchedDrivers.length, 10)} matching driver${matchedDrivers.length === 1 ? "" : "s"}.`);
+      const skipped = matchedDrivers.length - readyDrivers.length;
+      setNotice(`Sent to ${Math.min(readyDrivers.length, 10)} ready driver${readyDrivers.length === 1 ? "" : "s"}${skipped ? `; skipped ${skipped} not-ready driver${skipped === 1 ? "" : "s"}.` : "."}`);
       await fetchLoads();
     } catch (error) {
       console.error(error);
@@ -305,6 +343,7 @@ export default function LoadMarketplace() {
   const availableCount = loads.filter((load) => (load.normalized_status || "available") === "available").length;
   const auctionCount = loads.filter((load) => load.normalized_status === "auction").length;
   const avgRate = loads.length ? Math.round(loads.reduce((sum, load) => sum + Number(load.rate_available || 0), 0) / loads.length) : 0;
+  const readyMatchCount = matches.filter((match) => match.driver_ready).length;
 
   return (
     <div className="space-y-4 animate-slide-up">
@@ -314,6 +353,9 @@ export default function LoadMarketplace() {
           <p className="text-slate-400 text-sm mt-0.5">{filtered.length} visible loads from {sources.length} sources</p>
         </div>
         <div className="flex gap-2">
+          <Link to="/dispatch/bid-review" className="rounded-lg border border-green-500/20 bg-green-500/10 px-4 py-2 text-sm font-medium text-green-300 hover:text-white">
+            Bid Review
+          </Link>
           <Link to="/super-admin/settings/integrations/load-board-apis" className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-300 hover:text-white">
             API Sources
           </Link>
@@ -438,7 +480,7 @@ export default function LoadMarketplace() {
                     </button>
                     <button onClick={() => handleSendToAuction(load)} disabled={auctioning === load.id}
                       className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-purple-500/15 border border-purple-500/25 text-purple-300 text-xs font-medium hover:bg-purple-500/25 transition-colors disabled:opacity-60"
-                      title="Send offer to matching drivers">
+                      title="Send offer to ready matching drivers only">
                       {auctioning === load.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />} Auction
                     </button>
                     <button onClick={() => handleImport(load)}
@@ -461,7 +503,7 @@ export default function LoadMarketplace() {
             <div className="p-4 border-b border-white/10 flex items-center justify-between">
               <div>
                 <h3 className="text-white font-semibold text-sm">Driver Matches</h3>
-                <p className="text-slate-500 text-xs">{showMatchModal.pickup_city} → {showMatchModal.delivery_city} · {getLoadEquipment(showMatchModal)}</p>
+                <p className="text-slate-500 text-xs">{showMatchModal.pickup_city} → {showMatchModal.delivery_city} · {getLoadEquipment(showMatchModal)} · {readyMatchCount}/{matches.length} ready</p>
               </div>
               <button onClick={() => setShowMatchModal(null)} className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400">
                 <X className="w-4 h-4" />
@@ -493,8 +535,14 @@ export default function LoadMarketplace() {
                         </div>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="text-white font-medium text-sm">{m.driver_name}</div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <div className="text-white font-medium text-sm">{m.driver_name}</div>
+                          <span className={`rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase ${readinessClass(m.readiness?.level)}`}>
+                            {m.driver_ready ? "Ready" : m.readiness?.label || "Needs Review"}
+                          </span>
+                        </div>
                         <div className="text-slate-500 text-xs">{m.equipment} · {m.home_city}, {m.home_state}</div>
+                        {!m.driver_ready && <div className="mt-1 text-[10px] text-amber-300">{m.readiness?.message || "Driver readiness required"}</div>}
                         <div className="mt-1 flex flex-wrap gap-1">
                           {(m.reasons || []).map((reason) => (
                             <span key={reason} className="rounded bg-green-500/10 px-1.5 py-0.5 text-[10px] text-green-300">{reason}</span>
@@ -502,7 +550,7 @@ export default function LoadMarketplace() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <ShieldCheck className="h-4 w-4 text-green-400" />
+                        <ShieldCheck className={`h-4 w-4 ${m.driver_ready ? "text-green-400" : "text-amber-400"}`} />
                         <Link to={`/drivers/${m.driver_id}`} className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-slate-300 text-xs hover:text-white transition-colors">
                           View
                         </Link>
@@ -514,10 +562,10 @@ export default function LoadMarketplace() {
             </div>
             {matches.length > 0 && !matching && (
               <div className="border-t border-white/10 p-4 flex justify-end">
-                <button onClick={() => handleSendToAuction(showMatchModal)} disabled={auctioning === showMatchModal.id}
+                <button onClick={() => handleSendToAuction(showMatchModal)} disabled={auctioning === showMatchModal.id || readyMatchCount === 0}
                   className="flex items-center gap-2 rounded-lg bg-green-500 px-4 py-2 text-sm font-bold text-black disabled:opacity-60">
                   {auctioning === showMatchModal.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
-                  Send to Auction
+                  Send to {readyMatchCount} Ready Driver{readyMatchCount === 1 ? "" : "s"}
                 </button>
               </div>
             )}
