@@ -9,6 +9,7 @@ const patches = [
   ["Settlement status progress", "scripts/applySettlementStatusProgress.mjs"],
   ["Camera upload validation", "scripts/applyCameraUploadValidationSafe.mjs"],
   ["Camera pending upload helper", "scripts/applyCameraUploadPendingHelper.mjs"],
+  ["Camera queued upload context", "scripts/applyCameraUploadContext.mjs"],
   ["Driver scan pending upload retry", "scripts/applyPendingUploadsRetryToScan.mjs"],
 ];
 
