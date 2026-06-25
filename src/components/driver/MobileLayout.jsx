@@ -1,14 +1,14 @@
 import { useLocation, Link } from "react-router-dom";
-import { LayoutDashboard, Package, MapPin, FileText, MessageSquare, DollarSign, Wifi, WifiOff, User, Clock, ScanLine } from "lucide-react";
+import { LayoutDashboard, Package, MessageSquare, Wifi, WifiOff, User, ScanLine } from "lucide-react";
 import { useState, useEffect } from "react";
 import { DriverThemeProvider } from "@/lib/DriverThemeContext";
 
 const TABS = [
-  { label: "Home",     icon: LayoutDashboard, path: "/driver/dashboard" },
-  { label: "Loads",    icon: Package,         path: "/driver/loads" },
-  { label: "Scan",     icon: ScanLine,        path: "/driver/scan" },
-  { label: "Chat",     icon: MessageSquare,   path: "/driver/messages" },
-  { label: "Profile",  icon: User,            path: "/driver/profile" },
+  { label: "Home", icon: LayoutDashboard, path: "/driver/dashboard" },
+  { label: "Loads", icon: Package, path: "/driver/loads" },
+  { label: "Scan", icon: ScanLine, path: "/driver/scan", center: true },
+  { label: "Chat", icon: MessageSquare, path: "/driver/messages" },
+  { label: "Profile", icon: User, path: "/driver/profile" },
 ];
 
 function TruckIcon({ className }) {
@@ -24,12 +24,12 @@ export default function MobileLayout({ children, user }) {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
 
   useEffect(() => {
-    const on  = () => setIsOnline(true);
+    const on = () => setIsOnline(true);
     const off = () => setIsOnline(false);
-    window.addEventListener("online",  on);
+    window.addEventListener("online", on);
     window.addEventListener("offline", off);
     return () => {
-      window.removeEventListener("online",  on);
+      window.removeEventListener("online", on);
       window.removeEventListener("offline", off);
     };
   }, []);
@@ -46,7 +46,6 @@ export default function MobileLayout({ children, user }) {
         className="flex flex-col bg-background overflow-hidden"
         style={{ height: "100dvh", maxWidth: "100vw" }}
       >
-        {/* ── Top Header ── */}
         <header
           className="flex-shrink-0 flex items-center justify-between px-4 border-b border-white/5"
           style={{
@@ -56,7 +55,6 @@ export default function MobileLayout({ children, user }) {
             minHeight: "54px",
           }}
         >
-          {/* Brand */}
           <div className="flex items-center gap-2.5">
             <div
               className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -70,7 +68,6 @@ export default function MobileLayout({ children, user }) {
             </div>
           </div>
 
-          {/* Right side */}
           <div className="flex items-center gap-3">
             {isOnline ? (
               <div className="flex items-center gap-1.5">
@@ -84,7 +81,6 @@ export default function MobileLayout({ children, user }) {
               </div>
             )}
 
-            {/* Avatar — tappable → profile */}
             <Link
               to="/driver/profile"
               className="w-8 h-8 rounded-full flex items-center justify-center border-2 border-green-500/40 flex-shrink-0 active:scale-95 transition-transform"
@@ -95,7 +91,6 @@ export default function MobileLayout({ children, user }) {
           </div>
         </header>
 
-        {/* ── Page content ── */}
         <main
           className="flex-1 overflow-y-auto overflow-x-hidden"
           style={{ WebkitOverflowScrolling: "touch" }}
@@ -103,7 +98,6 @@ export default function MobileLayout({ children, user }) {
           <div className="px-4 py-4 pb-28">{children}</div>
         </main>
 
-        {/* ── Bottom Tab Bar ── */}
         <nav
           className="flex-shrink-0 border-t border-white/8"
           style={{
@@ -111,11 +105,39 @@ export default function MobileLayout({ children, user }) {
             paddingBottom: "env(safe-area-inset-bottom, 0px)",
           }}
         >
-          <div className="flex items-stretch">
+          <div className="flex items-stretch px-1">
             {TABS.map((tab) => {
               const isActive =
                 location.pathname === tab.path ||
                 (tab.path !== "/driver/dashboard" && location.pathname.startsWith(tab.path));
+
+              if (tab.center) {
+                return (
+                  <Link
+                    key={tab.path}
+                    to={tab.path}
+                    className="flex-1 flex flex-col items-center justify-center gap-1 -mt-6 pb-2 relative active:scale-95 transition-transform"
+                    aria-label="Scan documents"
+                  >
+                    <div
+                      className={`relative h-14 w-14 rounded-2xl flex items-center justify-center border transition-all duration-200 ${
+                        isActive ? "border-green-300/80" : "border-green-400/40"
+                      }`}
+                      style={{
+                        background: "radial-gradient(circle at 30% 20%, rgba(255,255,255,0.22), transparent 32%), linear-gradient(135deg, #00E678, #00C865)",
+                        boxShadow: isActive
+                          ? "0 0 34px rgba(0,230,120,0.72), 0 10px 28px rgba(0,0,0,0.36)"
+                          : "0 0 22px rgba(0,230,120,0.48), 0 8px 22px rgba(0,0,0,0.32)",
+                      }}
+                    >
+                      <ScanLine className="w-7 h-7 text-black" strokeWidth={2.7} />
+                    </div>
+                    <span className={`text-[9px] font-bold tracking-wide uppercase ${isActive ? "text-green-300" : "text-green-500/80"}`}>
+                      Scan
+                    </span>
+                  </Link>
+                );
+              }
 
               return (
                 <Link
