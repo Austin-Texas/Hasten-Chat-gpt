@@ -49,6 +49,12 @@ const checks = [
     apply: "node scripts/applyCameraUploadValidationSafe.mjs",
   },
   {
+    label: "Camera queued upload context",
+    file: "src/components/driver/CameraUpload.jsx",
+    wired: (source) => source.includes("buildQueuedUploadContext") && source.includes("targetId") && source.includes("targetType"),
+    apply: "node scripts/applyCameraUploadContext.mjs",
+  },
+  {
     label: "Driver Scan pending upload retry",
     file: "src/pages/driver/DriverScan.jsx",
     wired: (source) => source.includes("PendingUploadsRetry") && source.includes("<PendingUploadsRetry />"),
