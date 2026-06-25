@@ -1,4 +1,5 @@
 import { listPendingUploads, savePendingUploads } from "@/lib/pendingUploads";
+import { buildQueuedUploadRecordActions } from "@/lib/queuedUploadRecordActions";
 
 export function dataUrlToFile(dataUrl, filename = "upload", mimeType = "application/octet-stream") {
   const [meta, data] = String(dataUrl || "").split(",");
@@ -10,6 +11,11 @@ export function dataUrlToFile(dataUrl, filename = "upload", mimeType = "applicat
     bytes[index] = binary.charCodeAt(index);
   }
   return new File([bytes], filename, { type: resolvedType });
+}
+
+function publishRetryResult(result) {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent("hasten_pending_uploads_retried", { detail: result }));
 }
 
 export async function retryPendingUploads(uploadFile) {
@@ -28,6 +34,9 @@ export async function retryPendingUploads(uploadFile) {
     }
   }
 
+  const actions = buildQueuedUploadRecordActions(completed);
+  const retryResult = { completed, remaining, actions };
   savePendingUploads(remaining);
-  return { completed, remaining };
+  publishRetryResult(retryResult);
+  return retryResult;
 }
