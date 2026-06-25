@@ -19,6 +19,12 @@ const checks = [
     apply: "node scripts/applyDriverLoadStatusFlow.mjs",
   },
   {
+    label: "Driver Load Detail upload context",
+    file: "src/pages/driver/DriverLoadDetail.jsx",
+    wired: (source) => source.includes('targetType="load"') && source.includes('targetType="load_expense"'),
+    apply: "node scripts/applyDriverLoadDetailUploadContext.mjs",
+  },
+  {
     label: "Sidebar Bid Review shortcut",
     file: "src/components/HastenLayout.jsx",
     wired: (source) => source.includes("/dispatch/bid-review"),
