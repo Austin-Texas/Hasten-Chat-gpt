@@ -73,6 +73,7 @@ import ContractorManagement from '@/pages/ContractorManagement';
 import PaymentProfiles from '@/pages/PaymentProfiles';
 import Factoring from '@/pages/Factoring';
 import LoadMarketplace from '@/pages/LoadMarketplace';
+import DispatchBidReview from '@/pages/DispatchBidReview';
 import SuperAdminIntegrations from '@/pages/SuperAdminIntegrations';
 import TaxCenter from '@/pages/TaxCenter';
 import AgentConversation from '@/pages/AgentConversation';
@@ -164,6 +165,7 @@ const AuthenticatedApp = () => {
         <Route path="/activity" element={<Navigate to="/timeline" replace />} />
         <Route path="/dispatch" element={<AppLayout user={user}><Dispatch /></AppLayout>} />
         <Route path="/dispatch/load-marketplace" element={<AppLayout user={user}><LoadMarketplace /></AppLayout>} />
+        <Route path="/dispatch/bid-review" element={<AppLayout user={user}><DispatchBidReview /></AppLayout>} />
         <Route path="/dispatch/marketplace" element={<Navigate to="/dispatch/load-marketplace" replace />} />
         <Route path="/super-admin/settings/integrations/load-board-apis" element={<AppLayout user={user}><SuperAdminIntegrations /></AppLayout>} />
         <Route path="/super-admin/integrations/load-board-api" element={<Navigate to="/super-admin/settings/integrations/load-board-apis" replace />} />
