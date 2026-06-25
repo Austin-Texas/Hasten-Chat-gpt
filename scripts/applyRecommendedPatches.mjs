@@ -6,6 +6,7 @@ const patches = [
   ["Sidebar Bid Review shortcut", "scripts/applySidebarBidReview.mjs"],
   ["Compliance readiness shortcut", "scripts/applyComplianceReadinessShortcut.mjs"],
   ["Settlement approval confirmation", "scripts/applySettlementApprovalAction.mjs"],
+  ["Settlement status progress", "scripts/applySettlementStatusProgress.mjs"],
   ["Camera upload validation", "scripts/applyCameraUploadValidationSafe.mjs"],
   ["Camera pending upload helper", "scripts/applyCameraUploadPendingHelper.mjs"],
 ];
