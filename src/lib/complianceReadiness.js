@@ -1,16 +1,34 @@
 import {
   enrichDriversWithReadiness,
   getDriverReadinessStats,
-  driverReadinessSearchText,
 } from "@/lib/driverReadiness";
 
 export const READINESS_FILTERS = ["all", "ready", "warning", "blocked"];
+
+function readinessSearchText(driver = {}) {
+  return [
+    driver.full_name,
+    driver.name,
+    driver.first_name,
+    driver.last_name,
+    driver.email,
+    driver.phone,
+    driver.vehicle_type,
+    driver.trailer_type,
+    driver.home_city,
+    driver.home_state,
+    driver.availability,
+    driver.status,
+    driver.readiness?.label,
+    driver.readiness?.message,
+  ].filter(Boolean).join(" ").toLowerCase();
+}
 
 export function buildDriverReadinessRows(drivers = [], search = "", filter = "all") {
   const q = String(search || "").toLowerCase().trim();
   return enrichDriversWithReadiness(drivers).filter((driver) => {
     const matchesFilter = filter === "all" || driver.readiness.level === filter;
-    const matchesSearch = !q || driverReadinessSearchText(driver).includes(q);
+    const matchesSearch = !q || readinessSearchText(driver).includes(q);
     return matchesFilter && matchesSearch;
   });
 }
