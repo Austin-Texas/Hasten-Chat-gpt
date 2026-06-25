@@ -12,6 +12,7 @@ const commands = [
   ["Sidebar Bid Review", "scripts/checkSidebarBidReview.mjs"],
   ["Settlement approval wiring", "scripts/checkSettlementApprovalAction.mjs"],
   ["Settlement policy", "scripts/verifySettlementPolicy.mjs"],
+  ["Settlement status flow", "scripts/verifySettlementStatusFlow.mjs"],
 ];
 
 for (const [label, script] of commands) {
