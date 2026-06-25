@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { AlertTriangle, CheckCircle2, ShieldCheck, UserCheck, XCircle } from "lucide-react";
 import { buildDriverReadinessRows, buildDriverReadinessSummary } from "@/lib/complianceReadiness";
 import { readinessClass } from "@/lib/driverReadiness";
@@ -32,7 +33,7 @@ export default function DriverReadinessPanel({ drivers = [], search = "", filter
             return (
               <div key={driver.id} className="glass-card rounded-xl border border-white/5 p-4">
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <h3 className="font-semibold text-white">{driverName(driver)}</h3>
                       <span className={`rounded-full border px-2 py-1 text-[10px] font-bold uppercase ${readinessClass(driver.readiness?.level)}`}>
@@ -53,6 +54,14 @@ export default function DriverReadinessPanel({ drivers = [], search = "", filter
                         ))}
                       </div>
                     )}
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Link to={`/drivers/${driver.id}`} className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-bold text-slate-300 hover:text-white">
+                      View Profile
+                    </Link>
+                    <Link to={`/drivers/${driver.id}/edit`} className="rounded-lg bg-green-500 px-3 py-2 text-xs font-bold text-black">
+                      Fix Profile
+                    </Link>
                   </div>
                 </div>
               </div>
