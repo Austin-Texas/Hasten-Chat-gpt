@@ -29,7 +29,6 @@ const readLocalUser = () => {
       accountType: isDriver ? 'driver' : 'admin',
       localDemo: true,
       ...parsed,
-      // Re-apply canonical local roles after spreading legacy stored data.
       role: isDriver ? 'driver' : 'admin',
       businessRole: isDriver ? 'driver' : 'super_admin',
       accountType: isDriver ? 'driver' : 'admin'
@@ -78,6 +77,11 @@ const matchesFilter = (record, filter = {}) => Object.entries(filter || {}).ever
   return record?.[key] === value;
 });
 
+const findDuplicateDriverLoadBid = (records, payload = {}) => {
+  if (!payload.external_load_id || !payload.driver_id) return null;
+  return records.find((record) => record.external_load_id === payload.external_load_id && record.driver_id === payload.driver_id);
+};
+
 const makeLocalEntity = (entityName) => ({
   list: async (sort = '', limit) => {
     const records = sortRecords(readLocalEntityRecords(entityName), sort);
@@ -89,6 +93,17 @@ const makeLocalEntity = (entityName) => ({
   },
   get: async (id) => readLocalEntityRecords(entityName).find((record) => record.id === id) || { id, localDemo: true, entityName },
   create: async (payload = {}) => {
+    const existingRecords = readLocalEntityRecords(entityName);
+
+    if (entityName === 'DriverLoadBid') {
+      const duplicate = findDuplicateDriverLoadBid(existingRecords, payload);
+      if (duplicate) {
+        const updated = { ...duplicate, ...payload, id: duplicate.id, updated_at: new Date().toISOString(), duplicateGuard: true, localDemo: true };
+        writeLocalEntityRecords(entityName, existingRecords.map((record) => record.id === duplicate.id ? updated : record));
+        return updated;
+      }
+    }
+
     const record = {
       id: payload.id || `local-${entityName.toLowerCase()}-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`,
       created_date: payload.created_date || new Date().toISOString(),
@@ -96,7 +111,7 @@ const makeLocalEntity = (entityName) => ({
       ...payload,
       localDemo: true
     };
-    const existing = readLocalEntityRecords(entityName).filter((item) => item.id !== record.id);
+    const existing = existingRecords.filter((item) => item.id !== record.id);
     writeLocalEntityRecords(entityName, [record, ...existing]);
     return record;
   },
