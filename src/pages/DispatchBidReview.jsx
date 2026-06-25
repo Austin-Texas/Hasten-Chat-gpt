@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { CheckCircle, Clock, Loader2, MessageSquare, RefreshCw, ShieldCheck, Truck, XCircle } from "lucide-react";
+import { CheckCircle, Clock, Loader2, MessageSquare, RefreshCw, ShieldCheck, Truck, XCircle, X } from "lucide-react";
 import { getLoadEquipment } from "@/lib/equipmentMatching";
 
 const REVIEWABLE_STATUSES = ["pending", "interested", "bid_submitted", "counter_offer"];
@@ -26,6 +26,9 @@ export default function DispatchBidReview() {
   const [actioning, setActioning] = useState(null);
   const [statusFilter, setStatusFilter] = useState("open");
   const [notice, setNotice] = useState("");
+  const [counterBid, setCounterBid] = useState(null);
+  const [counterAmount, setCounterAmount] = useState("");
+  const [counterNote, setCounterNote] = useState("");
 
   const loadById = useMemo(() => new Map(loads.map((load) => [load.id, load])), [loads]);
   const driverById = useMemo(() => new Map(drivers.map((driver) => [driver.id, driver])), [drivers]);
@@ -69,6 +72,38 @@ export default function DispatchBidReview() {
     } catch (error) {
       console.error(error);
       setNotice("Bid update failed. Check DriverLoadBid entity setup.");
+    } finally {
+      setActioning(null);
+    }
+  };
+
+  const openCounterModal = (bid) => {
+    setCounterBid(bid);
+    setCounterAmount(String(bid.dispatcher_counter_amount || bid.driver_bid_amount || ""));
+    setCounterNote(bid.dispatcher_notes || "");
+    setNotice("");
+  };
+
+  const submitCounterOffer = async () => {
+    if (!counterBid) return;
+    setActioning(`${counterBid.id}-counter`);
+    setNotice("");
+    try {
+      await base44.entities.DriverLoadBid.update(counterBid.id, {
+        status: "counter_offer",
+        dispatcher_counter_amount: counterAmount ? Number(counterAmount) : null,
+        dispatcher_notes: counterNote,
+        counter_sent_at: new Date().toISOString(),
+        reviewed_at: new Date().toISOString(),
+      });
+      setNotice("Counter offer sent to driver for review.");
+      setCounterBid(null);
+      setCounterAmount("");
+      setCounterNote("");
+      await fetchData();
+    } catch (error) {
+      console.error(error);
+      setNotice("Counter offer failed. Check DriverLoadBid fields.");
     } finally {
       setActioning(null);
     }
@@ -182,13 +217,24 @@ export default function DispatchBidReview() {
                       {locked && <span className="rounded-full border border-amber-500/20 bg-amber-500/10 px-2 py-1 text-[10px] font-bold uppercase text-amber-300">Locked</span>}
                     </div>
                     <div className="mt-2 flex flex-wrap gap-3 text-xs text-slate-500"><span className="flex items-center gap-1"><Truck className="h-3 w-3" />{getLoadEquipment(externalLoad) || "Equipment"}</span><span>{externalLoad.miles_total || "—"} mi</span><span>{externalLoad.weight ? `${Number(externalLoad.weight).toLocaleString()} lbs` : "Weight —"}</span><span>{externalLoad.commodity || "Commodity —"}</span></div>
+                    {bid.dispatcher_counter_amount && <div className="mt-2 text-xs text-amber-300">Counter: ${Number(bid.dispatcher_counter_amount).toLocaleString()} {bid.dispatcher_notes ? `· ${bid.dispatcher_notes}` : ""}</div>}
                   </div>
                   <div className="min-w-[220px] rounded-xl border border-white/5 bg-white/[0.03] p-3"><div className="text-sm font-semibold text-white">{driver.full_name || driver.name || "Driver"}</div><div className="mt-1 text-xs text-slate-500">{driver.vehicle_type || "Equipment"} · {driver.home_city || driver.city || "—"}, {driver.home_state || driver.state || "—"}</div><div className="mt-2 flex items-center gap-2 text-xs text-green-300"><ShieldCheck className="h-3.5 w-3.5" /> Match {bid.match_score || "—"}</div>{bid.driver_notes && <p className="mt-2 text-xs text-slate-400">{bid.driver_notes}</p>}</div>
-                  <div className="flex flex-wrap gap-2 xl:justify-end"><button onClick={() => acceptBid(bid)} disabled={Boolean(actioning) || locked} className="flex items-center gap-1 rounded-lg bg-green-500 px-3 py-2 text-xs font-bold text-black disabled:opacity-50">{actioning === `${bid.id}-accept` ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle className="h-3.5 w-3.5" />} {locked ? "Locked" : "Accept"}</button><button onClick={() => updateBidStatus(bid, "counter_offer")} disabled={Boolean(actioning) || locked} className="rounded-lg border border-blue-500/25 bg-blue-500/10 px-3 py-2 text-xs font-bold text-blue-300 disabled:opacity-50">Counter</button><button onClick={() => updateBidStatus(bid, "rejected_by_dispatch")} disabled={Boolean(actioning)} className="flex items-center gap-1 rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-xs font-bold text-red-300 disabled:opacity-50"><XCircle className="h-3.5 w-3.5" /> Reject</button></div>
+                  <div className="flex flex-wrap gap-2 xl:justify-end"><button onClick={() => acceptBid(bid)} disabled={Boolean(actioning) || locked} className="flex items-center gap-1 rounded-lg bg-green-500 px-3 py-2 text-xs font-bold text-black disabled:opacity-50">{actioning === `${bid.id}-accept` ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle className="h-3.5 w-3.5" />} {locked ? "Locked" : "Accept"}</button><button onClick={() => openCounterModal(bid)} disabled={Boolean(actioning) || locked} className="rounded-lg border border-blue-500/25 bg-blue-500/10 px-3 py-2 text-xs font-bold text-blue-300 disabled:opacity-50">Counter</button><button onClick={() => updateBidStatus(bid, "rejected_by_dispatch")} disabled={Boolean(actioning)} className="flex items-center gap-1 rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-xs font-bold text-red-300 disabled:opacity-50"><XCircle className="h-3.5 w-3.5" /> Reject</button></div>
                 </div>
               </div>
             );
           })}
+        </div>
+      )}
+
+      {counterBid && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm" onClick={() => setCounterBid(null)}>
+          <div className="glass-card w-full max-w-lg rounded-2xl border border-white/10 p-5" onClick={(event) => event.stopPropagation()}>
+            <div className="mb-4 flex items-center justify-between"><div><h3 className="text-lg font-bold text-white">Send Counter Offer</h3><p className="text-sm text-slate-400">Adjust offer amount and add dispatcher note.</p></div><button onClick={() => setCounterBid(null)} className="rounded-lg p-2 text-slate-400 hover:bg-white/10 hover:text-white"><X className="h-4 w-4" /></button></div>
+            <div className="space-y-3"><label className="block text-sm text-slate-300">Counter Amount</label><input type="number" value={counterAmount} onChange={(event) => setCounterAmount(event.target.value)} placeholder="Example: 950" className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-white placeholder:text-slate-600 focus:border-green-500/40 focus:outline-none" /><label className="block text-sm text-slate-300">Dispatcher Note</label><textarea value={counterNote} onChange={(event) => setCounterNote(event.target.value)} rows={4} placeholder="Example: Can approve if pickup before 2 PM." className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-white placeholder:text-slate-600 focus:border-green-500/40 focus:outline-none" /></div>
+            <div className="mt-5 flex justify-end gap-2"><button onClick={() => setCounterBid(null)} className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-300 hover:text-white">Cancel</button><button onClick={submitCounterOffer} disabled={Boolean(actioning)} className="rounded-lg bg-green-500 px-4 py-2 text-sm font-bold text-black disabled:opacity-60">{actioning === `${counterBid.id}-counter` ? "Sending…" : "Send Counter"}</button></div>
+          </div>
         </div>
       )}
     </div>
