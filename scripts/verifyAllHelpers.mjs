@@ -7,6 +7,8 @@ const commands = [
   ["Core route verification", "scripts/verifyCoreRoutes.mjs"],
   ["Mobile packaging readiness", "scripts/checkMobilePackagingReady.mjs"],
   ["Driver route matrix", "scripts/reportDriverRouteMatrix.mjs"],
+  ["Console route matrix", "scripts/reportConsoleRouteMatrix.mjs"],
+  ["Console release readiness", "scripts/checkConsoleReleaseReady.mjs"],
   ["Driver readiness", "scripts/verifyDriverReadiness.mjs"],
   ["Driver load access", "scripts/verifyDriverLoadAccess.mjs"],
   ["Driver load status flow", "scripts/verifyDriverLoadStatusFlow.mjs"],
