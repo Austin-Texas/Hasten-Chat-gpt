@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { DollarSign, TrendingUp, Truck, MapPin, CheckCircle, ArrowRight } from "lucide-react";
+import { DollarSign, TrendingUp, Truck, MapPin, CheckCircle, ArrowRight, ChevronRight } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
 // Truck SVG
@@ -72,6 +73,17 @@ export default function DriverEarnings({ user }) {
           {loads.length} completed load{loads.length !== 1 ? "s" : ""} · {totalMiles.toLocaleString()} total miles
         </div>
       </div>
+
+      <Link
+        to="/driver/settlement-preview"
+        className="flex items-center justify-between rounded-2xl border border-orange-500/20 bg-orange-500/10 p-4 text-orange-200 active:scale-[0.98] transition-transform"
+      >
+        <div>
+          <div className="text-sm font-bold text-orange-100">Weekly Settlement Preview</div>
+          <div className="mt-0.5 text-xs text-orange-200/70">View current week payout estimate and load-by-load breakdown.</div>
+        </div>
+        <ChevronRight className="h-5 w-5 flex-shrink-0" />
+      </Link>
 
       {/* ── Stats Grid ── */}
       <div className="grid grid-cols-2 gap-3">
