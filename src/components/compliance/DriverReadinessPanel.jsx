@@ -20,6 +20,22 @@ export default function DriverReadinessPanel({ drivers = [], search = "", filter
         <Metric label="Setup" value={summary.blocked} icon={<XCircle className="h-4 w-4 text-red-400" />} />
       </div>
 
+      <div className="glass-card rounded-xl border border-white/5 p-4">
+        <div className="mb-2 flex items-center justify-between gap-3">
+          <div>
+            <div className="text-sm font-semibold text-white">Readiness Completion</div>
+            <div className="text-xs text-slate-500">Ready drivers compared to all active driver records</div>
+          </div>
+          <div className="text-2xl font-bold text-green-300">{summary.readyPercent}%</div>
+        </div>
+        <div className="h-2 overflow-hidden rounded-full bg-white/10">
+          <div className="h-full rounded-full bg-green-500 transition-all" style={{ width: `${summary.readyPercent}%` }} />
+        </div>
+        {summary.needsAttention > 0 && (
+          <div className="mt-2 text-xs text-amber-300">{summary.needsAttention} driver{summary.needsAttention === 1 ? "" : "s"} need review or setup before full dispatch readiness.</div>
+        )}
+      </div>
+
       {rows.length === 0 ? (
         <div className="glass-card rounded-xl border border-white/5 p-10 text-center">
           <UserCheck className="mx-auto mb-3 h-10 w-10 text-slate-600" />
