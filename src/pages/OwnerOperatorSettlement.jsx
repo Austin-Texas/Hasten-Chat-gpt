@@ -7,6 +7,7 @@ import ContractorOnboardingKanban from '@/components/contractor/ContractorOnboar
 import HRAnalyticsDashboard from '@/components/hr/HRAnalyticsDashboard';
 import SettlementBrandingPanel from '@/components/settlement/SettlementBrandingPanel';
 import PayoutCalculationModal from '@/components/admin/PayoutCalculationModal';
+import SettlementPolicyWarnings from '@/components/settlement/SettlementPolicyWarnings';
 
 export default function OwnerOperatorSettlement() {
   const [settlements, setSettlements] = useState([]);
@@ -46,6 +47,8 @@ export default function OwnerOperatorSettlement() {
       setLoading(false);
     }
   };
+
+  const findDriver = (driverId) => drivers.find((driver) => driver.id === driverId) || {};
 
   const handleCreateSettlement = async (calculationResult) => {
     try {
@@ -340,6 +343,7 @@ export default function OwnerOperatorSettlement() {
             <div className="glass-card rounded-xl border border-white/5 divide-y divide-white/5">
               {filteredSettlements.map(settlement => {
                 const isSelected = selectedForBulk.has(settlement.id);
+                const settlementDriver = findDriver(settlement.driver_id);
                 return (
                   <div
                     key={settlement.id}
@@ -385,6 +389,10 @@ export default function OwnerOperatorSettlement() {
                         <div className="text-green-400 font-bold">${settlement.driver_net_pay.toFixed(2)}</div>
                         <div className="text-slate-600 text-xs mt-0.5">Net Pay</div>
                       </div>
+                    </div>
+
+                    <div className="mb-3">
+                      <SettlementPolicyWarnings settlement={settlement} driver={settlementDriver} />
                     </div>
 
                     <div className="flex gap-2 flex-wrap">
@@ -466,6 +474,8 @@ export default function OwnerOperatorSettlement() {
               ✕
             </button>
           </div>
+
+          <SettlementPolicyWarnings settlement={selectedSettlement} driver={findDriver(selectedSettlement.driver_id)} />
 
           <div className="grid md:grid-cols-2 gap-4 text-sm">
             <div className="flex justify-between">
