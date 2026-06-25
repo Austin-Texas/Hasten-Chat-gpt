@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { CheckCircle, Clock, Loader2, MessageSquare, RefreshCw, ShieldCheck, Truck, XCircle, X } from "lucide-react";
 import { getLoadEquipment } from "@/lib/equipmentMatching";
+import { getDriverReadiness, readinessClass } from "@/lib/driverReadiness";
 
 const REVIEWABLE_STATUSES = ["pending", "interested", "bid_submitted", "counter_offer", "counter_accepted"];
 const FILTERS = ["open", "interested", "bid_submitted", "counter_offer", "counter_accepted", "counter_declined", "accepted_by_dispatch", "rejected_by_dispatch", "all"];
@@ -121,8 +122,15 @@ export default function DispatchBidReview() {
 
   const acceptBid = async (bid) => {
     const externalLoad = loadById.get(bid.external_load_id);
+    const driver = driverById.get(bid.driver_id) || {};
+    const readiness = getDriverReadiness(driver);
+
     if (!externalLoad) {
       setNotice("ExternalLoad record not found.");
+      return;
+    }
+    if (readiness.level !== "ready") {
+      setNotice(`Accept blocked: driver readiness is ${readiness.label}. ${readiness.message}`);
       return;
     }
     if (loadIsLocked(externalLoad)) {
@@ -228,6 +236,8 @@ export default function DispatchBidReview() {
           {visibleBids.map((bid) => {
             const externalLoad = loadById.get(bid.external_load_id) || {};
             const driver = driverById.get(bid.driver_id) || {};
+            const readiness = getDriverReadiness(driver);
+            const driverReady = readiness.level === "ready";
             const locked = loadIsLocked(externalLoad);
             const closed = bidIsClosed(bid);
             return (
@@ -244,8 +254,18 @@ export default function DispatchBidReview() {
                     {bid.status === "counter_accepted" && <div className="mt-2 text-xs font-semibold text-green-300">Driver accepted the counter. Create the load using the counter amount.</div>}
                     {bid.status === "counter_declined" && <div className="mt-2 text-xs font-semibold text-red-300">Driver declined the counter.</div>}
                   </div>
-                  <div className="min-w-[220px] rounded-xl border border-white/5 bg-white/[0.03] p-3"><div className="text-sm font-semibold text-white">{driver.full_name || driver.name || "Driver"}</div><div className="mt-1 text-xs text-slate-500">{driver.vehicle_type || "Equipment"} · {driver.home_city || driver.city || "—"}, {driver.home_state || driver.state || "—"}</div><div className="mt-2 flex items-center gap-2 text-xs text-green-300"><ShieldCheck className="h-3.5 w-3.5" /> Match {bid.match_score || "—"}</div>{bid.driver_notes && <p className="mt-2 text-xs text-slate-400">{bid.driver_notes}</p>}</div>
-                  <div className="flex flex-wrap gap-2 xl:justify-end"><button onClick={() => acceptBid(bid)} disabled={Boolean(actioning) || locked || closed} className="flex items-center gap-1 rounded-lg bg-green-500 px-3 py-2 text-xs font-bold text-black disabled:opacity-50">{actioning === `${bid.id}-accept` ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle className="h-3.5 w-3.5" />} {acceptButtonLabel(bid, locked)}</button><button onClick={() => openCounterModal(bid)} disabled={Boolean(actioning) || locked || closed} className="rounded-lg border border-blue-500/25 bg-blue-500/10 px-3 py-2 text-xs font-bold text-blue-300 disabled:opacity-50">Counter</button><button onClick={() => updateBidStatus(bid, "rejected_by_dispatch")} disabled={Boolean(actioning) || bid.status === "accepted_by_dispatch"} className="flex items-center gap-1 rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-xs font-bold text-red-300 disabled:opacity-50"><XCircle className="h-3.5 w-3.5" /> Reject</button></div>
+                  <div className="min-w-[240px] rounded-xl border border-white/5 bg-white/[0.03] p-3">
+                    <div className="text-sm font-semibold text-white">{driver.full_name || driver.name || "Driver"}</div>
+                    <div className="mt-1 text-xs text-slate-500">{driver.vehicle_type || "Equipment"} · {driver.home_city || driver.city || "—"}, {driver.home_state || driver.state || "—"}</div>
+                    <div className="mt-2 flex items-center gap-2 text-xs text-green-300"><ShieldCheck className="h-3.5 w-3.5" /> Match {bid.match_score || "—"}</div>
+                    <div className={`mt-2 rounded-lg border px-2 py-1.5 text-xs ${readinessClass(readiness.level)}`}>{readiness.label}: {readiness.message}</div>
+                    {bid.driver_notes && <p className="mt-2 text-xs text-slate-400">{bid.driver_notes}</p>}
+                  </div>
+                  <div className="flex flex-wrap gap-2 xl:justify-end">
+                    <button onClick={() => acceptBid(bid)} disabled={Boolean(actioning) || locked || closed || !driverReady} className="flex items-center gap-1 rounded-lg bg-green-500 px-3 py-2 text-xs font-bold text-black disabled:opacity-50">{actioning === `${bid.id}-accept` ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle className="h-3.5 w-3.5" />} {acceptButtonLabel(bid, locked)}</button>
+                    <button onClick={() => openCounterModal(bid)} disabled={Boolean(actioning) || locked || closed} className="rounded-lg border border-blue-500/25 bg-blue-500/10 px-3 py-2 text-xs font-bold text-blue-300 disabled:opacity-50">Counter</button>
+                    <button onClick={() => updateBidStatus(bid, "rejected_by_dispatch")} disabled={Boolean(actioning) || bid.status === "accepted_by_dispatch"} className="flex items-center gap-1 rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-xs font-bold text-red-300 disabled:opacity-50"><XCircle className="h-3.5 w-3.5" /> Reject</button>
+                  </div>
                 </div>
               </div>
             );
