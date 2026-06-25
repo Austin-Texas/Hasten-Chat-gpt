@@ -10,6 +10,7 @@ const commands = [
   "node scripts/reportExternalPortalStatus.mjs",
   "node scripts/reportExternalPortalRouteMatrix.mjs",
   "node scripts/reportNativePackagingStatus.mjs",
+  "node scripts/reportEnvReadiness.mjs",
   "npm run build",
 ];
 
