@@ -30,6 +30,12 @@ const checks = [
     wired: (source) => source.includes("SettlementApprovalAction"),
     apply: "node scripts/applySettlementApprovalAction.mjs",
   },
+  {
+    label: "Camera upload validation",
+    file: "src/components/driver/CameraUpload.jsx",
+    wired: (source) => source.includes("const MAX_UPLOAD_MB = 15;") && source.includes("const fileSizeMb = file.size / (1024 * 1024);"),
+    apply: "node scripts/applyCameraUploadValidationSafe.mjs",
+  },
 ];
 
 let pending = 0;
