@@ -27,6 +27,20 @@ function buildDriverProfile(user, driverRecord) {
   };
 }
 
+function getDriverLookupIds(user, profile) {
+  return [...new Set([user?.id, profile?.id, profile?.user_id].filter(Boolean))];
+}
+
+function dedupeById(records = []) {
+  const seen = new Set();
+  return records.filter((record) => {
+    const key = record?.id || JSON.stringify(record);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 function isCounterOffer(offer = {}) {
   return offer.bid_status === "counter_offer" || Boolean(offer.dispatcher_counter_amount || offer.dispatcher_notes);
 }
@@ -68,10 +82,9 @@ export default function DriverLoads({ user }) {
     }
   };
 
-  const fetchDriverBids = async () => {
-    const ids = [user?.id, driverProfile?.id].filter(Boolean);
+  const fetchDriverBids = async (profileOverride = driverProfile) => {
     const all = [];
-    for (const id of [...new Set(ids)]) {
+    for (const id of getDriverLookupIds(user, profileOverride)) {
       try {
         const records = await base44.entities.DriverLoadBid.filter({ driver_id: id }, "-submitted_at", 200);
         all.push(...(records || []));
@@ -79,7 +92,21 @@ export default function DriverLoads({ user }) {
         console.warn("[DriverLoads] Failed to load driver bids:", error?.message || error);
       }
     }
-    return all;
+    return dedupeById(all);
+  };
+
+  const fetchDriverLoadsForTab = async (profile, selectedTab) => {
+    const all = [];
+    for (const id of getDriverLookupIds(user, profile)) {
+      try {
+        const filter = selectedTab === "completed" ? { driver_id: id, status: "completed" } : { driver_id: id };
+        const records = await base44.entities.Load.filter(filter, "-created_date", 50);
+        all.push(...(records || []));
+      } catch (error) {
+        console.warn("[DriverLoads] Failed to load assigned loads:", error?.message || error);
+      }
+    }
+    return dedupeById(all);
   };
 
   const fetchLoads = async () => {
@@ -91,7 +118,7 @@ export default function DriverLoads({ user }) {
       if (tab === "offers") {
         const [externalLoads, driverBids] = await Promise.all([
           base44.entities.ExternalLoad.list("-imported_at", 100),
-          fetchDriverBids(),
+          fetchDriverBids(profile),
         ]);
         const bidByExternalLoad = new Map((driverBids || []).map((bid) => [bid.external_load_id, bid]));
         const available = (externalLoads || []).filter((load) => ["available", "auction"].includes(load.normalized_status || "available"));
@@ -114,11 +141,7 @@ export default function DriverLoads({ user }) {
         return;
       }
 
-      let filter = {};
-      if (["assigned", "calendar"].includes(tab)) filter = { driver_id: user?.id };
-      if (tab === "completed") filter = { driver_id: user?.id, status: "completed" };
-
-      const data = await base44.entities.Load.filter(filter, "-created_date", 50);
+      const data = await fetchDriverLoadsForTab(profile, tab);
       const activeStatuses = ["assigned", "accepted", "en_route", "arrived_pickup", "loaded", "in_transit", "arrived_delivery"];
       if (tab === "assigned") setLoads((data || []).filter((load) => activeStatuses.includes(load.status)));
       else setLoads(data || []);
@@ -137,7 +160,7 @@ export default function DriverLoads({ user }) {
     setNotice("");
     const payload = {
       external_load_id: offer.external_load_id || offer.id,
-      driver_id: user?.id,
+      driver_id: driverProfile?.id || user?.id,
       status,
       driver_notes: extra.driver_notes || offer.driver_notes || "",
       driver_bid_amount: extra.driver_bid_amount || offer.driver_bid_amount || null,
