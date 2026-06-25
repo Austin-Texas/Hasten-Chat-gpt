@@ -9,6 +9,7 @@ const commands = [
   ["Driver load access", "scripts/verifyDriverLoadAccess.mjs"],
   ["Driver load status flow", "scripts/verifyDriverLoadStatusFlow.mjs"],
   ["Driver load detail gate", "scripts/checkDriverLoadDetailGate.mjs"],
+  ["Pending upload retry wiring", "scripts/checkPendingUploadRetryWiring.mjs"],
   ["Sidebar Bid Review", "scripts/checkSidebarBidReview.mjs"],
   ["Settlement approval wiring", "scripts/checkSettlementApprovalAction.mjs"],
   ["Settlement policy", "scripts/verifySettlementPolicy.mjs"],
