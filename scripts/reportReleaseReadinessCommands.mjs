@@ -11,6 +11,10 @@ const commands = [
   "node scripts/reportExternalPortalRouteMatrix.mjs",
   "node scripts/reportNativePackagingStatus.mjs",
   "node scripts/reportEnvReadiness.mjs",
+  "node scripts/reportDataModelReadiness.mjs",
+  "node scripts/checkDriverDataFiles.mjs",
+  "node scripts/checkSettlementDataFiles.mjs",
+  "node scripts/checkMarketplaceDataFiles.mjs",
   "npm run build",
 ];
 
