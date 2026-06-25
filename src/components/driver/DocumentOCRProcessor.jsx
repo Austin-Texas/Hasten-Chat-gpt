@@ -1,9 +1,9 @@
-import React, { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ScanLine, Upload, Loader2, CheckCircle2, AlertTriangle,
-  FileText, Image as ImageIcon, X, RefreshCw,
+  FileText, X, RefreshCw,
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 
