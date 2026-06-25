@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { RefreshCw, Search, ShieldCheck } from "lucide-react";
+import { Download, RefreshCw, Search, ShieldCheck } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import DriverReadinessPanel from "@/components/compliance/DriverReadinessPanel";
-import { READINESS_FILTERS } from "@/lib/complianceReadiness";
+import { getReadinessExportRows, READINESS_FILTERS } from "@/lib/complianceReadiness";
 
 export default function DriverReadinessCenter() {
   const [drivers, setDrivers] = useState([]);
@@ -28,6 +28,22 @@ export default function DriverReadinessCenter() {
 
   useEffect(() => { fetchDrivers(); }, []);
 
+  const exportCsv = () => {
+    const rows = getReadinessExportRows(drivers);
+    const headers = ["name", "email", "vehicle_type", "max_payload", "availability", "readiness", "message", "missing"];
+    const csv = [
+      headers.join(","),
+      ...rows.map((row) => headers.map((field) => `"${String(row[field] || "").replaceAll('"', '""')}"`).join(",")),
+    ].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `hasten-driver-readiness-${new Date().toISOString().slice(0, 10)}.csv`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-5 animate-slide-up">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -37,9 +53,14 @@ export default function DriverReadinessCenter() {
           </h1>
           <p className="mt-1 text-sm text-slate-400">Owner-operator equipment and compliance readiness before dispatch.</p>
         </div>
-        <button onClick={fetchDrivers} className="flex items-center gap-2 rounded-lg bg-green-500 px-4 py-2 text-sm font-bold text-black">
-          <RefreshCw className="h-4 w-4" /> Refresh
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button onClick={exportCsv} disabled={drivers.length === 0} className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-bold text-slate-200 disabled:opacity-40">
+            <Download className="h-4 w-4" /> Export CSV
+          </button>
+          <button onClick={fetchDrivers} className="flex items-center gap-2 rounded-lg bg-green-500 px-4 py-2 text-sm font-bold text-black">
+            <RefreshCw className="h-4 w-4" /> Refresh
+          </button>
+        </div>
       </div>
 
       {notice && <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">{notice}</div>}
