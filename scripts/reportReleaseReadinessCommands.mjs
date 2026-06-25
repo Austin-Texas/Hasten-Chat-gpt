@@ -3,6 +3,7 @@ const commands = [
   "node scripts/applyRecommendedPatches.mjs",
   "node scripts/verifyScriptSyntax.mjs",
   "node scripts/verifyAllHelpers.mjs",
+  "node scripts/reportSurfaceCoverage.mjs",
   "node scripts/checkDriverReleaseReady.mjs",
   "node scripts/checkConsoleReleaseReady.mjs",
   "node scripts/checkMobilePackagingReady.mjs",
