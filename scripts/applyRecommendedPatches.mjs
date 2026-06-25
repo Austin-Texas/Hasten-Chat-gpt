@@ -2,6 +2,7 @@ import { spawnSync } from "node:child_process";
 
 const patches = [
   ["Driver load detail access gate", "scripts/applyDriverLoadDetailGate.mjs"],
+  ["Driver load status flow", "scripts/applyDriverLoadStatusFlow.mjs"],
   ["Sidebar Bid Review shortcut", "scripts/applySidebarBidReview.mjs"],
   ["Compliance readiness shortcut", "scripts/applyComplianceReadinessShortcut.mjs"],
   ["Settlement approval confirmation", "scripts/applySettlementApprovalAction.mjs"],
