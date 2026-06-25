@@ -10,6 +10,7 @@ const checks = [
   ["Driver scan", "src/pages/driver/DriverScan.jsx", "Document Scanner"],
   ["OCR processor", "src/components/driver/DocumentOCRProcessor.jsx", "MAX_UPLOAD_MB"],
   ["Pending uploads helper", "src/lib/pendingUploads.js", "listPendingUploads"],
+  ["Queued upload context", "src/lib/queuedUploadContext.js", "buildQueuedUploadContext"],
   ["Pending uploads notice", "src/components/driver/PendingUploadsNotice.jsx", "PendingUploadsNotice"],
   ["Pending uploads retry helper", "src/lib/pendingUploadRetry.js", "retryPendingUploads"],
   ["Pending uploads retry UI", "src/components/driver/PendingUploadsRetry.jsx", "PendingUploadsRetry"],
