@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { DollarSign, Calendar } from 'lucide-react';
 import SettlementPreview from '@/components/driver/SettlementPreview';
+import MobileEmptyState from '@/components/driver/MobileEmptyState';
 
 export default function DriverSettlementPreview({ user }) {
   const [driver, setDriver] = useState(null);
@@ -12,7 +13,6 @@ export default function DriverSettlementPreview({ user }) {
       try {
         let foundDriver = null;
 
-        // Try to fetch using linkedDriverId from UserProfile first
         if (user?.linkedDriverId) {
           try {
             foundDriver = await base44.asServiceRole.entities.Driver.get(user.linkedDriverId);
@@ -21,7 +21,6 @@ export default function DriverSettlementPreview({ user }) {
           }
         }
 
-        // Fallback: filter by user_id if linkedDriverId didn't work
         if (!foundDriver && user?.id) {
           const drivers = await base44.asServiceRole.entities.Driver.filter(
             { user_id: user.id },
@@ -52,7 +51,6 @@ export default function DriverSettlementPreview({ user }) {
     );
   }
 
-  // Get week start/end dates
   const now = new Date();
   const weekStart = new Date(now);
   weekStart.setDate(now.getDate() - now.getDay());
@@ -61,7 +59,6 @@ export default function DriverSettlementPreview({ user }) {
 
   return (
     <div className="space-y-5 animate-slide-up">
-      {/* Header */}
       <div>
         <h1 className="text-white font-heading font-bold text-2xl flex items-center gap-2">
           <DollarSign className="w-6 h-6 text-orange-400" />
@@ -73,8 +70,11 @@ export default function DriverSettlementPreview({ user }) {
         </p>
       </div>
 
-      {/* Preview */}
-      {driver && <SettlementPreview driver={driver} />}
+      {driver ? (
+        <SettlementPreview driver={driver} />
+      ) : (
+        <MobileEmptyState title="Driver profile not linked" message="Ask admin to connect your account to a driver profile." />
+      )}
     </div>
   );
 }
