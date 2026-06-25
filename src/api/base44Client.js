@@ -53,7 +53,8 @@ const makeLocalEntity = (entityName) => ({
   delete: async () => ({ success: true, localDemo: true }),
   bulkCreate: async (items = []) => items,
   updateMany: async () => ({ success: true, localDemo: true }),
-  deleteMany: async () => ({ success: true, localDemo: true })
+  deleteMany: async () => ({ success: true, localDemo: true }),
+  subscribe: () => () => undefined
 });
 
 const makeLocalBase44 = () => ({
