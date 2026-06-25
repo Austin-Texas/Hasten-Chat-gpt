@@ -7,6 +7,7 @@ const requiredScripts = [
   "scripts/checkSidebarBidReview.mjs",
   "scripts/applyComplianceReadinessShortcut.mjs",
   "scripts/applySettlementApprovalAction.mjs",
+  "scripts/checkSettlementApprovalAction.mjs",
   "scripts/applyCameraUploadValidationSafe.mjs",
   "scripts/applyCameraUploadPendingHelper.mjs",
   "scripts/applyRecommendedPatches.mjs",
