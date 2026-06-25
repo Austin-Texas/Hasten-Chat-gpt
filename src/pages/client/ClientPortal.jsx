@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Package, MapPin, DollarSign, MessageSquare, LogOut, Menu, ChevronLeft, Folder, LayoutDashboard, LifeBuoy } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "@/lib/AuthContext";
 import ClientDashboard from "@/components/client/ClientDashboard";
 import ClientTracking from "@/components/client/ClientTracking";
 import ClientInvoices from "@/components/client/ClientInvoices";
@@ -28,19 +29,20 @@ export default function ClientPortal() {
   const [unreadCount, setUnreadCount] = useState(0);
   const location = useLocation();
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   useEffect(() => {
     Promise.all([
       base44.auth.me(),
     ])
-      .then(async (currentUser) => {
+      .then(async ([currentUser]) => {
         setUser(currentUser);
-        
-        // Fetch client profile
-        const clients = await base44.entities.Client.filter({ 
-          user_id: currentUser.id 
+
+        // Fetch unified customer profile. Brokers, direct clients, and shippers all live under Customer/Client records.
+        const clients = await base44.entities.Client.filter({
+          user_id: currentUser.id,
         }, "-created_date", 1);
-        
+
         if (clients.length > 0) {
           setClient(clients[0]);
         }
@@ -56,9 +58,9 @@ export default function ClientPortal() {
   useEffect(() => {
     if (!user) return;
     const fetchUnread = () => {
-      base44.entities.Message.filter({ 
-        recipient_id: user.id, 
-        is_read: false 
+      base44.entities.Message.filter({
+        recipient_id: user.id,
+        is_read: false,
       }, "-created_date", 100)
         .then(msgs => setUnreadCount(msgs.length))
         .catch(() => {});
@@ -69,18 +71,18 @@ export default function ClientPortal() {
   }, [user]);
 
   const handleLogout = () => {
-    base44.auth.logout("/login");
+    logout(true);
   };
 
   if (loading) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-orange-500 flex items-center justify-center animate-pulse-glow">
+          <div className="w-12 h-12 rounded-xl bg-green-500 flex items-center justify-center animate-pulse-glow">
             <Package className="w-7 h-7 text-white" />
           </div>
           <div className="text-white font-heading font-bold text-xl">HASTEN</div>
-          <div className="w-8 h-8 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin" />
+          <div className="w-8 h-8 border-4 border-green-500/20 border-t-green-500 rounded-full animate-spin" />
         </div>
       </div>
     );
@@ -132,7 +134,7 @@ export default function ClientPortal() {
               <span className="text-green-400 text-xs font-bold">{(client?.company_name || "C").charAt(0).toUpperCase()}</span>
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-white text-sm font-medium truncate">{client?.company_name || "Client"}</div>
+              <div className="text-white text-sm font-medium truncate">{client?.company_name || "Customer"}</div>
               <div className="text-slate-500 text-xs">{client?.customer_type || "customer"}</div>
             </div>
           </div>
@@ -163,7 +165,7 @@ export default function ClientPortal() {
                   to={item.path}
                   onClick={() => setMobileOpen(false)}
                   className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                    location.pathname === item.path ? "bg-orange-500/12 text-orange-400" : "text-slate-400 hover:text-white"
+                    location.pathname === item.path ? "bg-green-500/12 text-green-400" : "text-slate-400 hover:text-white"
                   }`}
                 >
                   <item.icon className="w-4 h-4" />
@@ -187,7 +189,7 @@ export default function ClientPortal() {
           </div>
           <div className="flex items-center gap-3 ml-auto">
             <div className="text-right">
-              <div className="text-white text-sm font-medium">{client?.company_name || "Client"}</div>
+              <div className="text-white text-sm font-medium">{client?.company_name || "Customer"}</div>
               <div className="text-slate-500 text-xs">{client?.contact_name || user?.full_name}</div>
             </div>
             <div className="w-8 h-8 rounded-full bg-green-500/20 border border-green-500/30 flex items-center justify-center">
