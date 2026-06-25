@@ -5,24 +5,50 @@ import { Link } from "react-router-dom";
 import DocumentOCRProcessor from "@/components/driver/DocumentOCRProcessor";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
+const ACTIVE_SCAN_STATUSES = ["assigned", "accepted", "en_route", "arrived_pickup", "loaded", "in_transit", "arrived_delivery", "delivered"];
+
+function getDriverLookupIds(user, driverRecord) {
+  return [...new Set([user?.id, user?.linkedDriverId, driverRecord?.id, driverRecord?.user_id].filter(Boolean))];
+}
+
 export default function DriverScan({ user }) {
   const [loads, setLoads] = useState([]);
   const [selectedLoadId, setSelectedLoadId] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch loads assigned to this driver
-    base44.entities.Load.filter({}, "-created_date", 50)
-      .then((allLoads) => {
-        // Filter to loads assigned to this user's driver profile
-        const driverLoads = allLoads.filter(
-          (l) => l.driver_id === user?.id || l.status === "assigned" || l.status === "en_route" || l.status === "in_transit"
+    let mounted = true;
+
+    const fetchLoads = async () => {
+      setLoading(true);
+      try {
+        let driverRecord = null;
+        if (user?.id) {
+          const drivers = await base44.entities.Driver.filter({ user_id: user.id }, "-created_date", 1).catch(() => []);
+          driverRecord = drivers?.[0] || null;
+        }
+
+        const lookupIds = getDriverLookupIds(user, driverRecord);
+        const allLoads = await base44.entities.Load.list("-created_date", 100);
+        const driverLoads = (allLoads || []).filter((load) =>
+          lookupIds.includes(load.driver_id) && ACTIVE_SCAN_STATUSES.includes(load.status)
         );
-        setLoads(driverLoads);
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [user]);
+
+        if (mounted) {
+          setLoads(driverLoads);
+          if (!driverLoads.find((load) => load.id === selectedLoadId)) setSelectedLoadId("");
+        }
+      } catch (error) {
+        console.error("Driver scan load fetch failed", error);
+        if (mounted) setLoads([]);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    fetchLoads();
+    return () => { mounted = false; };
+  }, [user?.id, user?.linkedDriverId]);
 
   const selectedLoad = loads.find((l) => l.id === selectedLoadId);
 
