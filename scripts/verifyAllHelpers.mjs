@@ -1,6 +1,7 @@
 import { spawnSync } from "node:child_process";
 
 const commands = [
+  ["Project smoke check", "scripts/smokeCheckProjectFiles.mjs"],
   ["Driver readiness", "scripts/verifyDriverReadiness.mjs"],
   ["Driver load access", "scripts/verifyDriverLoadAccess.mjs"],
   ["Driver load detail gate", "scripts/checkDriverLoadDetailGate.mjs"],
