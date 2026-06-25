@@ -19,6 +19,7 @@ const requiredScripts = [
   "scripts/applyAndVerifyRecommendedPatches.mjs",
   "scripts/reportPendingPatches.mjs",
   "scripts/smokeCheckProjectFiles.mjs",
+  "scripts/verifyScriptSyntax.mjs",
   "scripts/verifyAllHelpers.mjs",
 ];
 
