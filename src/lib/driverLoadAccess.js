@@ -14,14 +14,27 @@ export function getDriverLookupIds(user = {}, driverRecord = {}) {
   return [
     user?.id,
     user?.linkedDriverId,
+    user?.driver_id,
     driverRecord?.id,
     driverRecord?.user_id,
+    driverRecord?.linked_user_id,
+  ].filter(Boolean).filter((value, index, array) => array.indexOf(value) === index);
+}
+
+export function getLoadDriverIds(load = {}) {
+  return [
+    load?.driver_id,
+    load?.assigned_driver_id,
+    load?.driver_user_id,
+    load?.assigned_driver_user_id,
   ].filter(Boolean).filter((value, index, array) => array.indexOf(value) === index);
 }
 
 export function loadBelongsToDriver(load = {}, user = {}, driverRecord = {}) {
-  if (!load?.driver_id) return false;
-  return getDriverLookupIds(user, driverRecord).includes(load.driver_id);
+  const lookupIds = getDriverLookupIds(user, driverRecord);
+  const loadDriverIds = getLoadDriverIds(load);
+  if (!lookupIds.length || !loadDriverIds.length) return false;
+  return loadDriverIds.some((id) => lookupIds.includes(id));
 }
 
 export function isDriverActiveLoad(load = {}) {
