@@ -1,0 +1,28 @@
+name: HASTEN Helper Verification
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  verify-helpers:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Verify driver readiness
+        run: node scripts/verifyDriverReadiness.mjs
+
+      - name: Verify driver load access
+        run: node scripts/verifyDriverLoadAccess.mjs
+
+      - name: Verify settlement policy
+        run: node scripts/verifySettlementPolicy.mjs
