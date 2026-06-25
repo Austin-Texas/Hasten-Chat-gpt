@@ -48,6 +48,12 @@ const checks = [
     wired: (source) => source.includes("const MAX_UPLOAD_MB = 15;") && source.includes("const fileSizeMb = file.size / (1024 * 1024);"),
     apply: "node scripts/applyCameraUploadValidationSafe.mjs",
   },
+  {
+    label: "Driver Scan pending upload retry",
+    file: "src/pages/driver/DriverScan.jsx",
+    wired: (source) => source.includes("PendingUploadsRetry") && source.includes("<PendingUploadsRetry />"),
+    apply: "node scripts/applyPendingUploadsRetryToScan.mjs",
+  },
 ];
 
 let pending = 0;
