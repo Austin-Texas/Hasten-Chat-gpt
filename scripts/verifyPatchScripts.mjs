@@ -3,6 +3,8 @@ import fs from "node:fs";
 const requiredScripts = [
   "scripts/applyDriverLoadDetailGate.mjs",
   "scripts/checkDriverLoadDetailGate.mjs",
+  "scripts/applyDriverLoadStatusFlow.mjs",
+  "scripts/checkDriverLoadStatusFlowWiring.mjs",
   "scripts/applySidebarBidReview.mjs",
   "scripts/checkSidebarBidReview.mjs",
   "scripts/applyComplianceReadinessShortcut.mjs",
