@@ -36,7 +36,7 @@ export default function DriverScan({ user }) {
 
         if (mounted) {
           setLoads(driverLoads);
-          if (!driverLoads.find((load) => load.id === selectedLoadId)) setSelectedLoadId("");
+          setSelectedLoadId((current) => driverLoads.find((load) => load.id === current) ? current : "");
         }
       } catch (error) {
         console.error("Driver scan load fetch failed", error);
