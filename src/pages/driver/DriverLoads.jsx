@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { ArrowRight, Calendar, CheckCircle, ChevronRight, Loader2, MapPin, Package, Search, Send, Truck, XCircle } from "lucide-react";
+import { AlertCircle, ArrowRight, Calendar, CheckCircle, ChevronRight, Loader2, MapPin, Package, Search, Send, Truck, XCircle } from "lucide-react";
 import StatusBadge from "@/components/hasten/StatusBadge";
 import DriverCalendar from "@/components/driver/DriverCalendar";
 import { filterExternalLoadsForDriver, getDriverSafeOffer } from "@/lib/equipmentMatching";
+import { getDriverReadiness, normalizeDriverProfile, readinessClass } from "@/lib/driverReadiness";
 
 const TABS = [
   { key: "assigned", label: "Assigned" },
@@ -14,17 +15,7 @@ const TABS = [
 ];
 
 function buildDriverProfile(user, driverRecord) {
-  return {
-    id: user?.id,
-    full_name: user?.full_name || user?.name,
-    vehicle_type: driverRecord?.vehicle_type || user?.vehicle_type || "Sprinter",
-    trailer_type: driverRecord?.trailer_type || user?.trailer_type,
-    max_payload: driverRecord?.max_payload || user?.max_payload || 3000,
-    status: driverRecord?.availability || driverRecord?.status || "available",
-    availability: driverRecord?.availability || driverRecord?.status || "available",
-    compliance_status: driverRecord?.compliance_status || "valid",
-    ...driverRecord,
-  };
+  return normalizeDriverProfile(user, driverRecord || {});
 }
 
 function getDriverLookupIds(user, profile) {
@@ -156,6 +147,13 @@ export default function DriverLoads({ user }) {
   };
 
   const handleOfferAction = async (offer, status, extra = {}) => {
+    const readiness = getDriverReadiness(driverProfile || {});
+    const isDecline = ["declined", "counter_declined"].includes(status);
+    if (readiness.level !== "ready" && !isDecline) {
+      setNotice(`Readiness required before accepting or bidding: ${readiness.message}`);
+      return;
+    }
+
     setActioning(`${offer.id}-${status}`);
     setNotice("");
     const payload = {
@@ -193,6 +191,8 @@ export default function DriverLoads({ user }) {
   });
 
   const visibleCount = tab === "offers" ? filteredOffers.length : filteredAssigned.length;
+  const driverReadiness = getDriverReadiness(driverProfile || {});
+  const canRespondToOffers = driverReadiness.level === "ready";
 
   return (
     <div className="space-y-4 animate-slide-up">
@@ -214,6 +214,8 @@ export default function DriverLoads({ user }) {
 
       {notice && <div className="rounded-xl border border-green-500/20 bg-green-500/5 px-4 py-3 text-sm text-green-300">{notice}</div>}
 
+      {tab === "offers" && <ReadinessBanner readiness={driverReadiness} />}
+
       <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" /><input type="text" placeholder={tab === "offers" ? "Search offers…" : "Search loads…"} value={search} onChange={(event) => setSearch(event.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-white placeholder-slate-600 text-sm focus:outline-none focus:border-green-500/40 transition-colors" /></div>
 
       {loading ? (
@@ -221,7 +223,7 @@ export default function DriverLoads({ user }) {
       ) : tab === "calendar" ? (
         <DriverCalendar driverId={user?.id} loads={loads} />
       ) : tab === "offers" ? (
-        filteredOffers.length === 0 ? <EmptyState title="No matched offers" subtitle="Only equipment-compatible load offers will appear here." /> : <div className="space-y-3">{filteredOffers.map((offer) => <OfferCard key={offer.id} offer={offer} actioning={actioning} onAction={handleOfferAction} />)}</div>
+        filteredOffers.length === 0 ? <EmptyState title="No matched offers" subtitle="Only equipment-compatible load offers will appear here." /> : <div className="space-y-3">{filteredOffers.map((offer) => <OfferCard key={offer.id} offer={offer} actioning={actioning} onAction={handleOfferAction} canRespond={canRespondToOffers} readiness={driverReadiness} />)}</div>
       ) : filteredAssigned.length === 0 ? (
         <EmptyState title="No loads found" subtitle={tab === "completed" ? "Completed loads will appear here" : "Assigned loads will appear here"} />
       ) : (
@@ -235,19 +237,37 @@ function EmptyState({ title, subtitle }) {
   return <div className="text-center py-16"><div className="w-16 h-16 rounded-2xl bg-slate-800/60 flex items-center justify-center mx-auto mb-4"><Package className="w-8 h-8 text-slate-600" /></div><p className="text-slate-300 font-semibold">{title}</p><p className="text-slate-600 text-sm mt-1">{subtitle}</p></div>;
 }
 
-function OfferCard({ offer, actioning, onAction }) {
+function ReadinessBanner({ readiness }) {
+  return (
+    <div className={`rounded-xl border px-4 py-3 ${readinessClass(readiness.level)}`}>
+      <div className="flex items-start gap-2">
+        {readiness.level === "ready" ? <CheckCircle className="mt-0.5 h-4 w-4 flex-shrink-0" /> : <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />}
+        <div className="min-w-0">
+          <div className="text-xs font-bold uppercase tracking-wide">{readiness.label}</div>
+          <div className="mt-1 text-xs opacity-90">{readiness.message}</div>
+          {readiness.level !== "ready" && <Link to="/driver/profile/about-vehicle" className="mt-2 inline-flex text-xs font-bold underline underline-offset-4">Fix vehicle/compliance profile</Link>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function OfferCard({ offer, actioning, onAction, canRespond, readiness }) {
   const hasCounter = isCounterOffer(offer);
   const isClosed = ["declined", "counter_declined", "counter_accepted"].includes(offer.bid_status);
+  const blocked = !canRespond;
+  const disabledReason = readiness?.message || "Driver readiness required.";
   return (
     <div className="rounded-2xl p-4 transition-all duration-150 active:scale-[0.99]" style={{ background: "linear-gradient(135deg, rgba(15,24,42,0.86) 0%, rgba(20,30,55,0.76) 100%)", border: hasCounter ? "1px solid rgba(251,191,36,0.35)" : "1px solid rgba(34,197,94,0.16)", boxShadow: "0 2px 12px rgba(0,0,0,0.3)" }}>
       <div className="flex items-start justify-between gap-2 mb-3"><div><span className="text-green-400 font-mono font-bold text-base">{offer.load_number}</span><span className="ml-2 text-[10px] font-bold text-blue-300 bg-blue-500/10 border border-blue-500/20 px-1.5 py-0.5 rounded-full">{offerStatusLabel(offer)}</span></div><span className="rounded-full bg-green-500/10 px-2 py-1 text-[10px] font-bold text-green-300">Matched</span></div>
       <div className="flex items-center gap-2 mb-3"><div className="flex-1 min-w-0"><div className="text-[10px] text-slate-500 uppercase tracking-wider mb-0.5">Pickup</div><div className="text-white font-semibold text-sm truncate">{offer.origin_city}, {offer.origin_state}</div></div><div className="flex flex-col items-center gap-0.5 flex-shrink-0"><ArrowRight className="w-4 h-4 text-green-500/70" />{offer.miles && <span className="text-slate-600 text-[9px]">{offer.miles}mi</span>}</div><div className="flex-1 min-w-0 text-right"><div className="text-[10px] text-slate-500 uppercase tracking-wider mb-0.5">Delivery</div><div className="text-white font-semibold text-sm truncate">{offer.destination_city}, {offer.destination_state}</div></div></div>
       <div className="flex items-center gap-3 text-xs text-slate-500 mb-4">{offer.equipment_type && <span className="flex items-center gap-1"><Truck className="w-3 h-3" />{offer.equipment_type}</span>}{offer.weight && <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{(offer.weight / 1000).toFixed(0)}k lbs</span>}{offer.commodity && <span className="truncate">{offer.commodity}</span>}<span className="ml-auto text-[10px] font-semibold uppercase text-slate-500">Rate hidden until dispatch review</span></div>
+      {blocked && <div className="mb-4 rounded-xl border border-amber-500/20 bg-amber-500/10 p-3 text-xs text-amber-200"><AlertCircle className="mr-1 inline h-3.5 w-3.5" /> Actions locked: {disabledReason}</div>}
       {hasCounter && <div className="mb-4 rounded-xl border border-amber-500/20 bg-amber-500/10 p-3"><div className="text-xs font-bold uppercase tracking-wide text-amber-300">Dispatcher Counter</div><div className="mt-1 text-lg font-bold text-white">${Number(offer.dispatcher_counter_amount || 0).toLocaleString()}</div>{offer.dispatcher_notes && <p className="mt-1 text-xs text-amber-100/80">{offer.dispatcher_notes}</p>}</div>}
       {hasCounter ? (
-        <div className="grid grid-cols-2 gap-2"><button onClick={() => onAction(offer, "counter_accepted")} disabled={isClosed || actioning === `${offer.id}-counter_accepted`} className="flex items-center justify-center gap-1 rounded-xl bg-green-500 px-3 py-2.5 text-sm font-bold text-black disabled:opacity-60">{actioning === `${offer.id}-counter_accepted` ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle className="h-3.5 w-3.5" />} Accept Counter</button><button onClick={() => onAction(offer, "counter_declined")} disabled={isClosed || actioning === `${offer.id}-counter_declined`} className="flex items-center justify-center gap-1 rounded-xl border border-red-500/20 bg-red-500/10 px-3 py-2.5 text-sm font-bold text-red-300 disabled:opacity-60"><XCircle className="h-3.5 w-3.5" /> Decline</button></div>
+        <div className="grid grid-cols-2 gap-2"><button onClick={() => onAction(offer, "counter_accepted")} disabled={blocked || isClosed || actioning === `${offer.id}-counter_accepted`} className="flex items-center justify-center gap-1 rounded-xl bg-green-500 px-3 py-2.5 text-sm font-bold text-black disabled:opacity-60">{actioning === `${offer.id}-counter_accepted` ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle className="h-3.5 w-3.5" />} Accept Counter</button><button onClick={() => onAction(offer, "counter_declined")} disabled={isClosed || actioning === `${offer.id}-counter_declined`} className="flex items-center justify-center gap-1 rounded-xl border border-red-500/20 bg-red-500/10 px-3 py-2.5 text-sm font-bold text-red-300 disabled:opacity-60"><XCircle className="h-3.5 w-3.5" /> Decline</button></div>
       ) : (
-        <div className="grid grid-cols-3 gap-2"><button onClick={() => onAction(offer, "interested")} disabled={actioning === `${offer.id}-interested`} className="flex items-center justify-center gap-1 rounded-xl bg-green-500 px-3 py-2.5 text-sm font-bold text-black disabled:opacity-60">{actioning === `${offer.id}-interested` ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle className="h-3.5 w-3.5" />} Interested</button><button onClick={() => onAction(offer, "bid_submitted")} disabled={actioning === `${offer.id}-bid_submitted`} className="flex items-center justify-center gap-1 rounded-xl border border-blue-500/25 bg-blue-500/10 px-3 py-2.5 text-sm font-bold text-blue-300 disabled:opacity-60"><Send className="h-3.5 w-3.5" /> Bid</button><button onClick={() => onAction(offer, "declined")} disabled={actioning === `${offer.id}-declined`} className="flex items-center justify-center gap-1 rounded-xl border border-red-500/20 bg-red-500/10 px-3 py-2.5 text-sm font-bold text-red-300 disabled:opacity-60"><XCircle className="h-3.5 w-3.5" /> Decline</button></div>
+        <div className="grid grid-cols-3 gap-2"><button onClick={() => onAction(offer, "interested")} disabled={blocked || actioning === `${offer.id}-interested`} className="flex items-center justify-center gap-1 rounded-xl bg-green-500 px-3 py-2.5 text-sm font-bold text-black disabled:opacity-60">{actioning === `${offer.id}-interested` ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle className="h-3.5 w-3.5" />} Interested</button><button onClick={() => onAction(offer, "bid_submitted")} disabled={blocked || actioning === `${offer.id}-bid_submitted`} className="flex items-center justify-center gap-1 rounded-xl border border-blue-500/25 bg-blue-500/10 px-3 py-2.5 text-sm font-bold text-blue-300 disabled:opacity-60"><Send className="h-3.5 w-3.5" /> Bid</button><button onClick={() => onAction(offer, "declined")} disabled={actioning === `${offer.id}-declined`} className="flex items-center justify-center gap-1 rounded-xl border border-red-500/20 bg-red-500/10 px-3 py-2.5 text-sm font-bold text-red-300 disabled:opacity-60"><XCircle className="h-3.5 w-3.5" /> Decline</button></div>
       )}
     </div>
   );
