@@ -1,19 +1,28 @@
 import {
   canDriverScanLoad,
   getDriverLookupIds,
+  getLoadDriverIds,
   loadBelongsToDriver,
 } from "../src/lib/driverLoadAccess.js";
 
-const user = { id: "user-1", linkedDriverId: "driver-1" };
+const user = { id: "user-1", linkedDriverId: "driver-1", driver_id: "driver-1" };
 const driver = { id: "driver-1", user_id: "user-1" };
 const assignedLoad = { id: "load-1", driver_id: "driver-1", status: "assigned" };
+const altAssignedLoad = { id: "load-1b", assigned_driver_id: "driver-1", status: "accepted" };
+const userAssignedLoad = { id: "load-1c", driver_user_id: "user-1", status: "en_route" };
 const otherLoad = { id: "load-2", driver_id: "driver-2", status: "assigned" };
 const completeLoad = { id: "load-3", driver_id: "driver-1", status: "completed" };
+const unassignedLoad = { id: "load-4", status: "assigned" };
 
 const checks = [
   ["lookup ids include user and driver", getDriverLookupIds(user, driver).includes("user-1") && getDriverLookupIds(user, driver).includes("driver-1")],
+  ["load driver ids include driver_id", getLoadDriverIds(assignedLoad).includes("driver-1")],
+  ["load driver ids include assigned_driver_id", getLoadDriverIds(altAssignedLoad).includes("driver-1")],
   ["assigned load belongs to driver", loadBelongsToDriver(assignedLoad, user, driver)],
+  ["alternate assigned load belongs to driver", loadBelongsToDriver(altAssignedLoad, user, driver)],
+  ["user assigned load belongs to driver", loadBelongsToDriver(userAssignedLoad, user, driver)],
   ["other driver load rejected", !loadBelongsToDriver(otherLoad, user, driver)],
+  ["unassigned load rejected", !loadBelongsToDriver(unassignedLoad, user, driver)],
   ["assigned active load can scan", canDriverScanLoad(assignedLoad, user, driver)],
   ["completed load cannot scan", !canDriverScanLoad(completeLoad, user, driver)],
 ];
