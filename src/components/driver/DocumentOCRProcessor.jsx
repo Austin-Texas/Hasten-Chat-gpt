@@ -7,6 +7,8 @@ import {
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 
+const MAX_UPLOAD_MB = 15;
+
 /**
  * DocumentOCRProcessor — adapted from Hastenload-main secondary project.
  * Uploads a BOL/POD document, runs OCR extraction via processDocumentOCR backend function,
@@ -27,6 +29,13 @@ export default function DocumentOCRProcessor({ load, onProcessed }) {
   const handleFileSelect = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    const fileSizeMb = file.size / (1024 * 1024);
+    if (fileSizeMb > MAX_UPLOAD_MB) {
+      setError(`File is too large. Maximum upload size is ${MAX_UPLOAD_MB}MB.`);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
 
     setUploading(true);
     setError("");
@@ -128,6 +137,10 @@ export default function DocumentOCRProcessor({ load, onProcessed }) {
           </button>
         </div>
 
+        <div className="rounded-lg border border-white/10 bg-white/5 p-3 text-xs text-slate-400">
+          Phone users can take a photo or upload from files. Use clear lighting and capture the full page.
+        </div>
+
         {/* Upload Area */}
         {!fileUrl && (
           <button
@@ -143,13 +156,14 @@ export default function DocumentOCRProcessor({ load, onProcessed }) {
             <p className="text-sm text-slate-400">
               {uploading ? "Uploading..." : "Upload BOL or POD document"}
             </p>
-            <p className="text-xs text-slate-600 mt-1">JPG, PNG, or PDF</p>
+            <p className="text-xs text-slate-600 mt-1">JPG, PNG, or PDF · max {MAX_UPLOAD_MB}MB</p>
           </button>
         )}
         <input
           ref={fileInputRef}
           type="file"
           accept="image/*,application/pdf"
+          capture="environment"
           onChange={handleFileSelect}
           className="hidden"
         />
