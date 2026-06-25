@@ -37,6 +37,12 @@ const checks = [
     apply: "node scripts/applySettlementApprovalAction.mjs",
   },
   {
+    label: "Settlement status progress",
+    file: "src/pages/OwnerOperatorSettlement.jsx",
+    wired: (source) => source.includes("SettlementStatusProgress"),
+    apply: "node scripts/applySettlementStatusProgress.mjs",
+  },
+  {
     label: "Camera upload validation",
     file: "src/components/driver/CameraUpload.jsx",
     wired: (source) => source.includes("const MAX_UPLOAD_MB = 15;") && source.includes("const fileSizeMb = file.size / (1024 * 1024);"),
