@@ -3,6 +3,7 @@ import { RefreshCw, UploadCloud } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { listPendingUploads } from "@/lib/pendingUploads";
 import { retryPendingUploads } from "@/lib/pendingUploadRetry";
+import { queuedUploadRetryMessage } from "@/lib/queuedUploadRetrySummary";
 
 export default function PendingUploadsRetry() {
   const [count, setCount] = useState(() => listPendingUploads().length);
@@ -29,7 +30,7 @@ export default function PendingUploadsRetry() {
     try {
       const result = await retryPendingUploads((file) => base44.integrations.Core.UploadFile({ file }));
       setCount(result.remaining.length);
-      setMessage(`${result.completed.length} upload${result.completed.length === 1 ? "" : "s"} retried. ${result.remaining.length} remaining.`);
+      setMessage(queuedUploadRetryMessage(result));
     } catch (error) {
       setMessage(error?.message || "Retry failed.");
     } finally {
