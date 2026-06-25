@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Link } from "react-router-dom";
-import { Users, Plus, Search, Phone, Mail, MapPin, Truck, ChevronRight, Star } from "lucide-react";
+import { Users, Plus, Search, Phone, Mail, MapPin, ChevronRight, Star } from "lucide-react";
 import StatusBadge from "@/components/hasten/StatusBadge";
+import { listLocalDrivers } from "@/lib/localDriverStore";
 
 export default function Drivers() {
   const [drivers, setDrivers] = useState([]);
@@ -11,8 +12,28 @@ export default function Drivers() {
   const [statusFilter, setStatusFilter] = useState("all");
 
   useEffect(() => {
-    base44.entities.Driver.list("-created_date", 100)
-      .then(setDrivers).catch(console.error).finally(() => setLoading(false));
+    let mounted = true;
+
+    const loadDrivers = async () => {
+      try {
+        const remoteDrivers = await base44.entities.Driver.list("-created_date", 100);
+        if (mounted) setDrivers(remoteDrivers || []);
+      } catch (error) {
+        console.warn("Base44 drivers unavailable locally. Using local demo driver store.", error?.message || error);
+        if (mounted) setDrivers(listLocalDrivers());
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    loadDrivers();
+
+    const refreshLocalDrivers = (event) => setDrivers(event?.detail || listLocalDrivers());
+    window.addEventListener("hasten_drivers_changed", refreshLocalDrivers);
+    return () => {
+      mounted = false;
+      window.removeEventListener("hasten_drivers_changed", refreshLocalDrivers);
+    };
   }, []);
 
   const STATUS_OPTS = ["all", "available", "on_load", "off_duty", "inactive"];
