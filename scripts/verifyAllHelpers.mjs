@@ -4,6 +4,7 @@ const commands = [
   ["Driver readiness", "scripts/verifyDriverReadiness.mjs"],
   ["Driver load access", "scripts/verifyDriverLoadAccess.mjs"],
   ["Driver load detail gate", "scripts/checkDriverLoadDetailGate.mjs"],
+  ["Sidebar Bid Review", "scripts/checkSidebarBidReview.mjs"],
   ["Settlement policy", "scripts/verifySettlementPolicy.mjs"],
 ];
 
