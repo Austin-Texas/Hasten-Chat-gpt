@@ -71,6 +71,7 @@ import ContractorDocuments from '@/pages/ContractorDocuments';
 import OwnerOperatorSettlement from '@/pages/OwnerOperatorSettlement';
 import ContractorManagement from '@/pages/ContractorManagement';
 import PaymentProfiles from '@/pages/PaymentProfiles';
+import Factoring from '@/pages/Factoring';
 import LoadMarketplace from '@/pages/LoadMarketplace';
 import SuperAdminIntegrations from '@/pages/SuperAdminIntegrations';
 import TaxCenter from '@/pages/TaxCenter';
@@ -186,6 +187,7 @@ const AuthenticatedApp = () => {
         <Route path="/fleet/:id" element={<AppLayout user={user}><TruckDetail /></AppLayout>} />
         <Route path="/tracking" element={<AppLayout user={user}><Tracking /></AppLayout>} />
         <Route path="/finance" element={<AppLayout user={user}><Finance /></AppLayout>} />
+        <Route path="/finance/factoring" element={<AppLayout user={user}><Factoring /></AppLayout>} />
         <Route path="/profitability" element={<AppLayout user={user}><ExecutiveProfitability /></AppLayout>} />
         <Route path="/maintenance" element={<AppLayout user={user}><Maintenance /></AppLayout>} />
         <Route path="/driver-scorecards" element={<AppLayout user={user}><DriverScorecards /></AppLayout>} />
