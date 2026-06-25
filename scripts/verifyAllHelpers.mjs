@@ -3,6 +3,7 @@ import { spawnSync } from "node:child_process";
 const commands = [
   ["Driver readiness", "scripts/verifyDriverReadiness.mjs"],
   ["Driver load access", "scripts/verifyDriverLoadAccess.mjs"],
+  ["Driver load detail gate", "scripts/checkDriverLoadDetailGate.mjs"],
   ["Settlement policy", "scripts/verifySettlementPolicy.mjs"],
 ];
 
