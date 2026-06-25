@@ -8,6 +8,8 @@ const checks = [
   ["Driver load access gate", "src/pages/driver/DriverLoadDetailAccessGate.jsx", "DriverAccessDenied"],
   ["Driver scan", "src/pages/driver/DriverScan.jsx", "Document Scanner"],
   ["OCR processor", "src/components/driver/DocumentOCRProcessor.jsx", "MAX_UPLOAD_MB"],
+  ["Pending uploads helper", "src/lib/pendingUploads.js", "listPendingUploads"],
+  ["Pending uploads notice", "src/components/driver/PendingUploadsNotice.jsx", "PendingUploadsNotice"],
   ["Settlement policy", "src/lib/settlementPolicy.js", "getSettlementPolicyWarnings"],
   ["Settlement warning UI", "src/components/settlement/SettlementPolicyWarnings.jsx", "Settlement review needed"],
   ["Settlement approval UI", "src/components/settlement/SettlementApprovalAction.jsx", "Continue with approval"],
