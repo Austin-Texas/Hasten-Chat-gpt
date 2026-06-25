@@ -6,6 +6,16 @@ import DriverAccessDenied from "@/components/driver/DriverAccessDenied";
 import DriverLoadDetail from "@/pages/driver/DriverLoadDetail";
 import { loadBelongsToDriver } from "@/lib/driverLoadAccess";
 
+async function fetchLoadById(id) {
+  if (!id) return null;
+  try {
+    return await base44.entities.Load.get(id);
+  } catch {
+    const loads = await base44.entities.Load.filter({ id }, "-created_date", 1).catch(() => []);
+    return loads?.[0] || null;
+  }
+}
+
 export default function DriverLoadDetailAccessGate({ user }) {
   const { id } = useParams();
   const [state, setState] = useState({ loading: true, allowed: false, found: true });
@@ -15,11 +25,10 @@ export default function DriverLoadDetailAccessGate({ user }) {
 
     const checkAccess = async () => {
       try {
-        const [loads, drivers] = await Promise.all([
-          base44.entities.Load.filter({ id }, "-created_date", 1),
+        const [load, drivers] = await Promise.all([
+          fetchLoadById(id),
           user?.id ? base44.entities.Driver.filter({ user_id: user.id }, "-created_date", 1) : Promise.resolve([]),
         ]);
-        const load = loads?.[0] || null;
         const driverRecord = drivers?.[0] || null;
         if (!mounted) return;
         setState({
@@ -35,7 +44,7 @@ export default function DriverLoadDetailAccessGate({ user }) {
 
     checkAccess();
     return () => { mounted = false; };
-  }, [id, user?.id, user?.linkedDriverId]);
+  }, [id, user?.id, user?.linkedDriverId, user?.driver_id]);
 
   if (state.loading) {
     return (
