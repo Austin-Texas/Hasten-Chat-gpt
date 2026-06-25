@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { ArrowLeft, Edit, AlertCircle, Calendar, CreditCard, Truck, Award, Shield, FileText, Mail, Phone, MapPin, ChevronRight } from "lucide-react";
 import StatusBadge from "@/components/hasten/StatusBadge";
 import DriverDocumentsSection from "@/components/driver/DriverDocumentsSection";
+import { getLocalDriver } from "@/lib/localDriverStore";
 
 function isExpiringSoon(dateStr) {
   if (!dateStr) return false;
@@ -28,18 +29,42 @@ export default function DriverDetail() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([
-      base44.entities.Driver.get(id),
-      base44.entities.Load.filter({ driver_id: id }, "-created_date", 10),
-      base44.entities.Expense.filter({ driver_id: id }, "-created_date", 10),
-    ]).then(([drv, lds, exps]) => {
-      setDriver(drv);
-      setLoads(lds);
-      setExpenses(exps);
-      if (drv.truck_id) {
-        return base44.entities.Truck.get(drv.truck_id).then(t => setTruck(t));
+    let mounted = true;
+
+    const loadDriverDetail = async () => {
+      try {
+        const [drv, lds, exps] = await Promise.all([
+          base44.entities.Driver.get(id),
+          base44.entities.Load.filter({ driver_id: id }, "-created_date", 10),
+          base44.entities.Expense.filter({ driver_id: id }, "-created_date", 10),
+        ]);
+        if (!mounted) return;
+        setDriver(drv);
+        setLoads(lds || []);
+        setExpenses(exps || []);
+        if (drv?.truck_id) {
+          try {
+            const t = await base44.entities.Truck.get(drv.truck_id);
+            if (mounted) setTruck(t);
+          } catch (truckError) {
+            console.warn("Truck lookup skipped locally.", truckError?.message || truckError);
+          }
+        }
+      } catch (error) {
+        console.warn("Base44 driver detail unavailable locally. Using local demo driver store.", error?.message || error);
+        if (mounted) {
+          setDriver(getLocalDriver(id));
+          setLoads([]);
+          setExpenses([]);
+          setTruck(null);
+        }
+      } finally {
+        if (mounted) setLoading(false);
       }
-    }).catch(console.error).finally(() => setLoading(false));
+    };
+
+    loadDriverDetail();
+    return () => { mounted = false; };
   }, [id]);
 
   if (loading) {
@@ -61,7 +86,6 @@ export default function DriverDetail() {
 
   return (
     <div className="space-y-5 animate-slide-up">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button onClick={() => navigate("/drivers")} className="p-2 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
@@ -71,239 +95,31 @@ export default function DriverDetail() {
             <h1 className="text-white font-heading font-bold text-2xl">{driver.first_name} {driver.last_name}</h1>
             <div className="flex items-center gap-2 mt-1">
               <StatusBadge status={driver.status} />
-              {driver.status !== "inactive" && (
-                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-              )}
+              {driver.status !== "inactive" && <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />}
             </div>
           </div>
         </div>
-        <button
-          onClick={() => navigate(`/drivers/${id}/edit`)}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm font-semibold hover:border-white/20 transition-colors"
-        >
+        <button onClick={() => navigate(`/drivers/${id}/edit`)} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm font-semibold hover:border-white/20 transition-colors">
           <Edit className="w-4 h-4" /> Edit
         </button>
       </div>
 
-      {/* Critical Alerts */}
-      {(licenseExpired || medicalExpired) && (
-        <div className="glass-card rounded-xl border border-red-500/25 bg-red-500/10 p-4 flex gap-3">
-          <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
-          <div>
-            <div className="text-red-300 font-semibold text-sm">Certification Expired</div>
-            <div className="text-red-200 text-xs mt-1 space-y-0.5">
-              {licenseExpired && <div>• CDL License expired on {new Date(driver.license_expiry).toLocaleDateString()}</div>}
-              {medicalExpired && <div>• Medical certificate expired on {new Date(driver.medical_expiry).toLocaleDateString()}</div>}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Warning Alerts */}
-      {(licenseExpiring || medicalExpiring) && !licenseExpired && !medicalExpired && (
-        <div className="glass-card rounded-xl border border-amber-500/25 bg-amber-500/10 p-4 flex gap-3">
-          <AlertCircle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
-          <div>
-            <div className="text-amber-300 font-semibold text-sm">Certifications Expiring Soon</div>
-            <div className="text-amber-200 text-xs mt-1 space-y-0.5">
-              {licenseExpiring && <div>• CDL License expires {new Date(driver.license_expiry).toLocaleDateString()}</div>}
-              {medicalExpiring && <div>• Medical expires {new Date(driver.medical_expiry).toLocaleDateString()}</div>}
-            </div>
-          </div>
-        </div>
-      )}
+      {(licenseExpired || medicalExpired) && <div className="glass-card rounded-xl border border-red-500/25 bg-red-500/10 p-4 flex gap-3"><AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" /><div><div className="text-red-300 font-semibold text-sm">Certification Expired</div><div className="text-red-200 text-xs mt-1 space-y-0.5">{licenseExpired && <div>• CDL License expired on {new Date(driver.license_expiry).toLocaleDateString()}</div>}{medicalExpired && <div>• Medical certificate expired on {new Date(driver.medical_expiry).toLocaleDateString()}</div>}</div></div></div>}
+      {(licenseExpiring || medicalExpiring) && !licenseExpired && !medicalExpired && <div className="glass-card rounded-xl border border-amber-500/25 bg-amber-500/10 p-4 flex gap-3"><AlertCircle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" /><div><div className="text-amber-300 font-semibold text-sm">Certifications Expiring Soon</div><div className="text-amber-200 text-xs mt-1 space-y-0.5">{licenseExpiring && <div>• CDL License expires {new Date(driver.license_expiry).toLocaleDateString()}</div>}{medicalExpiring && <div>• Medical expires {new Date(driver.medical_expiry).toLocaleDateString()}</div>}</div></div></div>}
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="glass-card rounded-xl p-4 border border-white/5">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-slate-500 text-xs uppercase tracking-wider">Completed Loads</div>
-              <div className="text-white font-bold text-2xl mt-1">{completedLoads}</div>
-            </div>
-            <Truck className="w-8 h-8 text-orange-400 opacity-20" />
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-4 border border-white/5">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-slate-500 text-xs uppercase tracking-wider">Earnings YTD</div>
-              <div className="text-green-400 font-bold text-2xl mt-1">${(totalEarnings / 1000).toFixed(0)}k</div>
-            </div>
-            <CreditCard className="w-8 h-8 text-green-400 opacity-20" />
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-4 border border-white/5">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-slate-500 text-xs uppercase tracking-wider">Safety Score</div>
-              <div className="text-blue-400 font-bold text-2xl mt-1">{driver.safety_score || 100}</div>
-            </div>
-            <Award className="w-8 h-8 text-blue-400 opacity-20" />
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-4 border border-white/5">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-slate-500 text-xs uppercase tracking-wider">Pending Expenses</div>
-              <div className="text-amber-400 font-bold text-2xl mt-1">{pendingExpenses}</div>
-            </div>
-            <FileText className="w-8 h-8 text-amber-400 opacity-20" />
-          </div>
-        </div>
+        <div className="glass-card rounded-xl p-4 border border-white/5"><div className="flex items-center justify-between"><div><div className="text-slate-500 text-xs uppercase tracking-wider">Completed Loads</div><div className="text-white text-2xl font-bold mt-1">{completedLoads}</div></div><Truck className="w-8 h-8 text-slate-600" /></div></div>
+        <div className="glass-card rounded-xl p-4 border border-white/5"><div className="flex items-center justify-between"><div><div className="text-slate-500 text-xs uppercase tracking-wider">Total Earnings</div><div className="text-white text-2xl font-bold mt-1">${totalEarnings.toLocaleString()}</div></div><CreditCard className="w-8 h-8 text-slate-600" /></div></div>
+        <div className="glass-card rounded-xl p-4 border border-white/5"><div className="flex items-center justify-between"><div><div className="text-slate-500 text-xs uppercase tracking-wider">Safety Score</div><div className="text-white text-2xl font-bold mt-1">{driver.safety_score || 100}</div></div><Award className="w-8 h-8 text-slate-600" /></div></div>
+        <div className="glass-card rounded-xl p-4 border border-white/5"><div className="flex items-center justify-between"><div><div className="text-slate-500 text-xs uppercase tracking-wider">Pending Expenses</div><div className="text-white text-2xl font-bold mt-1">{pendingExpenses}</div></div><FileText className="w-8 h-8 text-slate-600" /></div></div>
       </div>
 
-      {/* Contact & Personal Info */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="glass-card rounded-xl border border-white/5 p-5">
-          <h2 className="text-white font-semibold text-sm uppercase tracking-wider mb-4">Contact Information</h2>
-          <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <Mail className="w-4 h-4 text-slate-500" />
-              <div>
-                <div className="text-slate-500 text-xs">Email</div>
-                <a href={`mailto:${driver.email}`} className="text-orange-400 hover:text-orange-300 transition-colors text-sm">{driver.email}</a>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <Phone className="w-4 h-4 text-slate-500" />
-              <div>
-                <div className="text-slate-500 text-xs">Phone</div>
-                <a href={`tel:${driver.phone}`} className="text-orange-400 hover:text-orange-300 transition-colors text-sm">{driver.phone}</a>
-              </div>
-            </div>
-            {driver.home_city && (
-              <div className="flex items-center gap-3">
-                <MapPin className="w-4 h-4 text-slate-500" />
-                <div>
-                  <div className="text-slate-500 text-xs">Home Base</div>
-                  <div className="text-white text-sm">{driver.home_city}, {driver.home_state}</div>
-                </div>
-              </div>
-            )}
-            {driver.emergency_contact_name && (
-              <div className="pt-2 border-t border-white/5">
-                <div className="text-slate-500 text-xs mb-1">Emergency Contact</div>
-                <div className="text-white font-medium text-sm">{driver.emergency_contact_name}</div>
-                <div className="text-slate-400 text-xs">{driver.emergency_contact_phone}</div>
-              </div>
-            )}
-          </div>
+      <div className="grid lg:grid-cols-3 gap-5">
+        <div className="lg:col-span-2 space-y-5">
+          <div className="glass-card rounded-xl border border-white/5 p-5"><h2 className="text-white font-semibold mb-4">Driver Information</h2><div className="grid sm:grid-cols-2 gap-4 text-sm"><div className="flex items-center gap-2 text-slate-400"><Mail className="w-4 h-4" /> {driver.email}</div><div className="flex items-center gap-2 text-slate-400"><Phone className="w-4 h-4" /> {driver.phone}</div><div className="flex items-center gap-2 text-slate-400"><MapPin className="w-4 h-4" /> {driver.home_city || "—"}, {driver.home_state || "—"}</div><div className="flex items-center gap-2 text-slate-400"><Shield className="w-4 h-4" /> CDL {driver.license_class || "A"} • {driver.license_state || "—"}</div></div>{driver.notes && <div className="mt-4 rounded-lg bg-white/5 p-3 text-sm text-slate-300">{driver.notes}</div>}</div>
+          <DriverDocumentsSection driver={driver} />
         </div>
-
-        <div className="glass-card rounded-xl border border-white/5 p-5">
-          <h2 className="text-white font-semibold text-sm uppercase tracking-wider mb-4">License & Pay</h2>
-          <div className="space-y-3">
-            <div>
-              <div className="text-slate-500 text-xs uppercase tracking-wider mb-0.5">License</div>
-              <div className="text-white font-mono text-sm">{driver.license_number}</div>
-              <div className="text-slate-400 text-xs mt-1">
-                Class {driver.license_class} • {driver.license_state}
-                {licenseExpired && <span className="text-red-400 ml-2">EXPIRED</span>}
-                {licenseExpiring && !licenseExpired && <span className="text-amber-400 ml-2">EXPIRING SOON</span>}
-              </div>
-            </div>
-            <div className="pt-2 border-t border-white/5">
-              <div className="text-slate-500 text-xs uppercase tracking-wider mb-0.5">Pay Rate</div>
-              <div className="text-white font-semibold text-sm capitalize">
-                {driver.pay_rate || "—"} ({driver.pay_type?.replace("_", " ")})
-              </div>
-            </div>
-            {driver.hazmat_cert && (
-              <div className="pt-2 border-t border-white/5 flex items-center gap-2">
-                <Shield className="w-4 h-4 text-green-400" />
-                <span className="text-green-400 text-sm font-medium">HAZMAT Certified</span>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Documents Section */}
-      <DriverDocumentsSection driverId={id} />
-
-      {/* Assigned Truck */}
-      {truck && (
-        <div className="glass-card rounded-xl border border-white/5 p-5">
-          <h2 className="text-white font-semibold text-sm uppercase tracking-wider mb-4">Assigned Truck</h2>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-orange-500/15 flex items-center justify-center">
-                <Truck className="w-5 h-5 text-orange-400" />
-              </div>
-              <div>
-                <div className="text-white font-semibold text-sm">Unit {truck.unit_number}</div>
-                <div className="text-slate-400 text-xs">{truck.year} {truck.make} {truck.model}</div>
-              </div>
-            </div>
-            <button
-              onClick={() => navigate(`/fleet`)}
-              className="p-1.5 rounded-lg hover:bg-white/10 text-slate-500 hover:text-white transition-colors"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* HOS Summary */}
-      <div className="glass-card rounded-xl border border-white/5 p-5">
-        <h2 className="text-white font-semibold text-sm uppercase tracking-wider mb-4">Hours of Service</h2>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <div className="bg-white/3 rounded-lg p-3">
-            <div className="text-slate-500 text-xs uppercase tracking-wider mb-0.5">Today Driving</div>
-            <div className="text-white font-bold text-lg">{(driver.hours_driving_today || 0).toFixed(1)} hrs</div>
-          </div>
-          <div className="bg-white/3 rounded-lg p-3">
-            <div className="text-slate-500 text-xs uppercase tracking-wider mb-0.5">Today On Duty</div>
-            <div className="text-white font-bold text-lg">{(driver.hours_on_duty_today || 0).toFixed(1)} hrs</div>
-          </div>
-          <div className="bg-white/3 rounded-lg p-3">
-            <div className="text-slate-500 text-xs uppercase tracking-wider mb-0.5">HOS Status</div>
-            <div className="text-white font-bold text-sm capitalize">{driver.hos_status || "Off Duty"}</div>
-          </div>
-          <div className="bg-white/3 rounded-lg p-3">
-            <div className="text-slate-500 text-xs uppercase tracking-wider mb-0.5">YTD Miles</div>
-            <div className="text-white font-bold text-lg">{(driver.miles_ytd || 0).toLocaleString()}</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Recent Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="glass-card rounded-xl border border-white/5 p-5">
-          <h2 className="text-white font-semibold text-sm uppercase tracking-wider mb-3">Recent Loads</h2>
-          {loads.length === 0 ? (
-            <p className="text-slate-500 text-xs">No loads</p>
-          ) : (
-            <div className="space-y-2">
-              {loads.slice(0, 5).map(l => (
-                <div key={l.id} className="flex items-center justify-between text-xs">
-                  <span className="text-slate-300 truncate">{l.origin_city} → {l.destination_city}</span>
-                  <StatusBadge status={l.status} />
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="glass-card rounded-xl border border-white/5 p-5">
-          <h2 className="text-white font-semibold text-sm uppercase tracking-wider mb-3">Recent Expenses</h2>
-          {expenses.length === 0 ? (
-            <p className="text-slate-500 text-xs">No expenses</p>
-          ) : (
-            <div className="space-y-2">
-              {expenses.slice(0, 5).map(e => (
-                <div key={e.id} className="flex items-center justify-between text-xs">
-                  <span className="text-slate-300 capitalize">{e.category.replace("_", " ")}</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-white font-medium">${e.amount}</span>
-                    <StatusBadge status={e.status} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        <div className="space-y-5"><div className="glass-card rounded-xl border border-white/5 p-5"><h2 className="text-white font-semibold mb-4">Current Truck</h2>{truck ? <div className="text-sm text-slate-300">{truck.unit_number || truck.name}</div> : <p className="text-sm text-slate-500">No truck assigned</p>}</div><div className="glass-card rounded-xl border border-white/5 p-5"><h2 className="text-white font-semibold mb-4">Recent Loads</h2>{loads.length ? loads.map(load => <div key={load.id} className="flex items-center justify-between py-2 border-b border-white/5"><span className="text-sm text-slate-300">{load.load_number || load.id}</span><ChevronRight className="w-4 h-4 text-slate-600" /></div>) : <p className="text-sm text-slate-500">No recent loads</p>}</div></div>
       </div>
     </div>
   );
