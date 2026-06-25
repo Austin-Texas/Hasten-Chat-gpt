@@ -3,12 +3,12 @@ import { base44 } from "@/api/base44Client";
 import { CheckCircle, Clock, Loader2, MessageSquare, RefreshCw, ShieldCheck, Truck, XCircle, X } from "lucide-react";
 import { getLoadEquipment } from "@/lib/equipmentMatching";
 
-const REVIEWABLE_STATUSES = ["pending", "interested", "bid_submitted", "counter_offer"];
-const FILTERS = ["open", "interested", "bid_submitted", "counter_offer", "accepted_by_dispatch", "rejected_by_dispatch", "all"];
+const REVIEWABLE_STATUSES = ["pending", "interested", "bid_submitted", "counter_offer", "counter_accepted"];
+const FILTERS = ["open", "interested", "bid_submitted", "counter_offer", "counter_accepted", "counter_declined", "accepted_by_dispatch", "rejected_by_dispatch", "all"];
 
 function statusClass(status) {
-  if (status === "accepted_by_dispatch") return "bg-green-500/15 text-green-300 border-green-500/25";
-  if (status === "rejected_by_dispatch" || status === "declined") return "bg-red-500/10 text-red-300 border-red-500/20";
+  if (status === "accepted_by_dispatch" || status === "counter_accepted") return "bg-green-500/15 text-green-300 border-green-500/25";
+  if (["rejected_by_dispatch", "declined", "counter_declined"].includes(status)) return "bg-red-500/10 text-red-300 border-red-500/20";
   if (status === "bid_submitted") return "bg-blue-500/10 text-blue-300 border-blue-500/20";
   if (status === "counter_offer") return "bg-amber-500/10 text-amber-300 border-amber-500/20";
   return "bg-green-500/10 text-green-300 border-green-500/20";
@@ -16,6 +16,16 @@ function statusClass(status) {
 
 function loadIsLocked(load = {}) {
   return Boolean(load.imported_load_id || load.assigned_driver_id || load.normalized_status === "imported");
+}
+
+function bidIsClosed(bid = {}) {
+  return ["declined", "counter_declined", "rejected_by_dispatch", "accepted_by_dispatch"].includes(bid.status);
+}
+
+function acceptButtonLabel(bid = {}, locked) {
+  if (locked) return "Locked";
+  if (bid.status === "counter_accepted") return "Create Load";
+  return "Accept";
 }
 
 export default function DispatchBidReview() {
@@ -119,6 +129,15 @@ export default function DispatchBidReview() {
       setNotice("Accept blocked: this external load is already imported or assigned.");
       return;
     }
+    if (bidIsClosed(bid)) {
+      setNotice("This bid is already closed.");
+      return;
+    }
+
+    const isCounterAccepted = bid.status === "counter_accepted";
+    const finalRate = isCounterAccepted
+      ? Number(bid.dispatcher_counter_amount || externalLoad.rate_available || 0)
+      : Number(externalLoad.rate_available || 0);
 
     setActioning(`${bid.id}-accept`);
     setNotice("");
@@ -137,10 +156,12 @@ export default function DispatchBidReview() {
         commodity: externalLoad.commodity,
         weight: externalLoad.weight,
         miles: externalLoad.miles_total,
-        rate: externalLoad.rate_available,
-        total_revenue: externalLoad.rate_available,
+        rate: finalRate,
+        total_revenue: finalRate,
         broker_id: externalLoad.broker_customer_id,
-        notes: `Accepted from ${externalLoad.source_provider || "external marketplace"} bid review.`,
+        notes: isCounterAccepted
+          ? `Created from driver-accepted counter offer. Dispatcher note: ${bid.dispatcher_notes || "none"}`
+          : `Accepted from ${externalLoad.source_provider || "external marketplace"} bid review.`,
       });
 
       try {
@@ -152,6 +173,7 @@ export default function DispatchBidReview() {
       await base44.entities.DriverLoadBid.update(bid.id, {
         status: "accepted_by_dispatch",
         accepted_load_id: createdLoad.id,
+        final_rate: finalRate,
         reviewed_at: new Date().toISOString(),
       });
 
@@ -162,7 +184,7 @@ export default function DispatchBidReview() {
         updated_at: new Date().toISOString(),
       });
 
-      setNotice("Bid accepted and internal assigned load created.");
+      setNotice(isCounterAccepted ? "Counter accepted by driver. Internal assigned load created." : "Bid accepted and internal assigned load created.");
       await fetchData();
     } catch (error) {
       console.error(error);
@@ -184,9 +206,9 @@ export default function DispatchBidReview() {
 
       <div className="grid gap-3 md:grid-cols-4">
         <Metric title="Open" value={bids.filter((bid) => REVIEWABLE_STATUSES.includes(bid.status || "pending")).length} icon={<Clock className="h-4 w-4 text-amber-400" />} />
+        <Metric title="Counter OK" value={bids.filter((bid) => bid.status === "counter_accepted").length} icon={<CheckCircle className="h-4 w-4 text-green-400" />} />
         <Metric title="Accepted" value={bids.filter((bid) => bid.status === "accepted_by_dispatch").length} icon={<CheckCircle className="h-4 w-4 text-green-400" />} />
-        <Metric title="Rejected" value={bids.filter((bid) => bid.status === "rejected_by_dispatch").length} icon={<XCircle className="h-4 w-4 text-red-400" />} />
-        <Metric title="External Loads" value={loads.length} icon={<Truck className="h-4 w-4 text-blue-400" />} />
+        <Metric title="Rejected" value={bids.filter((bid) => ["rejected_by_dispatch", "counter_declined"].includes(bid.status)).length} icon={<XCircle className="h-4 w-4 text-red-400" />} />
       </div>
 
       {notice && <div className="rounded-xl border border-green-500/20 bg-green-500/5 px-4 py-3 text-sm text-green-300">{notice}</div>}
@@ -207,6 +229,7 @@ export default function DispatchBidReview() {
             const externalLoad = loadById.get(bid.external_load_id) || {};
             const driver = driverById.get(bid.driver_id) || {};
             const locked = loadIsLocked(externalLoad);
+            const closed = bidIsClosed(bid);
             return (
               <div key={bid.id} className="glass-card rounded-xl border border-white/5 p-4">
                 <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
@@ -218,9 +241,11 @@ export default function DispatchBidReview() {
                     </div>
                     <div className="mt-2 flex flex-wrap gap-3 text-xs text-slate-500"><span className="flex items-center gap-1"><Truck className="h-3 w-3" />{getLoadEquipment(externalLoad) || "Equipment"}</span><span>{externalLoad.miles_total || "—"} mi</span><span>{externalLoad.weight ? `${Number(externalLoad.weight).toLocaleString()} lbs` : "Weight —"}</span><span>{externalLoad.commodity || "Commodity —"}</span></div>
                     {bid.dispatcher_counter_amount && <div className="mt-2 text-xs text-amber-300">Counter: ${Number(bid.dispatcher_counter_amount).toLocaleString()} {bid.dispatcher_notes ? `· ${bid.dispatcher_notes}` : ""}</div>}
+                    {bid.status === "counter_accepted" && <div className="mt-2 text-xs font-semibold text-green-300">Driver accepted the counter. Create the load using the counter amount.</div>}
+                    {bid.status === "counter_declined" && <div className="mt-2 text-xs font-semibold text-red-300">Driver declined the counter.</div>}
                   </div>
                   <div className="min-w-[220px] rounded-xl border border-white/5 bg-white/[0.03] p-3"><div className="text-sm font-semibold text-white">{driver.full_name || driver.name || "Driver"}</div><div className="mt-1 text-xs text-slate-500">{driver.vehicle_type || "Equipment"} · {driver.home_city || driver.city || "—"}, {driver.home_state || driver.state || "—"}</div><div className="mt-2 flex items-center gap-2 text-xs text-green-300"><ShieldCheck className="h-3.5 w-3.5" /> Match {bid.match_score || "—"}</div>{bid.driver_notes && <p className="mt-2 text-xs text-slate-400">{bid.driver_notes}</p>}</div>
-                  <div className="flex flex-wrap gap-2 xl:justify-end"><button onClick={() => acceptBid(bid)} disabled={Boolean(actioning) || locked} className="flex items-center gap-1 rounded-lg bg-green-500 px-3 py-2 text-xs font-bold text-black disabled:opacity-50">{actioning === `${bid.id}-accept` ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle className="h-3.5 w-3.5" />} {locked ? "Locked" : "Accept"}</button><button onClick={() => openCounterModal(bid)} disabled={Boolean(actioning) || locked} className="rounded-lg border border-blue-500/25 bg-blue-500/10 px-3 py-2 text-xs font-bold text-blue-300 disabled:opacity-50">Counter</button><button onClick={() => updateBidStatus(bid, "rejected_by_dispatch")} disabled={Boolean(actioning)} className="flex items-center gap-1 rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-xs font-bold text-red-300 disabled:opacity-50"><XCircle className="h-3.5 w-3.5" /> Reject</button></div>
+                  <div className="flex flex-wrap gap-2 xl:justify-end"><button onClick={() => acceptBid(bid)} disabled={Boolean(actioning) || locked || closed} className="flex items-center gap-1 rounded-lg bg-green-500 px-3 py-2 text-xs font-bold text-black disabled:opacity-50">{actioning === `${bid.id}-accept` ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle className="h-3.5 w-3.5" />} {acceptButtonLabel(bid, locked)}</button><button onClick={() => openCounterModal(bid)} disabled={Boolean(actioning) || locked || closed} className="rounded-lg border border-blue-500/25 bg-blue-500/10 px-3 py-2 text-xs font-bold text-blue-300 disabled:opacity-50">Counter</button><button onClick={() => updateBidStatus(bid, "rejected_by_dispatch")} disabled={Boolean(actioning) || bid.status === "accepted_by_dispatch"} className="flex items-center gap-1 rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-xs font-bold text-red-300 disabled:opacity-50"><XCircle className="h-3.5 w-3.5" /> Reject</button></div>
                 </div>
               </div>
             );
