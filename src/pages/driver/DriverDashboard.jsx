@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import StatusBadge from "@/components/hasten/StatusBadge";
 import ShiftTracker from "@/components/driver/ShiftTracker";
+import DriverReadinessCard from "@/components/driver/DriverReadinessCard";
 
 // Truck SVG icon
 function TruckIcon({ className }) {
@@ -67,8 +68,8 @@ export default function DriverDashboard({ user }) {
     setStatusUpdating(true);
     const next = driverRecord.status === "available" ? "off_duty" : "available";
     try {
-      await base44.entities.Driver.update(driverRecord.id, { status: next });
-      setDriverRecord(prev => ({ ...prev, status: next }));
+      await base44.entities.Driver.update(driverRecord.id, { status: next, availability: next === "available" ? "available" : "off_duty" });
+      setDriverRecord(prev => ({ ...prev, status: next, availability: next === "available" ? "available" : "off_duty" }));
     } catch (err) { console.error(err); }
     finally { setStatusUpdating(false); }
   };
@@ -112,7 +113,6 @@ export default function DriverDashboard({ user }) {
         }}
         onClick={() => window.location.href = '/driver/profile'}
       >
-        {/* Decorative truck watermark */}
         <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-5">
           <TruckIcon className="w-28 h-28 text-orange-400" />
         </div>
@@ -134,7 +134,6 @@ export default function DriverDashboard({ user }) {
           </Link>
         </div>
 
-        {/* Status toggle */}
         {driverRecord && (
           <button
             onClick={toggleAvailability}
@@ -163,6 +162,9 @@ export default function DriverDashboard({ user }) {
       {/* ── Shift Tracker ── */}
       <ShiftTracker user={user} />
 
+      {/* ── Driver Readiness ── */}
+      {driverRecord && <DriverReadinessCard user={user} driver={driverRecord} />}
+
       {/* ── Stats Grid ── */}
       <div className="grid grid-cols-4 gap-2">
         <StatPill label="Active"    value={activeLoadsCount}                    color="orange" />
@@ -181,7 +183,6 @@ export default function DriverDashboard({ user }) {
             boxShadow: "0 0 32px rgba(234,88,12,0.08), inset 0 1px 0 rgba(255,255,255,0.04)",
           }}
         >
-          {/* Live pulse header */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <span className="relative flex h-2.5 w-2.5">
@@ -193,12 +194,10 @@ export default function DriverDashboard({ user }) {
             <StatusBadge status={currentLoad.status} />
           </div>
 
-          {/* Load number */}
           <div className="text-orange-400 font-mono font-bold text-2xl mb-3 tracking-wide">
             {currentLoad.load_number || `#LD${currentLoad.id?.slice(-6).toUpperCase()}`}
           </div>
 
-          {/* Route */}
           <div className="flex items-center gap-2 mb-4">
             <div className="flex-1 min-w-0">
               <div className="text-slate-400 text-[10px] uppercase tracking-wider mb-0.5">From</div>
@@ -216,7 +215,6 @@ export default function DriverDashboard({ user }) {
             </div>
           </div>
 
-          {/* Dates */}
           <div className="grid grid-cols-2 gap-3 mb-4 text-sm">
             <div className="bg-white/3 rounded-xl p-2.5">
               <span className="text-slate-500 block text-[10px] uppercase tracking-wider mb-0.5">Pickup</span>
@@ -236,7 +234,6 @@ export default function DriverDashboard({ user }) {
             </div>
           </div>
 
-          {/* Progress bar */}
           <div className="mb-1">
             <div className="flex justify-between text-[10px] text-slate-600 mb-1.5">
               <span>Pickup</span>
@@ -254,7 +251,6 @@ export default function DriverDashboard({ user }) {
             </div>
           </div>
 
-          {/* CTA */}
           <Link
             to={`/driver/loads/${currentLoad.id}`}
             className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-bold text-white text-sm mt-4 transition-all duration-200 active:scale-[0.98]"
@@ -310,7 +306,6 @@ export default function DriverDashboard({ user }) {
                     border: "1px solid rgba(255,255,255,0.05)",
                   }}
                 >
-                  {/* Status dot */}
                   <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${
                     load.status === "completed"
                       ? "bg-green-500/10 border border-green-500/15"
