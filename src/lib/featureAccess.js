@@ -100,7 +100,6 @@ const driverAccess = {
   "Driver Support": true,
   "Driver Emergency": true,
   Documents: true,
-  "Driver Scan": true,
   Messages: true,
   Settlements: true,
   Support: true,
