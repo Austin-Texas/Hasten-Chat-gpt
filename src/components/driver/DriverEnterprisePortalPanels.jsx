@@ -1,6 +1,7 @@
-import { AlertTriangle, FileText, ShieldCheck, TrendingUp, WalletCards } from "lucide-react";
+import { AlertTriangle, Clock, FileText, ShieldCheck, TrendingUp, WalletCards } from "lucide-react";
 import { readDriverEnterpriseStore } from "@/lib/driverEnterpriseDataLayer";
 import { buildDriverSelfServicePortal } from "@/lib/driverSelfServicePortalEngine";
+import { buildDriverHosPortalPayload } from "@/lib/driverHosEngine";
 
 function PanelStat({ label, value, tone = "text-white" }) {
   return (
@@ -39,9 +40,10 @@ function List({ items, empty }) {
   );
 }
 
-export default function DriverEnterprisePortalPanels({ driverId }) {
+export default function DriverEnterprisePortalPanels({ driverId, driver }) {
   const store = readDriverEnterpriseStore();
   const portal = driverId ? buildDriverSelfServicePortal(driverId, store) : null;
+  const hosPortal = buildDriverHosPortalPayload(driver || { id: driverId });
 
   if (!driverId || !portal) {
     return null;
@@ -53,6 +55,7 @@ export default function DriverEnterprisePortalPanels({ driverId }) {
   const alerts = portal.alerts || [];
   const docs = portal.documents || {};
   const settlements = portal.settlements || {};
+  const hos = hosPortal.hos;
 
   return (
     <>
@@ -63,6 +66,16 @@ export default function DriverEnterprisePortalPanels({ driverId }) {
           <PanelStat label="Safety" value={scorecard?.safety_score ?? "—"} tone="text-red-400" />
           <PanelStat label="Performance" value={scorecard?.performance_score ?? "—"} tone="text-green-400" />
         </div>
+      </MiniPanel>
+
+      <MiniPanel icon={Clock} title="HOS / ELD Readiness" subtitle="Drive clock, shift clock, cycle clock, break risk, and future Motive/Samsara/Trimble mapping." tone="text-amber-400 bg-amber-500/10 border-amber-500/20">
+        <div className="grid grid-cols-2 gap-2 mb-3">
+          <PanelStat label="Drive Left" value={`${hos.drive_hours_remaining}h`} tone={hos.risk_level === "normal" ? "text-green-400" : "text-amber-400"} />
+          <PanelStat label="Shift Left" value={`${hos.shift_hours_remaining}h`} tone="text-blue-400" />
+          <PanelStat label="Cycle Left" value={`${hos.cycle_hours_remaining}h`} tone="text-purple-400" />
+          <PanelStat label="Risk" value={hos.risk_level} tone={hos.risk_level === "normal" ? "text-green-400" : "text-red-400"} />
+        </div>
+        <List items={hosPortal.alerts.map((alert) => alert.message)} empty="No HOS alerts from local enterprise HOS engine." />
       </MiniPanel>
 
       <MiniPanel icon={ShieldCheck} title="Compliance Alert Center" subtitle="CDL, medical, DQF, Clearinghouse, Hazmat/TWIC readiness." tone="text-blue-400 bg-blue-500/10 border-blue-500/20">
