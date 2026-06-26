@@ -23,19 +23,15 @@ const readLocalUser = () => {
     const isDriver = email === 'driver@hasten.com';
 
     return {
-      id: isDriver ? 'local-driver-user' : 'local-admin-user',
-      full_name: isDriver ? 'Demo Driver' : 'Brian M',
+      ...parsed,
+      id: parsed.id || (isDriver ? 'local-driver-user' : 'local-admin-user'),
+      full_name: parsed.full_name || (isDriver ? 'Demo Driver' : 'Brian M'),
       email,
       role: isDriver ? 'driver' : 'admin',
-      businessRole: isDriver ? 'driver' : 'super_admin',
+      businessRole: isDriver ? 'driver' : (parsed.businessRole || 'super_admin'),
       accountType: isDriver ? 'driver' : 'admin',
-      linkedDriverId: isDriver ? 'local-driver-profile' : undefined,
+      linkedDriverId: isDriver ? 'local-driver-profile' : parsed.linkedDriverId,
       localDemo: true,
-      ...parsed,
-      role: isDriver ? 'driver' : 'admin',
-      businessRole: isDriver ? 'driver' : 'super_admin',
-      accountType: isDriver ? 'driver' : 'admin',
-      linkedDriverId: isDriver ? 'local-driver-profile' : parsed.linkedDriverId
     };
   } catch (error) {
     console.warn('[base44Client] Invalid local HASTEN session. Clearing it.', error);
