@@ -10,6 +10,17 @@ const AGENT_LABELS = {
   customer_assistant: "Customer Assistant",
 };
 
+const COPILOT_PROMPTS = [
+  "Which loads risk late delivery today?",
+  "Which drivers are available near Dallas?",
+  "Which compliance documents expire this week?",
+  "Which customers have unpaid invoices?",
+  "Which loads are missing POD?",
+  "Which settlements are ready for approval?",
+  "Which drivers have high detention risk?",
+  "Which invoices should be factored?",
+];
+
 const TOOL_STATUS_ICON = {
   pending: Clock,
   running: Loader2,
@@ -62,11 +73,7 @@ function FunctionDisplay({ toolCall }) {
         <Icon className={`w-3 h-3 ${isRunning ? "animate-spin" : ""}`} />
         <span className="font-medium capitalize">{fnName}</span>
         <span className="opacity-70">— {statusLabel}</span>
-        {!hideDetails && (
-          expanded
-            ? <ChevronUp className="w-3 h-3 ml-auto" />
-            : <ChevronDown className="w-3 h-3 ml-auto" />
-        )}
+        {!hideDetails && (expanded ? <ChevronUp className="w-3 h-3 ml-auto" /> : <ChevronDown className="w-3 h-3 ml-auto" />)}
       </button>
       {expanded && !hideDetails && (
         <div className="mt-1.5 space-y-1.5 pl-2 border-l border-white/10">
@@ -111,9 +118,7 @@ function MessageBubble({ message }) {
             ? <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
             : <ReactMarkdown className="text-sm prose prose-sm prose-invert max-w-none [&_p]:mb-1 [&_ul]:mb-1 [&_ol]:mb-1">{message.content}</ReactMarkdown>
         )}
-        {message.tool_calls?.map((tc, idx) => (
-          <FunctionDisplay key={idx} toolCall={tc} />
-        ))}
+        {message.tool_calls?.map((tc, idx) => <FunctionDisplay key={idx} toolCall={tc} />)}
       </div>
       {isUser && (
         <div className="w-7 h-7 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0">
@@ -171,19 +176,23 @@ export default function AgentChat({ agentName }) {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const send = async () => {
-    if (!input.trim() || sending || !conversation) return;
+  const sendContent = async (content) => {
+    if (!content.trim() || sending || !conversation) return;
     setSending(true);
-    const content = input.trim();
-    setInput("");
     try {
-      await base44.agents.addMessage(conversation, { role: "user", content });
+      await base44.agents.addMessage(conversation, { role: "user", content: content.trim() });
     } catch (err) {
       console.error("Send error:", err);
       setInput(content);
     } finally {
       setSending(false);
     }
+  };
+
+  const send = async () => {
+    const content = input.trim();
+    setInput("");
+    await sendContent(content);
   };
 
   if (loading) {
@@ -199,22 +208,34 @@ export default function AgentChat({ agentName }) {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Messages */}
+      <div className="border-b border-white/5 px-4 py-3">
+        <div className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">Enterprise Copilot Prompts</div>
+        <div className="flex gap-2 overflow-x-auto pb-1">
+          {COPILOT_PROMPTS.map((prompt) => (
+            <button
+              key={prompt}
+              onClick={() => sendContent(prompt)}
+              disabled={sending || !conversation}
+              className="shrink-0 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-300 hover:border-green-500/30 hover:text-green-300 disabled:opacity-50"
+            >
+              {prompt}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
         {messages.length === 0 && (
           <div className="text-center py-16">
             <Bot className="w-12 h-12 text-slate-600 mx-auto mb-3" />
             <p className="text-white font-medium text-sm">{agentLabel}</p>
-            <p className="text-slate-500 text-xs mt-1">Ask me anything about your loads, drivers, or operations.</p>
+            <p className="text-slate-500 text-xs mt-1">Ask for operational risk, available drivers, compliance expirations, unpaid invoices, missing PODs, settlement readiness, detention risk, factoring candidates, reports, or action suggestions.</p>
           </div>
         )}
-        {messages.map((msg, idx) => (
-          <MessageBubble key={msg.id || idx} message={msg} />
-        ))}
+        {messages.map((msg, idx) => <MessageBubble key={msg.id || idx} message={msg} />)}
         <div ref={bottomRef} />
       </div>
 
-      {/* Input */}
       <div className="flex gap-2 px-4 pb-3 pt-2 border-t border-white/5 flex-shrink-0">
         <input
           value={input}
@@ -228,9 +249,7 @@ export default function AgentChat({ agentName }) {
           disabled={!input.trim() || sending}
           className="w-10 h-10 rounded-xl flex items-center justify-center disabled:opacity-40 transition-all flex-shrink-0 bg-green-500 hover:bg-green-600"
         >
-          {sending
-            ? <Loader2 className="w-4 h-4 text-black animate-spin" />
-            : <Send className="w-4 h-4 text-black" />}
+          {sending ? <Loader2 className="w-4 h-4 text-black animate-spin" /> : <Send className="w-4 h-4 text-black" />}
         </button>
       </div>
     </div>
