@@ -171,6 +171,7 @@ const AuthenticatedApp = () => {
         <Route path="/super-admin/settings/integrations/load-board-apis" element={<AppLayout user={user}><SuperAdminIntegrations /></AppLayout>} />
         <Route path="/super-admin/integrations/load-board-api" element={<Navigate to="/super-admin/settings/integrations/load-board-apis" replace />} />
         <Route path="/super-admin/settings/system-diagnostics" element={<AppLayout user={user}><SystemDiagnostics /></AppLayout>} />
+        <Route path="/super-admin/settings/platform-cleanup" element={<Navigate to="/super-admin/settings/system-diagnostics" replace />} />
         <Route path="/dispatch/analytics" element={<AppLayout user={user}><DispatcherAnalytics /></AppLayout>} />
         <Route path="/dispatch/performance" element={<AppLayout user={user}><DispatcherPerformance /></AppLayout>} />
         <Route path="/loads" element={<AppLayout user={user}><Loads /></AppLayout>} />
