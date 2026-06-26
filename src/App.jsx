@@ -40,6 +40,7 @@ import DriverScorecards from '@/pages/DriverScorecards';
 import LoadTemplateLibrary from '@/pages/LoadTemplateLibrary';
 import Compliance from '@/pages/Compliance';
 import DriverReadinessCenter from '@/pages/DriverReadinessCenter';
+import DriverEnterpriseDataCenter from '@/pages/DriverEnterpriseDataCenter';
 import Payroll from '@/pages/Payroll';
 import IFTAQuarterly from '@/pages/IFTAQuarterly';
 import BrokerDetail from '@/pages/BrokerDetail';
@@ -182,6 +183,7 @@ const AuthenticatedApp = () => {
         <Route path="/loads/:id/replay" element={<AppLayout user={user}><TripReplay /></AppLayout>} />
         <Route path="/drivers" element={<AppLayout user={user}><Drivers /></AppLayout>} />
         <Route path="/drivers/readiness" element={<AppLayout user={user}><DriverReadinessCenter /></AppLayout>} />
+        <Route path="/drivers/enterprise" element={<AppLayout user={user}><DriverEnterpriseDataCenter /></AppLayout>} />
         <Route path="/drivers/new" element={<AppLayout user={user}><DriverForm /></AppLayout>} />
         <Route path="/drivers/:id" element={<AppLayout user={user}><DriverDetail /></AppLayout>} />
         <Route path="/drivers/:id/edit" element={<AppLayout user={user}><DriverForm /></AppLayout>} />
