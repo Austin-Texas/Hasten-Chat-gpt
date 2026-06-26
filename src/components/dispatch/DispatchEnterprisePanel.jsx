@@ -1,6 +1,7 @@
 import { AlertTriangle, Brain, DollarSign, MessageSquare, Route, Sparkles, Truck } from "lucide-react";
 import { buildDispatcherEnterpriseSnapshot } from "@/lib/dispatcherEnterpriseEngine";
 import { buildDispatcherExtendedSnapshot } from "@/lib/dispatcherEnterpriseExtendedEngine";
+import { getDispatcherActionSummary } from "@/lib/dispatcherEnterpriseActions";
 
 function Stat({ label, value, tone = "text-white" }) {
   return (
@@ -23,6 +24,7 @@ function Item({ title, subtitle }) {
 export default function DispatchEnterprisePanel({ loads = [], drivers = [], trucks = [] }) {
   const snapshot = buildDispatcherEnterpriseSnapshot({ loads, drivers, trucks });
   const extended = buildDispatcherExtendedSnapshot({ loads, drivers, snapshot });
+  const actionSummary = getDispatcherActionSummary();
   const topMatches = snapshot.matching_board.slice(0, 3);
   const topExceptions = snapshot.exceptions.slice(0, 4);
   const topAlerts = extended.sla_alerts.slice(0, 3);
@@ -47,6 +49,14 @@ export default function DispatchEnterprisePanel({ loads = [], drivers = [], truc
         <Stat label="SLA Alerts" value={extended.sla_alerts.length} tone={extended.sla_alerts.length ? "text-amber-400" : "text-green-400"} />
         <Stat label="Exceptions" value={snapshot.exceptions.length} tone={snapshot.exceptions.length ? "text-red-400" : "text-green-400"} />
         <Stat label="Margin" value={`$${Math.round(extended.profitability.total_margin).toLocaleString()}`} tone={extended.profitability.total_margin >= 0 ? "text-green-400" : "text-red-400"} />
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+        <Stat label="Assignments" value={actionSummary.assignments} tone="text-blue-400" />
+        <Stat label="Open Exceptions" value={actionSummary.open_exceptions} tone={actionSummary.open_exceptions ? "text-red-400" : "text-green-400"} />
+        <Stat label="Broker Logs" value={actionSummary.broker_updates} tone="text-cyan-400" />
+        <Stat label="Timeline" value={actionSummary.timeline_events} tone="text-purple-400" />
+        <Stat label="Audit" value={actionSummary.audit_events} tone="text-slate-200" />
       </div>
 
       <div className="grid lg:grid-cols-3 gap-3">
