@@ -56,8 +56,8 @@ export default function Drivers() {
     setDrivers(result.drivers || listLocalDrivers());
     setDemoBundle(result.bundle || getEnterpriseDriverDemoBundle());
     setAdminMessage(result.duplicatePrevented
-      ? "Enterprise driver demo data already imported. Duplicate import prevented."
-      : "Imported enterprise driver demo data: 12 drivers, 15 CDL records, 15 medical cards, 20 DQF docs, 10 DVIRs, 15 settlements, 25 assignments."
+      ? "Enterprise driver demo data already imported and synced into the Enterprise Data Center. Duplicate import prevented."
+      : "Imported enterprise driver demo data and synced CDL, medical, DQF, DVIR, safety, navigation, messages, and settlements into the Enterprise Data Center."
     );
   };
 
@@ -103,7 +103,11 @@ export default function Drivers() {
           <h1 className="text-white font-heading font-bold text-2xl">Drivers</h1>
           <p className="text-slate-400 text-sm mt-0.5">{drivers.length} total drivers</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <Link to="/drivers/enterprise"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-orange-300 text-sm border border-orange-500/20 bg-orange-500/10 hover:text-white">
+            <Database className="w-4 h-4" /> Enterprise Data
+          </Link>
           <Link to="/drivers/readiness"
             className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-green-300 text-sm border border-green-500/20 bg-green-500/10 hover:text-white">
             <ShieldCheck className="w-4 h-4" /> Readiness
@@ -123,7 +127,7 @@ export default function Drivers() {
               <Database className="w-4 h-4 text-orange-400" /> Enterprise Driver Demo Controls
             </div>
             <p className="text-slate-400 text-xs mt-1">
-              Import/reset demo-only driver data and recalculate compliance, safety, performance, DVIR, load assignment, and settlement records without deleting real records.
+              Import/reset demo-only driver data and sync enterprise records for compliance, safety, DVIR, navigation, document vault, messages, and settlements without deleting real records.
             </p>
           </div>
           <div className={`text-xs px-2 py-1 rounded-lg border ${demoImported ? "bg-green-500/10 border-green-500/20 text-green-300" : "bg-slate-500/10 border-slate-500/20 text-slate-300"}`}>
