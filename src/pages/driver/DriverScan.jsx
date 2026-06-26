@@ -78,7 +78,7 @@ export default function DriverScan({ user }) {
           <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-green-400">Driver</p>
           <h1 className="mt-1 flex items-center gap-2 text-2xl font-black text-white">
             <ScanLine className="h-6 w-6 text-green-400" />
-            {DRIVER_SCAN_CONFIG.title}
+            Document Scanner
           </h1>
           <p className="mt-1 text-sm text-slate-400">{DRIVER_SCAN_CONFIG.subtitle}</p>
         </div>
