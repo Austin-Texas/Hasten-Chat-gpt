@@ -18,6 +18,7 @@ import {
   Truck,
   WifiOff,
 } from "lucide-react";
+import DriverEnterprisePortalPanels from "@/components/driver/DriverEnterprisePortalPanels";
 import {
   buildDriverMasterRecord,
   buildDriverProfitability,
@@ -184,6 +185,8 @@ export default function DriverIntelligenceCenter({ user }) {
         <Stat label="Margin" value={`$${Math.round(intelligence.profitability.net_margin).toLocaleString()}`} tone={intelligence.profitability.net_margin >= 0 ? "green" : "red"} />
         <Stat label="Fraud Alerts" value={intelligence.fraudAlerts.length} tone={intelligence.fraudAlerts.length ? "red" : "green"} />
       </div>
+
+      <DriverEnterprisePortalPanels driverId={driver.id} />
 
       <Section icon={Gauge} title="Driver Risk Score Engine" subtitle={intelligence.risk.recommended_action} tone={riskTone}>
         <div className="grid grid-cols-3 gap-2">
