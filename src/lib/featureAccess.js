@@ -1,7 +1,7 @@
 export const STORAGE_FEATURES = "hasten_feature_access";
 export const FEATURE_ACCESS_EVENT = "hasten_feature_access_changed";
 
-export const rolesForAccess = ["admin", "dispatcher", "driver", "customer"];
+export const rolesForAccess = ["super_admin", "admin", "dispatcher", "driver", "customer"];
 
 export const featureGroups = [
   {
@@ -12,22 +12,22 @@ export const featureGroups = [
   {
     key: "Dispatch",
     label: "Dispatch",
-    items: ["Dispatch Board", "Load Marketplace", "Loads", "Load Templates", "Quotes", "Shipments", "Tracking", "Detention"],
+    items: ["Dispatch Board", "Load Marketplace", "Loads", "Load Templates", "Quotes", "Shipments", "Tracking", "Detention", "Bid Review"],
   },
   {
     key: "Drivers",
-    label: "Drivers / Contractors",
+    label: "Drivers",
     items: ["Drivers", "Contractors", "Scorecards"],
   },
   {
     key: "Fleet",
-    label: "Fleet / Equipment",
+    label: "Fleet",
     items: ["Fleet", "Equipment", "Maintenance", "Safety", "Compliance", "Utilization", "IFTA"],
   },
   {
     key: "Finance",
     label: "Finance",
-    items: ["Finance", "Settlements", "Payroll", "Expenses", "Factoring", "Tax Center", "Payment Profiles", "Profitability"],
+    items: ["Finance", "Settlements", "Weekly Settlements", "Expenses", "Factoring", "Tax Center", "Payment Profiles", "Profitability"],
   },
   {
     key: "Documents",
@@ -47,7 +47,7 @@ export const featureGroups = [
   {
     key: "Driver App",
     label: "Driver App",
-    items: ["Driver Home", "Driver Loads", "Driver Map", "Driver Documents", "Driver Earnings", "Driver Profile", "Driver Settings", "Driver Support"],
+    items: ["Driver Home", "Driver Loads", "Driver Scan", "Driver Chat", "Driver Profile", "Driver Settings", "Driver Support", "Driver Emergency"],
   },
   {
     key: "Administration",
@@ -56,77 +56,84 @@ export const featureGroups = [
   },
 ];
 
-export const featureSections = featureGroups.flatMap((group) => [group.key, ...group.items]);
+export const featureSections = [...new Set(featureGroups.flatMap((group) => [group.key, ...group.items]))];
 
 function allAccess(value) {
   return Object.fromEntries(featureSections.map((section) => [section, value]));
 }
 
+const dispatcherAccess = {
+  ...allAccess(false),
+  Dashboard: true,
+  Dispatch: true,
+  "Dispatch Board": true,
+  "Load Marketplace": true,
+  "Bid Review": true,
+  Loads: true,
+  "Load Templates": true,
+  Quotes: true,
+  Shipments: true,
+  Tracking: true,
+  Detention: true,
+  Drivers: true,
+  Scorecards: true,
+  Documents: true,
+  "Document Portal": true,
+  Support: true,
+  Messages: true,
+  "Support Tickets": true,
+  Notifications: true,
+  "Incident Center": true,
+  "Dispatcher Assistant": true,
+  "Help Center": true,
+};
+
+const driverAccess = {
+  ...allAccess(false),
+  "Driver App": true,
+  "Driver Home": true,
+  "Driver Loads": true,
+  "Driver Scan": true,
+  "Driver Chat": true,
+  "Driver Profile": true,
+  "Driver Settings": true,
+  "Driver Support": true,
+  "Driver Emergency": true,
+  Documents: true,
+  "Driver Scan": true,
+  Messages: true,
+  Settlements: true,
+  Support: true,
+};
+
+const customerAccess = {
+  ...allAccess(false),
+  Dashboard: true,
+  Customers: true,
+  "Quote Requests": true,
+  "Customer Shipments": true,
+  Tracking: true,
+  "Customer Tracking": true,
+  Documents: true,
+  "Customer Documents": true,
+  Finance: true,
+  "Customer Invoices": true,
+  Support: true,
+  Messages: true,
+  "Support Tickets": true,
+  "Help Center": true,
+};
+
 export const defaultFeatureAccess = {
+  super_admin: allAccess(true),
   admin: allAccess(true),
-  dispatcher: {
-    ...allAccess(false),
-    Dashboard: true,
-    Dispatch: true,
-    "Dispatch Board": true,
-    "Load Marketplace": true,
-    Loads: true,
-    "Load Templates": true,
-    Quotes: true,
-    Shipments: true,
-    Tracking: true,
-    Detention: true,
-    Drivers: true,
-    Scorecards: true,
-    Documents: true,
-    "Document Portal": true,
-    Support: true,
-    Messages: true,
-    "Support Tickets": true,
-    Notifications: true,
-    "Incident Center": true,
-    "Dispatcher Assistant": true,
-    "Help Center": true,
-  },
-  driver: {
-    ...allAccess(false),
-    "Driver App": true,
-    "Driver Home": true,
-    "Driver Loads": true,
-    "Driver Map": true,
-    "Driver Documents": true,
-    "Driver Earnings": true,
-    "Driver Profile": true,
-    "Driver Settings": true,
-    "Driver Support": true,
-    Documents: true,
-    "Driver Scan": true,
-    Messages: true,
-    Settlements: true,
-    Support: true,
-  },
-  customer: {
-    ...allAccess(false),
-    Dashboard: true,
-    Customers: true,
-    "Quote Requests": true,
-    "Customer Shipments": true,
-    Tracking: true,
-    "Customer Tracking": true,
-    Documents: true,
-    "Customer Documents": true,
-    Finance: true,
-    "Customer Invoices": true,
-    Support: true,
-    Messages: true,
-    "Support Tickets": true,
-    "Help Center": true,
-  },
+  dispatcher: dispatcherAccess,
+  driver: driverAccess,
+  customer: customerAccess,
 };
 
 export function roleToAccessKey(role) {
-  if (role === "super_admin") return "admin";
-  return role || "admin";
+  return rolesForAccess.includes(role) ? role : "admin";
 }
 
 export function loadFeatureAccess() {
@@ -143,8 +150,14 @@ export function loadFeatureAccess() {
 }
 
 export function saveFeatureAccess(nextAccess) {
-  localStorage.setItem(STORAGE_FEATURES, JSON.stringify(nextAccess));
-  window.dispatchEvent(new CustomEvent(FEATURE_ACCESS_EVENT, { detail: nextAccess }));
+  const normalized = rolesForAccess.reduce((acc, role) => {
+    acc[role] = { ...defaultFeatureAccess[role], ...(nextAccess?.[role] || {}) };
+    return acc;
+  }, {});
+
+  localStorage.setItem(STORAGE_FEATURES, JSON.stringify(normalized));
+  window.dispatchEvent(new CustomEvent(FEATURE_ACCESS_EVENT, { detail: normalized }));
+  return normalized;
 }
 
 export function isFeatureEnabled(featureAccess, role, section) {
@@ -157,6 +170,5 @@ export function isFeatureEnabled(featureAccess, role, section) {
 }
 
 export function resetFeatureAccess() {
-  saveFeatureAccess(defaultFeatureAccess);
-  return defaultFeatureAccess;
+  return saveFeatureAccess(defaultFeatureAccess);
 }
