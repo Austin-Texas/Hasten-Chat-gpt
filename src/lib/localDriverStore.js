@@ -1,4 +1,15 @@
+import {
+  DRIVER_DEMO_SEED_VERSION,
+  DRIVER_DEMO_SOURCE,
+  buildEnterpriseDriverDemoData,
+  calculateDriverCompliance,
+  calculateDriverSafety,
+  calculateDriverPerformance,
+} from "./enterpriseDriverDemo";
+
 const STORAGE_KEY = "hasten_local_drivers";
+const ENTERPRISE_DEMO_KEY = "hasten_driver_enterprise_demo_bundle";
+const ENTERPRISE_DEMO_SEED_KEY = "hasten_driver_enterprise_demo_seed_version";
 
 const defaultDrivers = [
   {
@@ -28,6 +39,19 @@ const defaultDrivers = [
   },
 ];
 
+function readJson(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function writeJson(key, value) {
+  localStorage.setItem(key, JSON.stringify(value));
+}
+
 function readDrivers() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -45,6 +69,10 @@ function readDrivers() {
 function writeDrivers(drivers) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(drivers));
   window.dispatchEvent(new CustomEvent("hasten_drivers_changed", { detail: drivers }));
+}
+
+function dispatchEnterpriseBundle(bundle) {
+  window.dispatchEvent(new CustomEvent("hasten_driver_enterprise_demo_changed", { detail: bundle }));
 }
 
 export function listLocalDrivers() {
@@ -85,4 +113,126 @@ export function updateLocalDriver(id, data) {
   drivers[index] = updated;
   writeDrivers(drivers);
   return updated;
+}
+
+export function getEnterpriseDriverDemoBundle() {
+  return readJson(ENTERPRISE_DEMO_KEY, null);
+}
+
+export function hasEnterpriseDriverDemoData() {
+  return localStorage.getItem(ENTERPRISE_DEMO_SEED_KEY) === DRIVER_DEMO_SEED_VERSION;
+}
+
+export function importEnterpriseDriverDemoData({ force = false } = {}) {
+  if (!force && hasEnterpriseDriverDemoData()) {
+    return {
+      imported: false,
+      duplicatePrevented: true,
+      seedVersion: DRIVER_DEMO_SEED_VERSION,
+      bundle: getEnterpriseDriverDemoBundle(),
+      drivers: readDrivers(),
+    };
+  }
+
+  const bundle = buildEnterpriseDriverDemoData();
+  const existingDrivers = readDrivers();
+  const realDrivers = existingDrivers.filter((driver) => driver?.source !== DRIVER_DEMO_SOURCE && !driver?.isDemo);
+  const drivers = [...bundle.drivers, ...realDrivers];
+
+  writeDrivers(drivers);
+  writeJson(ENTERPRISE_DEMO_KEY, bundle);
+  localStorage.setItem(ENTERPRISE_DEMO_SEED_KEY, DRIVER_DEMO_SEED_VERSION);
+  dispatchEnterpriseBundle(bundle);
+
+  return {
+    imported: true,
+    duplicatePrevented: false,
+    seedVersion: DRIVER_DEMO_SEED_VERSION,
+    bundle,
+    drivers,
+  };
+}
+
+export function resetEnterpriseDriverDemoData() {
+  const existingDrivers = readDrivers();
+  const realDrivers = existingDrivers.filter((driver) => driver?.source !== DRIVER_DEMO_SOURCE && !driver?.isDemo);
+
+  writeDrivers(realDrivers.length ? realDrivers : defaultDrivers);
+  localStorage.removeItem(ENTERPRISE_DEMO_KEY);
+  localStorage.removeItem(ENTERPRISE_DEMO_SEED_KEY);
+  dispatchEnterpriseBundle(null);
+
+  return {
+    reset: true,
+    drivers: realDrivers.length ? realDrivers : defaultDrivers,
+  };
+}
+
+export function recalculateEnterpriseDriverDemoData() {
+  const bundle = getEnterpriseDriverDemoBundle() || buildEnterpriseDriverDemoData();
+  const drivers = readDrivers();
+  const recalculatedDrivers = drivers.map((driver) => {
+    if (driver?.source !== DRIVER_DEMO_SOURCE && !driver?.isDemo) return driver;
+
+    const compliance = calculateDriverCompliance(driver, bundle);
+    const safety = calculateDriverSafety(driver, bundle.driverEvents || [], bundle.dvirReports || []);
+    const performance = calculateDriverPerformance(driver, bundle.loadAssignments || []);
+
+    return {
+      ...driver,
+      compliance_status: compliance.status,
+      compliance_score: compliance.score,
+      compliance_hold_required: compliance.hold_required,
+      status: compliance.hold_required ? "compliance_hold" : driver.status,
+      safety_score: safety.score,
+      safety_status: safety.level,
+      performance_score: performance.score,
+      on_time_pickup_pct: performance.completion_rate,
+      on_time_delivery_pct: performance.completion_rate,
+      load_acceptance_rate: performance.acceptance_rate,
+      cancellation_rate: Math.max(0, 100 - performance.acceptance_rate),
+      rolling_90_day_trend: performance.rolling_90_day_trend,
+      updated_date: new Date().toISOString(),
+    };
+  });
+
+  const updatedBundle = {
+    ...bundle,
+    drivers: recalculatedDrivers.filter((driver) => driver?.source === DRIVER_DEMO_SOURCE || driver?.isDemo),
+    recalculated_at: new Date().toISOString(),
+  };
+
+  writeDrivers(recalculatedDrivers);
+  writeJson(ENTERPRISE_DEMO_KEY, updatedBundle);
+  dispatchEnterpriseBundle(updatedBundle);
+
+  return {
+    recalculated: true,
+    bundle: updatedBundle,
+    drivers: recalculatedDrivers,
+  };
+}
+
+export function generateWeeklyEnterpriseDemoSettlements() {
+  const bundle = getEnterpriseDriverDemoBundle() || buildEnterpriseDriverDemoData();
+  const settlements = bundle.settlements || [];
+  const generated = settlements.map((settlement) => ({
+    ...settlement,
+    status: "ready_for_review",
+    pdf_preview_ready: true,
+    generated_at: new Date().toISOString(),
+  }));
+  const updatedBundle = {
+    ...bundle,
+    settlements: generated,
+    weekly_settlements_generated_at: new Date().toISOString(),
+  };
+  writeJson(ENTERPRISE_DEMO_KEY, updatedBundle);
+  dispatchEnterpriseBundle(updatedBundle);
+  return {
+    generated: true,
+    count: generated.length,
+    settlements: generated,
+    bundle: updatedBundle,
+  };
 }
