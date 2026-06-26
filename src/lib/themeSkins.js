@@ -1,6 +1,5 @@
 // HASTEN Cargo LLC — Enterprise Theme Skin Presets
-// These presets are intentionally focused on the three modes Brian requested:
-// 1) dark enterprise, 2) clean white enterprise, 3) hybrid glass command-center.
+// Production-grade theme and density presets for admin, dispatcher, driver, and customer portals.
 
 export const THEME_SKINS = {
   enterprise_dark: {
@@ -20,6 +19,24 @@ export const THEME_SKINS = {
     shadow_level: "medium",
     border_style: "rounded",
     button_style: "gradient",
+  },
+  compact_dark: {
+    id: "compact_dark",
+    name: "Compact Dark",
+    description: "Maximum enterprise density with HASTEN dark navy control-center styling.",
+    theme_mode: "compact_dark",
+    skin_preset: "compact_dark",
+    accent_color: "#00E678",
+    secondary_accent_color: "#3B82F6",
+    custom_accent_enabled: true,
+    density: "ultra_compact",
+    font_size: "small",
+    glassmorphism_intensity: "low",
+    card_transparency: "solid",
+    gloss_highlight: "off",
+    shadow_level: "low",
+    border_style: "thin",
+    button_style: "solid",
   },
   clean_white: {
     id: "clean_white",
@@ -101,11 +118,24 @@ export const SKIN_OPTIONS = Object.entries(THEME_SKINS).map(([key, skin]) => ({
 }));
 
 export const UI_CONTROLS = {
+  theme_mode: ["system", "dark", "light", "compact_dark", "high_contrast"],
+  density: ["comfortable", "compact", "ultra_compact"],
+  accent_color: ["#00E678", "#3B82F6", "#F97316", "#EF4444"],
   glassmorphism_intensity: ["low", "medium", "high"],
+  font_size: ["small", "default", "large"],
   card_transparency: ["solid", "soft", "clear"],
   gloss_highlight: ["off", "subtle", "strong"],
   shadow_level: ["low", "medium", "high"],
   border_style: ["thin", "rounded", "pill"],
+};
+
+export const ROLE_DENSITY_DEFAULTS = {
+  super_admin: "compact",
+  admin: "compact",
+  dispatcher: "compact",
+  finance: "compact",
+  driver: "comfortable",
+  customer: "comfortable",
 };
 
 export const getGlassEffect = (intensity) => {
