@@ -9,6 +9,7 @@ import DispatchFilters from "@/components/dispatch/DispatchFilters";
 import RegionGroupView from "@/components/dispatch/RegionGroupView";
 import { STATE_TO_CORRIDOR } from "@/components/dispatch/RegionGroupView";
 import LoadProgressBar from "@/components/dispatch/LoadProgressBar";
+import DispatchEnterprisePanel from "@/components/dispatch/DispatchEnterprisePanel";
 
 const COLUMNS = [
   { key: "available", label: "Available", color: "blue" },
@@ -50,10 +51,8 @@ export default function Dispatch() {
   const [filters, setFilters] = useState({ search: "", broker: "", status: "", dateFrom: "", dateTo: "", equipmentType: "", driverSearch: "", region: "", stateFilter: "" });
   const [favorites, setFavorites] = useState(() => JSON.parse(localStorage.getItem("favoriteDrivers")) || []);
 
-  // Define applyFilters before using it
   const applyFilters = (list) => {
     const { search, broker, status, dateFrom, dateTo, equipmentType, driverSearch, region, stateFilter } = filters;
-    // Pre-resolve driver IDs matching the driver name search
     let matchedDriverIds = null;
     if (driverSearch) {
       const q = driverSearch.toLowerCase();
@@ -90,7 +89,6 @@ export default function Dispatch() {
         if ((l.origin_state || "").toUpperCase() !== sf && (l.destination_state || "").toUpperCase() !== sf) return false;
       }
       if (region) {
-        // Region can be a corridor name or a broad region name
         const destCorridor = STATE_TO_CORRIDOR[l.destination_state] || "";
         const origCorridor = STATE_TO_CORRIDOR[l.origin_state] || "";
         const hit = destCorridor === region || origCorridor === region ||
@@ -98,14 +96,12 @@ export default function Dispatch() {
         if (!hit) return false;
       }
       if (matchedDriverIds !== null) {
-        // If driver search is active, load must be assigned to a matched driver
         if (!l.driver_id || !matchedDriverIds.has(l.driver_id)) return false;
       }
       return true;
     });
   };
 
-  // Calculate filteredLoads before any hooks that use it
   const filteredLoads = applyFilters(loads);
 
   useEffect(() => {
@@ -123,7 +119,6 @@ export default function Dispatch() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === "a") {
@@ -143,8 +138,6 @@ export default function Dispatch() {
     base44.entities.Load.list("-created_date", 200)
       .then(setLoads).catch(console.error);
   };
-
-
 
   const getByStatus = (colKey) => {
     let statusGroup;
@@ -235,8 +228,6 @@ export default function Dispatch() {
         {selected.size} load{selected.size !== 1 ? "s" : ""} selected
       </div>
       <div className="flex-1" />
-      
-      {/* Driver picker */}
       <div className="relative">
         <button
             onClick={() => setDriverDropdownOpen(o => !o)}
@@ -249,7 +240,6 @@ export default function Dispatch() {
         </button>
         {driverDropdownOpen && (
           <div className="absolute right-0 top-full mt-2 z-50 glass-card border border-white/10 rounded-xl shadow-2xl min-w-[280px] max-h-96 overflow-hidden flex flex-col">
-            {/* Favorites section */}
             {favorites.length > 0 && (
               <>
                 <div className="px-4 py-2 text-xs font-semibold text-orange-400 bg-white/3 border-b border-white/5">⭐ Favorites</div>
@@ -294,8 +284,6 @@ export default function Dispatch() {
         {applying ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckSquare className="w-4 h-4" />}
         {applying ? "Assigning…" : "Assign All"}
       </button>
-
-      {/* Status picker */}
       <div className="relative">
         <button
             onClick={() => setStatusDropdownOpen(o => !o)}
@@ -347,7 +335,6 @@ export default function Dispatch() {
       statusDropdownOpen && setStatusDropdownOpen(false);
       driverDropdownOpen && setDriverDropdownOpen(false);
     }}>
-      {/* Quick Assign Card */}
       {selected.size === 0 && filteredLoads.length > 0 && (
         <div className="glass-card rounded-xl p-4 border border-blue-500/20 bg-gradient-to-r from-blue-500/8 to-cyan-500/8 animate-slide-up">
           <div className="flex items-center justify-between gap-4">
@@ -409,7 +396,8 @@ export default function Dispatch() {
         </div>
       </div>
 
-      {/* Search & filter bar */}
+      <DispatchEnterprisePanel loads={filteredLoads} drivers={drivers} trucks={trucks} />
+
       <DispatchFilters
         filters={filters}
         onChange={setFilters}
@@ -418,7 +406,6 @@ export default function Dispatch() {
         drivers={drivers}
       />
 
-      {/* Bulk action bar */}
       {selectionBar}
 
       {loading ? (
@@ -465,7 +452,6 @@ export default function Dispatch() {
                           </div>
                           <LoadProgressBar load={load} />
                         </Link>
-                        {/* Checkbox overlay */}
                         <button
                            onClick={(e) => toggleSelect(load.id, e)}
                            className="absolute left-2.5 top-3.5 z-10 text-slate-500 hover:text-orange-400 transition-colors"
@@ -488,55 +474,43 @@ export default function Dispatch() {
         </div>
       ) : (
         <div className="glass-card rounded-xl border border-white/5 divide-y divide-white/5">
-          {/* Select-all row */}
           {filteredLoads.length > 0 && (
-            <div className="flex items-center gap-3 px-5 py-2.5 border-b border-white/5">
-              <button onClick={selected.size === filteredLoads.length ? clearSelection : selectAll}
-                className="flex items-center gap-2 text-xs text-slate-400 hover:text-white transition-colors">
-                {selected.size === filteredLoads.length
-                  ? <CheckSquare className="w-4 h-4 text-orange-400" />
-                  : <Square className="w-4 h-4" />}
-                {selected.size === filteredLoads.length ? "Deselect all" : "Select all"}
+            <div className="flex items-center gap-3 px-5 py-2.5 border-b border-white/10 bg-white/[0.02]">
+              <button onClick={selectAll} className="text-slate-500 hover:text-orange-400 transition-colors" title="Select all visible loads">
+                <Square className="w-4 h-4" />
               </button>
+              <span className="text-xs text-slate-500">Select all</span>
             </div>
           )}
-          {filteredLoads.length === 0 ? (
-            <div className="p-8 text-center">
-              <ClipboardList className="w-10 h-10 text-slate-600 mx-auto mb-2" />
-              <p className="text-slate-400 text-sm">No loads match your filters</p>
-            </div>
-          ) : filteredLoads.map(load => {
+          {filteredLoads.map(load => {
             const isSelected = selected.has(load.id);
             return (
-              <div key={load.id} className={`flex items-center gap-3 px-5 py-3.5 transition-colors group ${isSelected ? "bg-orange-500/5" : "hover:bg-white/2"}`}>
-                <button onClick={(e) => toggleSelect(load.id, e)} title="Select/deselect load for bulk actions"
-                   className="flex-shrink-0 text-slate-500 hover:text-orange-400 transition-colors">
-                  {isSelected
-                    ? <CheckSquare className="w-4 h-4 text-orange-400" />
-                    : <Square className="w-4 h-4 opacity-40 group-hover:opacity-100 transition-opacity" />}
+              <div key={load.id} className={`relative flex items-center gap-4 px-5 py-3.5 hover:bg-white/[0.02] transition-colors group ${isSelected ? "bg-orange-500/5" : ""}`}>
+                <button onClick={(e) => toggleSelect(load.id, e)}
+                  className="text-slate-500 hover:text-orange-400 transition-colors flex-shrink-0"
+                  title="Select this load for bulk actions">
+                  {isSelected ? <CheckSquare className="w-4 h-4 text-orange-400" /> : <Square className="w-4 h-4" />}
                 </button>
-                <Link to={`/loads/${load.id}`} className="flex-1 flex items-center gap-4 min-w-0">
+                <Link to={`/loads/${load.id}`} className="flex items-center gap-4 flex-1 min-w-0">
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <span className="text-orange-400 font-mono text-xs font-bold">{load.load_number || `#LD${load.id?.slice(-6).toUpperCase()}`}</span>
-                      <StatusBadge status={load.status} />
-                    </div>
-                    <div className="text-slate-300 text-sm flex items-center gap-1">
-                      <span>{load.origin_city}, {load.origin_state}</span>
-                      <ArrowRight className="w-3 h-3 text-slate-600" />
-                      <span>{load.destination_city}, {load.destination_state}</span>
-                    </div>
+                    <div className="text-orange-400 font-mono text-xs font-bold mb-1">{load.load_number}</div>
+                    <div className="text-white text-sm font-medium truncate">{load.origin_city}, {load.origin_state} → {load.destination_city}, {load.destination_state}</div>
                   </div>
-                  <div className="hidden sm:flex items-center gap-4 text-xs text-slate-500">
-                    <span>{load.equipment_type}</span>
-                    {load.pickup_date && <span>{new Date(load.pickup_date).toLocaleDateString()}</span>}
-                  </div>
-                  <div className="text-green-400 font-bold text-sm">${(load.rate || 0).toLocaleString()}</div>
-                  <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-orange-400 transition-colors" />
+                  <StatusBadge status={load.status} />
+                  <div className="text-slate-400 text-xs w-24 truncate">{load.equipment_type}</div>
+                  <div className="text-green-400 font-bold text-sm w-20 text-right">${(load.rate || 0).toLocaleString()}</div>
+                  <ChevronRight className="w-4 h-4 text-slate-600 flex-shrink-0" />
                 </Link>
               </div>
             );
           })}
+          {filteredLoads.length === 0 && (
+            <div className="text-center py-16">
+              <ClipboardList className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+              <p className="text-slate-400 font-medium">No loads found</p>
+              <Link to="/loads/new" className="text-green-400 text-sm mt-2 inline-block">Create a load →</Link>
+            </div>
+          )}
         </div>
       )}
     </div>
