@@ -13,12 +13,14 @@ import {
   getDriverAutomationDashboard,
   runDriverEnterpriseAutomations,
 } from "@/lib/driverEnterpriseAutomationEngine";
+import { runDriverEnterpriseFullRecalculation, buildDriverEnterpriseExecutiveSummary } from "@/lib/driverEnterpriseOrchestrator";
 
 export default function DriverEnterpriseDataCenter() {
   const [store, setStore] = useState(() => readDriverEnterpriseStore());
   const entityRows = useMemo(() => Object.entries(DRIVER_ENTERPRISE_ENTITIES), []);
   const base44Mapping = useMemo(() => buildDriverEnterpriseBase44Mapping(), []);
   const automationDashboard = getDriverAutomationDashboard(store);
+  const executiveSummary = buildDriverEnterpriseExecutiveSummary(store);
 
   useEffect(() => {
     const refresh = (event) => setStore(event?.detail || readDriverEnterpriseStore());
@@ -29,6 +31,10 @@ export default function DriverEnterpriseDataCenter() {
   const refreshStore = () => setStore(readDriverEnterpriseStore());
   const resetStore = () => setStore(resetDriverEnterpriseStore());
   const runAutomations = () => setStore(runDriverEnterpriseAutomations());
+  const runFullRecalc = () => {
+    runDriverEnterpriseFullRecalculation();
+    setStore(readDriverEnterpriseStore());
+  };
 
   return (
     <div className="space-y-6 animate-slide-up">
@@ -41,6 +47,9 @@ export default function DriverEnterpriseDataCenter() {
           </p>
         </div>
         <div className="flex gap-2 flex-wrap">
+          <button onClick={runFullRecalc} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-green-500/10 border border-green-500/20 text-green-300 text-sm hover:text-white">
+            <Zap className="w-4 h-4" /> Full Enterprise Recalc
+          </button>
           <button onClick={runAutomations} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-500/10 border border-orange-500/20 text-orange-300 text-sm hover:text-white">
             <Zap className="w-4 h-4" /> Run Automations
           </button>
@@ -59,6 +68,18 @@ export default function DriverEnterpriseDataCenter() {
         <MetricCard icon={Route} label="Workflow Engines" value={Object.keys(DRIVER_WORKFLOW_DEFINITIONS).length} />
         <MetricCard icon={GitBranch} label="Audit Events" value={store.auditEvents?.length || 0} />
       </div>
+
+      <section className="glass-card rounded-2xl border border-white/5 p-5">
+        <h2 className="text-white font-semibold flex items-center gap-2 mb-4"><Zap className="w-5 h-5 text-green-400" /> Enterprise Executive Summary</h2>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-6 gap-3">
+          <SmallStat label="Avg Score" value={executiveSummary.scorecards.average_score} />
+          <SmallStat label="Scorecards" value={executiveSummary.scorecards.total} />
+          <SmallStat label="Documents" value={executiveSummary.documents.total} />
+          <SmallStat label="Settlements" value={executiveSummary.settlements.total} />
+          <SmallStat label="Portal Drivers" value={executiveSummary.portal.drivers_with_portal_data} />
+          <SmallStat label="Roadmap Items" value={executiveSummary.roadmap.requirement_count} />
+        </div>
+      </section>
 
       <section className="glass-card rounded-2xl border border-white/5 p-5">
         <h2 className="text-white font-semibold flex items-center gap-2 mb-4"><AlertTriangle className="w-5 h-5 text-orange-400" /> Automation Engine</h2>
