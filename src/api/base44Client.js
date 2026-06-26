@@ -13,19 +13,17 @@ const now = () => new Date().toISOString();
 
 const readLocalUser = () => {
   if (!isBrowser) return null;
-
   try {
     const raw = window.localStorage.getItem('hasten_user');
     if (!raw) return null;
-
     const parsed = JSON.parse(raw);
     const email = String(parsed.email || '').toLowerCase();
     const isDriver = email === 'driver@hasten.com';
-
     return {
       ...parsed,
       id: parsed.id || (isDriver ? 'local-driver-user' : 'local-admin-user'),
-      full_name: parsed.full_name || (isDriver ? 'Demo Driver' : 'Brian M'),
+      full_name: parsed.full_name || parsed.fullName || parsed.name || (isDriver ? 'Demo Driver' : 'Brian M'),
+      name: parsed.name || parsed.full_name || parsed.fullName || (isDriver ? 'Demo Driver' : 'Brian M'),
       email,
       role: isDriver ? 'driver' : 'admin',
       businessRole: isDriver ? 'driver' : (parsed.businessRole || 'super_admin'),
@@ -55,14 +53,6 @@ const demoRecords = {
       vehicle_type: 'Sprinter',
       trailer_type: 'Cargo Van',
       max_payload: 3200,
-      cargo_length: 144,
-      cargo_width: 70,
-      cargo_height: 72,
-      dock_high: false,
-      liftgate: false,
-      reefer: false,
-      hazmat: false,
-      team_driver: false,
       current_location: 'Fayetteville, NC',
       current_city: 'Fayetteville',
       current_state: 'NC',
@@ -79,19 +69,14 @@ const demoRecords = {
       w9_status: 'valid',
       contract_status: 'valid',
       settlement_status: 'pending_review',
+      on_time_delivery_pct: 96,
+      safe_miles: 12450,
+      clean_inspections: 3,
       localDemoSeed: true,
     },
   ],
   Truck: [
-    {
-      id: 'local-truck-001',
-      unit_number: 'HC-TRK-001',
-      type: 'Sprinter',
-      status: 'available',
-      assigned_driver_id: 'local-driver-profile',
-      maintenance_status: 'ok',
-      localDemoSeed: true,
-    },
+    { id: 'local-truck-001', unit_number: 'HC-TRK-001', type: 'Sprinter', status: 'available', assigned_driver_id: 'local-driver-profile', maintenance_status: 'ok', localDemoSeed: true },
   ],
   Load: [
     {
@@ -111,6 +96,7 @@ const demoRecords = {
       rate: 650,
       total_revenue: 650,
       pickup_date: '2026-06-25',
+      delivery_date: '2026-06-25',
       pickup_datetime_start: '2026-06-25T09:00:00-04:00',
       delivery_datetime_end: '2026-06-25T13:30:00-04:00',
       broker_rate_hidden: true,
@@ -134,6 +120,7 @@ const demoRecords = {
       rate: 980,
       total_revenue: 980,
       pickup_date: '2026-06-25',
+      delivery_date: '2026-06-25',
       pickup_datetime_start: '2026-06-25T11:00:00-04:00',
       delivery_datetime_end: '2026-06-25T18:00:00-04:00',
       broker_rate_hidden: true,
@@ -209,16 +196,7 @@ const demoRecords = {
     },
   ],
   LoadDocument: [
-    {
-      id: 'local-doc-001',
-      load_id: 'local-load-sprinter-001',
-      driver_id: 'local-driver-profile',
-      document_type: 'POD',
-      status: 'pending_review',
-      confidence_score: 94,
-      signature_detected: true,
-      localDemoSeed: true,
-    },
+    { id: 'local-doc-001', load_id: 'local-load-sprinter-001', driver_id: 'local-driver-profile', document_type: 'POD', status: 'pending_review', confidence_score: 94, signature_detected: true, localDemoSeed: true },
   ],
 };
 
@@ -233,32 +211,22 @@ const ENTITY_ALIASES = {
 };
 
 const getEntityAliases = (entityName) => ENTITY_ALIASES[entityName] || [entityName];
+const entityKey = (entityName) => `${LOCAL_ENTITY_PREFIX}${entityName}`;
 
 const getLocalSeedRecords = (entityName, seedLocalDemo = isLocalDemoMode) => {
   if (!seedLocalDemo) return [];
-  return (demoRecords[entityName] || []).map((record) => ({
-    created_date: record.created_date || now(),
-    updated_at: record.updated_at || now(),
-    localDemo: true,
-    ...record,
-  }));
+  return (demoRecords[entityName] || []).map((record) => ({ created_date: record.created_date || now(), updated_at: record.updated_at || now(), localDemo: true, ...record }));
 };
-
-const entityKey = (entityName) => `${LOCAL_ENTITY_PREFIX}${entityName}`;
 
 const readLocalEntityRecords = (entityName, { seedLocalDemo = isLocalDemoMode } = {}) => {
   if (!isBrowser) return [];
-
   try {
     const raw = window.localStorage.getItem(entityKey(entityName));
     if (!raw) {
       const seeds = getLocalSeedRecords(entityName, seedLocalDemo);
-      if (seeds.length) {
-        window.localStorage.setItem(entityKey(entityName), JSON.stringify(seeds));
-      }
+      if (seeds.length) window.localStorage.setItem(entityKey(entityName), JSON.stringify(seeds));
       return seeds;
     }
-
     return JSON.parse(raw || '[]');
   } catch (error) {
     console.warn(`[base44Client] Invalid local records for ${entityName}. Resetting.`, error);
@@ -286,15 +254,7 @@ const sortRecords = (records, sort = '') => {
   });
 };
 
-const matchesFilter = (record, filter = {}) => Object.entries(filter || {}).every(([key, value]) => {
-  if (Array.isArray(value)) return value.includes(record?.[key]);
-  return record?.[key] === value;
-});
-
-const findDuplicateDriverLoadBid = (records, payload = {}) => {
-  if (!payload.external_load_id || !payload.driver_id) return null;
-  return records.find((record) => record.external_load_id === payload.external_load_id && record.driver_id === payload.driver_id);
-};
+const matchesFilter = (record, filter = {}) => Object.entries(filter || {}).every(([key, value]) => Array.isArray(value) ? value.includes(record?.[key]) : record?.[key] === value);
 
 const makeLocalEntity = (entityName, { seedLocalDemo = isLocalDemoMode } = {}) => ({
   list: async (sort = '', limit) => {
@@ -307,26 +267,9 @@ const makeLocalEntity = (entityName, { seedLocalDemo = isLocalDemoMode } = {}) =
   },
   get: async (id) => readLocalEntityRecords(entityName, { seedLocalDemo }).find((record) => record.id === id) || { id, localDemo: true, entityName },
   create: async (payload = {}) => {
-    const existingRecords = readLocalEntityRecords(entityName, { seedLocalDemo });
-
-    if (entityName === 'DriverLoadBid') {
-      const duplicate = findDuplicateDriverLoadBid(existingRecords, payload);
-      if (duplicate) {
-        const updated = { ...duplicate, ...payload, id: duplicate.id, updated_at: now(), duplicateGuard: true, localDemo: true };
-        writeLocalEntityRecords(entityName, existingRecords.map((record) => record.id === duplicate.id ? updated : record));
-        return updated;
-      }
-    }
-
-    const record = {
-      id: payload.id || `local-${entityName.toLowerCase()}-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`,
-      created_date: payload.created_date || now(),
-      updated_at: payload.updated_at || now(),
-      ...payload,
-      localDemo: true,
-    };
-    const existing = existingRecords.filter((item) => item.id !== record.id);
-    writeLocalEntityRecords(entityName, [record, ...existing]);
+    const records = readLocalEntityRecords(entityName, { seedLocalDemo });
+    const record = { id: payload.id || `local-${entityName.toLowerCase()}-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`, created_date: payload.created_date || now(), updated_at: payload.updated_at || now(), ...payload, localDemo: true };
+    writeLocalEntityRecords(entityName, [record, ...records.filter((item) => item.id !== record.id)]);
     return record;
   },
   update: async (id, payload = {}) => {
@@ -340,18 +283,7 @@ const makeLocalEntity = (entityName, { seedLocalDemo = isLocalDemoMode } = {}) =
     writeLocalEntityRecords(entityName, readLocalEntityRecords(entityName, { seedLocalDemo }).filter((record) => record.id !== id));
     return { success: true, localDemo: true };
   },
-  bulkCreate: async (items = []) => {
-    const created = items.map((item, index) => ({
-      id: item.id || `local-${entityName.toLowerCase()}-${Date.now()}-${index}`,
-      created_date: item.created_date || now(),
-      updated_at: item.updated_at || now(),
-      ...item,
-      localDemo: true,
-    }));
-    const existing = readLocalEntityRecords(entityName, { seedLocalDemo }).filter((record) => !created.some((item) => item.id === record.id));
-    writeLocalEntityRecords(entityName, [...created, ...existing]);
-    return created;
-  },
+  bulkCreate: async (items = []) => Promise.all(items.map((item) => makeLocalEntity(entityName, { seedLocalDemo }).create(item))),
   updateMany: async (items = []) => {
     const records = readLocalEntityRecords(entityName, { seedLocalDemo });
     const next = records.map((record) => {
@@ -377,15 +309,30 @@ const makeLocalEntity = (entityName, { seedLocalDemo = isLocalDemoMode } = {}) =
 const isRecoverableBase44Error = (error) => {
   const status = error?.status || error?.response?.status || error?.data?.status || error?.error_http_status_code;
   const message = String(error?.message || error?.response?.data?.message || error || '').toLowerCase();
-  return status === 404 || message.includes('404') || message.includes('not found') || message.includes('does not exist') || message.includes('undefined');
+  return status === 404 || message.includes('404') || message.includes('not found') || message.includes('does not exist') || message.includes('undefined') || message.includes('service token');
+};
+
+let realClientCache = null;
+let realClientFailed = false;
+
+const getRealClient = () => {
+  if (isLocalDemoMode || realClientFailed) return null;
+  if (realClientCache) return realClientCache;
+  try {
+    const { appId, token, functionsVersion, appBaseUrl } = appParams;
+    realClientCache = createClient({ appId, token, functionsVersion, serverUrl: '', requiresAuth: false, appBaseUrl });
+    return realClientCache;
+  } catch (error) {
+    realClientFailed = true;
+    console.warn('[base44Client] Real Base44 client unavailable; using local fallback.', error?.message || error);
+    return null;
+  }
 };
 
 const callRealEntity = async (realClient, entityName, method, args) => {
   const entity = realClient?.entities?.[entityName];
   const fn = entity?.[method];
-  if (typeof fn !== 'function') {
-    throw new Error(`Base44 entity method missing: ${entityName}.${method}`);
-  }
+  if (typeof fn !== 'function') throw new Error(`Base44 entity method missing: ${entityName}.${method}`);
   return fn(...args);
 };
 
@@ -393,7 +340,6 @@ const callRealEntityWithAliases = async (realClient, requestedEntityName, method
   const aliases = getEntityAliases(requestedEntityName);
   let emptyResult = null;
   let lastError = null;
-
   for (const alias of aliases) {
     try {
       const result = await callRealEntity(realClient, alias, method, args);
@@ -407,17 +353,17 @@ const callRealEntityWithAliases = async (realClient, requestedEntityName, method
       if (!isRecoverableBase44Error(error)) throw error;
     }
   }
-
   if (emptyResult) return emptyResult;
   throw lastError || new Error(`Base44 entity unavailable: ${requestedEntityName}.${method}`);
 };
 
-const makeResilientEntity = (realClient, entityName) => {
+const makeResilientEntity = (entityName) => {
   const localEntity = makeLocalEntity(entityName, { seedLocalDemo: false });
   const handler = {};
-
   ['list', 'filter', 'get', 'create', 'update', 'delete', 'bulkCreate', 'updateMany', 'deleteMany'].forEach((method) => {
     handler[method] = async (...args) => {
+      const realClient = getRealClient();
+      if (!realClient) return localEntity[method](...args);
       try {
         const result = await callRealEntityWithAliases(realClient, entityName, method, args);
         if ((method === 'list' || method === 'filter') && Array.isArray(result) && result.length === 0) {
@@ -427,14 +373,14 @@ const makeResilientEntity = (realClient, entityName) => {
         return result;
       } catch (error) {
         if (!isRecoverableBase44Error(error)) throw error;
-        console.warn(`[base44Client] ${entityName}.${method} falling back to resilient local store:`, error?.message || error);
+        console.warn(`[base44Client] ${entityName}.${method} falling back to local store:`, error?.message || error);
         return localEntity[method](...args);
       }
     };
   });
-
   handler.subscribe = (callback) => {
     try {
+      const realClient = getRealClient();
       const primary = getEntityAliases(entityName)[0];
       const realSubscribe = realClient?.entities?.[primary]?.subscribe;
       if (typeof realSubscribe === 'function') return realSubscribe(callback);
@@ -443,7 +389,6 @@ const makeResilientEntity = (realClient, entityName) => {
     }
     return localEntity.subscribe(callback);
   };
-
   return handler;
 };
 
@@ -454,218 +399,87 @@ const mergeById = (existing = [], incoming = []) => {
 };
 
 const seedExternalLoadFallback = () => {
-  const externalLoads = getLocalSeedRecords('ExternalLoad', true).map((load) => ({
-    ...load,
-    imported_at: now(),
-    synced_at: now(),
-    normalized_status: load.normalized_status || 'available',
-  }));
-
-  const sources = [...new Set(externalLoads.map((load) => load.source_provider).filter(Boolean))].map((sourceProvider) => ({
-    id: `local-source-${sourceProvider.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
-    name: sourceProvider,
-    provider: sourceProvider,
-    status: 'active',
-    configured: false,
-    source_type: 'fallback_demo',
-    last_sync_at: now(),
-    created_date: now(),
-    updated_at: now(),
-    localDemo: true,
-  }));
-
+  const externalLoads = getLocalSeedRecords('ExternalLoad', true).map((load) => ({ ...load, imported_at: now(), synced_at: now(), normalized_status: load.normalized_status || 'available' }));
+  const sources = [...new Set(externalLoads.map((load) => load.source_provider).filter(Boolean))].map((sourceProvider) => ({ id: `local-source-${sourceProvider.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`, name: sourceProvider, provider: sourceProvider, status: 'active', configured: false, source_type: 'fallback_demo', last_sync_at: now(), created_date: now(), updated_at: now(), localDemo: true }));
   writeLocalEntityRecords('ExternalLoad', mergeById(readLocalEntityRecords('ExternalLoad', { seedLocalDemo: false }), externalLoads));
   writeLocalEntityRecords('MarketplaceLoad', mergeById(readLocalEntityRecords('MarketplaceLoad', { seedLocalDemo: false }), externalLoads));
   writeLocalEntityRecords('MarketplaceSource', mergeById(readLocalEntityRecords('MarketplaceSource', { seedLocalDemo: false }), sources));
-  writeLocalEntityRecords('MarketplaceSyncJob', [
-    {
-      id: `local-sync-${Date.now()}`,
-      status: 'success',
-      mode: 'fallback_demo',
-      source_count: sources.length,
-      load_count: externalLoads.length,
-      message: 'Fallback marketplace sync loaded demo records because provider API is not configured.',
-      started_at: now(),
-      completed_at: now(),
-      created_date: now(),
-      updated_at: now(),
-      localDemo: true,
-    },
-    ...readLocalEntityRecords('MarketplaceSyncJob', { seedLocalDemo: false }),
-  ]);
-
+  writeLocalEntityRecords('MarketplaceSyncJob', [{ id: `local-sync-${Date.now()}`, status: 'success', mode: 'fallback_demo', source_count: sources.length, load_count: externalLoads.length, message: 'Fallback marketplace sync loaded demo records because provider API is not configured.', started_at: now(), completed_at: now(), created_date: now(), updated_at: now(), localDemo: true }, ...readLocalEntityRecords('MarketplaceSyncJob', { seedLocalDemo: false })]);
   return { externalLoads, sources };
 };
 
-const createDispatcherEventFallback = (eventType, payload = {}) => {
-  const event = {
-    id: `local-dispatch-event-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`,
-    event_type: eventType,
-    type: eventType,
-    title: payload.title || eventType,
-    description: payload.description || payload.title || eventType,
-    entity_type: payload.entity_type || 'Load',
-    entity_id: payload.entity_id || payload.load_id || payload.driver_id || payload.customer_id,
-    load_id: payload.load_id,
-    driver_id: payload.driver_id,
-    customer_id: payload.customer_id,
-    metadata: JSON.stringify(payload),
-    created_date: now(),
-    created_at: now(),
-    updated_at: now(),
-    localDemo: true,
-  };
-  const entity = makeLocalEntity('DispatcherEvent', { seedLocalDemo: false });
-  entity.create(event).catch(() => undefined);
-  const timeline = makeLocalEntity('TimelineEvent', { seedLocalDemo: false });
-  timeline.create(event).catch(() => undefined);
-  return event;
-};
-
-const makeResilientFunctions = (realClient) => ({
+const makeFunctions = () => ({
   invoke: async (name, payload = {}) => {
-    try {
-      const result = await realClient?.functions?.invoke?.(name, payload);
-      if (name === 'updateLoadStatus' && payload?.load_id) {
-        createDispatcherEventFallback('LOAD_STATUS_UPDATED', {
-          load_id: payload.load_id,
-          driver_id: payload.driver_id,
-          title: `Load status updated to ${payload.new_status || payload.status}`,
-          source: 'updateLoadStatus',
-        });
+    const realClient = getRealClient();
+    if (realClient?.functions?.invoke) {
+      try {
+        return await realClient.functions.invoke(name, payload);
+      } catch (error) {
+        if (!isRecoverableBase44Error(error)) throw error;
+        console.warn(`[base44Client] function ${name} falling back locally:`, error?.message || error);
       }
-      return result;
-    } catch (error) {
-      if (!isRecoverableBase44Error(error)) throw error;
-      console.warn(`[base44Client] function ${name} falling back to local dispatcher behavior:`, error?.message || error);
-
-      if (name === 'syncExternalLoads') {
-        const { externalLoads, sources } = seedExternalLoadFallback();
-        createDispatcherEventFallback('MARKETPLACE_SYNC', {
-          entity_type: 'MarketplaceSyncJob',
-          title: 'Marketplace fallback sync completed',
-          description: `${externalLoads.length} demo loads from ${sources.length} fallback sources`,
-          load_count: externalLoads.length,
-          source_count: sources.length,
-          mode: payload?.mode || 'manual',
-        });
-        return {
-          success: true,
-          data: {
-            success: true,
-            localFallback: true,
-            imported: externalLoads.length,
-            sources: sources.length,
-          },
-          localDemo: true,
-        };
-      }
-
-      if (name === 'updateLoadStatus' && payload?.load_id) {
-        const patch = {
-          status: payload.new_status || payload.status,
-          driver_id: payload.driver_id,
-          truck_id: payload.truck_id,
-          updated_at: now(),
-        };
-        Object.keys(patch).forEach((key) => patch[key] === undefined && delete patch[key]);
-        const updated = await makeLocalEntity('Load', { seedLocalDemo: false }).update(payload.load_id, patch);
-        createDispatcherEventFallback('LOAD_STATUS_UPDATED', {
-          load_id: payload.load_id,
-          driver_id: payload.driver_id,
-          title: `Load status updated to ${patch.status}`,
-          source: 'updateLoadStatusFallback',
-        });
-        return { success: true, data: updated, localDemo: true };
-      }
-
-      if (name === 'matchExternalLoadsToDrivers') {
-        return { success: true, data: { matches: [] }, localDemo: true };
-      }
-
-      return { success: true, name, data: null, payload, localDemo: true, recovered: true };
     }
+    if (name === 'syncExternalLoads') {
+      const { externalLoads, sources } = seedExternalLoadFallback();
+      return { success: true, name, data: { success: true, localFallback: true, imported: externalLoads.length, sources: sources.length }, payload, localDemo: true };
+    }
+    if (name === 'updateLoadStatus' && payload?.load_id) {
+      const updated = await makeLocalEntity('Load', { seedLocalDemo: true }).update(payload.load_id, { status: payload.new_status || payload.status, driver_id: payload.driver_id, truck_id: payload.truck_id, updated_at: now() });
+      return { success: true, name, data: updated, payload, localDemo: true };
+    }
+    if (name === 'matchExternalLoadsToDrivers') return { success: true, data: { matches: [] }, localDemo: true };
+    return { success: true, name, data: null, payload, localDemo: true, recovered: true };
   },
 });
 
-const makeLocalBase44 = () => ({
+const makeBase44 = (localOnly = isLocalDemoMode) => ({
   auth: {
     me: async () => {
-      const user = readLocalUser();
-      if (!user) {
-        const error = new Error('Local demo user is not signed in');
-        error.status = 401;
-        throw error;
+      const localUser = readLocalUser();
+      if (localUser) return localUser;
+      if (!localOnly) {
+        const realClient = getRealClient();
+        try {
+          const realUser = await realClient?.auth?.me?.();
+          if (realUser) return realUser;
+        } catch (error) {
+          if (!isRecoverableBase44Error(error)) throw error;
+        }
       }
-      return user;
+      const error = new Error(localOnly ? 'Local demo user is not signed in' : 'User is not signed in');
+      error.status = 401;
+      throw error;
     },
     logout: () => {
       if (isBrowser) window.localStorage.removeItem('hasten_user');
+      getRealClient()?.auth?.logout?.();
     },
     redirectToLogin: () => {
       if (isBrowser) window.location.href = '/login';
     },
-    loginWithProvider: () => {
+    loginWithProvider: (...args) => {
+      const realClient = getRealClient();
+      if (realClient?.auth?.loginWithProvider) return realClient.auth.loginWithProvider(...args);
       throw new Error('Provider login requires Base44 env variables. Use local demo login on localhost.');
     },
   },
   entities: new Proxy({}, {
     get: (_target, entityName) => {
       if (typeof entityName === 'symbol') return undefined;
-      return makeLocalEntity(String(entityName), { seedLocalDemo: true });
+      return localOnly ? makeLocalEntity(String(entityName), { seedLocalDemo: true }) : makeResilientEntity(String(entityName));
     },
   }),
-  functions: {
-    invoke: async (name, payload = {}) => {
-      if (name === 'syncExternalLoads') {
-        const { externalLoads, sources } = seedExternalLoadFallback();
-        return { success: true, name, data: { success: true, localFallback: true, imported: externalLoads.length, sources: sources.length }, payload, localDemo: true };
-      }
-      if (name === 'updateLoadStatus' && payload?.load_id) {
-        const updated = await makeLocalEntity('Load', { seedLocalDemo: true }).update(payload.load_id, { status: payload.new_status || payload.status, driver_id: payload.driver_id, updated_at: now() });
-        return { success: true, name, data: updated, payload, localDemo: true };
-      }
-      return { success: true, name, data: null, payload, localDemo: true };
-    },
-  },
-  integrations: new Proxy({}, {
-    get: () => new Proxy({}, {
-      get: () => async () => ({ success: true, localDemo: true }),
-    }),
-  }),
+  functions: makeFunctions(),
+  integrations: new Proxy({}, { get: () => new Proxy({}, { get: () => async () => ({ success: true, localDemo: localOnly }) }) }),
   files: {
-    uploadFile: async () => ({ file_url: '', localDemo: true }),
-  },
-});
-
-const makeResilientBase44 = (realClient) => ({
-  ...realClient,
-  entities: new Proxy({}, {
-    get: (_target, entityName) => {
-      if (typeof entityName === 'symbol') return undefined;
-      return makeResilientEntity(realClient, String(entityName));
+    uploadFile: async (...args) => {
+      const realClient = getRealClient();
+      if (!localOnly && realClient?.files?.uploadFile) {
+        try { return await realClient.files.uploadFile(...args); } catch {}
+      }
+      return { file_url: '', localDemo: true };
     },
-  }),
-  functions: makeResilientFunctions(realClient),
-  integrations: realClient?.integrations || new Proxy({}, {
-    get: () => new Proxy({}, {
-      get: () => async () => ({ success: true }),
-    }),
-  }),
-  files: realClient?.files || {
-    uploadFile: async () => ({ file_url: '' }),
   },
 });
 
-const { appId, token, functionsVersion, appBaseUrl } = appParams;
-
-const realBase44Client = createClient({
-  appId,
-  token,
-  functionsVersion,
-  serverUrl: '',
-  requiresAuth: false,
-  appBaseUrl,
-});
-
-export const base44 = isLocalDemoMode ? makeLocalBase44() : makeResilientBase44(realBase44Client);
+export const base44 = makeBase44(isLocalDemoMode);
