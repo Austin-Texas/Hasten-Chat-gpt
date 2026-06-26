@@ -1,8 +1,6 @@
-import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
-import { ChevronLeft, ChevronRight, Calendar, AlertTriangle, Loader2 } from "lucide-react";
+import { useMemo, useState } from "react";
+import { ChevronLeft, ChevronRight, Calendar, AlertTriangle } from "lucide-react";
 import { STATE_TO_CORRIDOR } from "@/components/dispatch/RegionGroupView";
-import { logTimelineEvent } from "@/lib/timelineLogger";
 import { logDispatcherEvent } from "@/lib/dispatcherWorkflow";
 
 const CORRIDOR_COLORS = {
@@ -12,36 +10,45 @@ const CORRIDOR_COLORS = {
   "I-80 Northern": "bg-cyan-500/20 border-cyan-500/30 text-cyan-300",
   "I-35 Central": "bg-green-500/20 border-green-500/30 text-green-300",
   "I-5 West Coast": "bg-teal-500/20 border-teal-500/30 text-teal-300",
-  "Other": "bg-slate-500/20 border-slate-500/30 text-slate-300",
+  Other: "bg-slate-500/20 border-slate-500/30 text-slate-300",
 };
 
 const BOTTLENECK_THRESHOLD = 3;
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-function getCorridor(state) {
-  return STATE_TO_CORRIDOR[state] || "Other";
-}
-
-function getDaysInMonth(date) {
-  const safeDate = date instanceof Date && !Number.isNaN(date.getTime()) ? date : new Date();
-  return new Date(safeDate.getFullYear(), safeDate.getMonth() + 1, 0).getDate();
-}
-
-function getFirstDayOfMonth(date) {
-  const safeDate = date instanceof Date && !Number.isNaN(date.getTime()) ? date : new Date();
-  return new Date(safeDate.getFullYear(), safeDate.getMonth(), 1).getDay();
-}
+const CALENDAR_STATUSES = ["available", "assigned", "accepted", "en_route", "arrived_pickup", "loaded", "in_transit", "arrived_delivery", "delivered", "pod_uploaded", "completed"];
 
 function safeDate(value) {
   if (!value) return null;
-  const parsed = new Date(value);
+  const parsed = value instanceof Date ? value : new Date(value);
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
-function dateKey(value) {
+function isoDay(value) {
   const parsed = safeDate(value);
-  return parsed ? parsed.toISOString().split("T")[0] : null;
+  return parsed ? parsed.toISOString().slice(0, 10) : null;
+}
+
+function getCorridor(state) {
+  return STATE_TO_CORRIDOR?.[String(state || "").toUpperCase()] || STATE_TO_CORRIDOR?.[state] || "Other";
+}
+
+function getDaysInMonth(date) {
+  const safe = safeDate(date) || new Date();
+  return new Date(safe.getFullYear(), safe.getMonth() + 1, 0).getDate();
+}
+
+function getFirstDayOfMonth(date) {
+  const safe = safeDate(date) || new Date();
+  return new Date(safe.getFullYear(), safe.getMonth(), 1).getDay();
+}
+
+function pickupDate(load) {
+  return load?.pickup_date || load?.pickup_datetime_start || load?.pickup_datetime || load?.pickup_at;
+}
+
+function deliveryDate(load) {
+  return load?.delivery_date || load?.delivery_datetime_end || load?.delivery_datetime || load?.delivery_at || pickupDate(load);
 }
 
 function overlaps(startA, endA, startB, endB) {
@@ -49,154 +56,134 @@ function overlaps(startA, endA, startB, endB) {
   return startA < endB && endA > startB;
 }
 
+function driverName(driver = {}) {
+  return driver.full_name || driver.name || [driver.first_name, driver.last_name].filter(Boolean).join(" ") || "Driver";
+}
+
+function statusLabel(status = "") {
+  return String(status).replace(/_/g, " ");
+}
+
 export default function DispatchCalendar({ loads = [], drivers = [], trucks = [] }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDriverId, setSelectedDriverId] = useState(null);
   const [selectedTruckId, setSelectedTruckId] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState(null);
-  const [conflicts, setConflicts] = useState([]);
-  const [logging, setLogging] = useState(false);
-  const safeLoads = Array.isArray(loads) ? loads : [];
-  const safeDrivers = Array.isArray(drivers) ? drivers : [];
-  const safeTrucks = Array.isArray(trucks) ? trucks : [];
 
-  useEffect(() => {
-    const newConflicts = [];
+  const safeLoads = useMemo(() => Array.isArray(loads) ? loads.filter(Boolean) : [], [loads]);
+  const safeDrivers = useMemo(() => Array.isArray(drivers) ? drivers.filter(Boolean) : [], [drivers]);
+  const safeTrucks = useMemo(() => Array.isArray(trucks) ? trucks.filter(Boolean) : [], [trucks]);
+
+  const filteredLoads = useMemo(() => safeLoads.filter((load) => {
+    if (["cancelled"].includes(load.status)) return false;
+    if (selectedDriverId && load.driver_id !== selectedDriverId) return false;
+    if (selectedTruckId && load.truck_id !== selectedTruckId) return false;
+    if (selectedStatus && load.status !== selectedStatus) return false;
+    return true;
+  }), [safeLoads, selectedDriverId, selectedTruckId, selectedStatus]);
+
+  const conflicts = useMemo(() => {
+    const seen = new Set();
+    const results = [];
 
     safeLoads.forEach((load) => {
-      if (!load?.driver_id || !load?.pickup_date || !load?.delivery_date) return;
+      const start = safeDate(pickupDate(load));
+      const end = safeDate(deliveryDate(load));
+      if (!start || !end || load.status === "cancelled") return;
 
-      const pickupStart = safeDate(load.pickup_date);
-      const deliveryEnd = safeDate(load.delivery_date);
-      if (!pickupStart || !deliveryEnd) return;
+      safeLoads.forEach((other) => {
+        if (!other || other.id === load.id || other.status === "cancelled") return;
+        const otherStart = safeDate(pickupDate(other));
+        const otherEnd = safeDate(deliveryDate(other));
+        if (!overlaps(start, end, otherStart, otherEnd)) return;
 
-      const driverLoads = safeLoads.filter((item) => item.driver_id === load.driver_id && item.id !== load.id && item.status !== "cancelled");
-      driverLoads.forEach((otherLoad) => {
-        if (overlaps(pickupStart, deliveryEnd, safeDate(otherLoad.pickup_date), safeDate(otherLoad.delivery_date))) {
-          newConflicts.push({
-            type: "driver_double_booked",
-            loadId: load.id,
-            otherLoadId: otherLoad.id,
-            driverId: load.driver_id,
-            message: `Driver double-booked: ${load.load_number || load.id} overlaps with ${otherLoad.load_number || otherLoad.id}`,
-          });
-        }
-      });
-
-      if (load.truck_id) {
-        const truckLoads = safeLoads.filter((item) => item.truck_id === load.truck_id && item.id !== load.id && item.status !== "cancelled");
-        truckLoads.forEach((otherLoad) => {
-          if (overlaps(pickupStart, deliveryEnd, safeDate(otherLoad.pickup_date), safeDate(otherLoad.delivery_date))) {
-            newConflicts.push({
-              type: "truck_double_booked",
+        if (load.driver_id && other.driver_id && load.driver_id === other.driver_id) {
+          const key = ["driver", load.id, other.id].sort().join("|");
+          if (!seen.has(key)) {
+            seen.add(key);
+            results.push({
+              type: "driver_double_booked",
               loadId: load.id,
-              otherLoadId: otherLoad.id,
-              truckId: load.truck_id,
-              message: `Truck double-booked: ${load.load_number || load.id} overlaps with ${otherLoad.load_number || otherLoad.id}`,
+              otherLoadId: other.id,
+              driverId: load.driver_id,
+              message: `Driver double-booked: ${load.load_number || load.id} overlaps with ${other.load_number || other.id}`,
             });
           }
-        });
-      }
+        }
+
+        if (load.truck_id && other.truck_id && load.truck_id === other.truck_id) {
+          const key = ["truck", load.id, other.id].sort().join("|");
+          if (!seen.has(key)) {
+            seen.add(key);
+            results.push({
+              type: "truck_double_booked",
+              loadId: load.id,
+              otherLoadId: other.id,
+              truckId: load.truck_id,
+              message: `Truck double-booked: ${load.load_number || load.id} overlaps with ${other.load_number || other.id}`,
+            });
+          }
+        }
+      });
     });
 
-    setConflicts(newConflicts);
+    return results;
   }, [safeLoads]);
 
   const getLoadsForDate = (date) => {
-    const targetDate = dateKey(date);
-    if (!targetDate) return [];
+    const target = isoDay(date);
+    if (!target) return [];
 
-    return safeLoads.filter((load) => {
-      const deliveryDate = dateKey(load.delivery_date);
-      if (!deliveryDate || deliveryDate !== targetDate) return false;
-      if (["cancelled", "completed"].includes(load.status)) return false;
-      if (selectedDriverId && load.driver_id !== selectedDriverId) return false;
-      if (selectedTruckId && load.truck_id !== selectedTruckId) return false;
-      if (selectedStatus && load.status !== selectedStatus) return false;
-      return true;
+    return filteredLoads.filter((load) => {
+      const pickupKey = isoDay(pickupDate(load));
+      const deliveryKey = isoDay(deliveryDate(load));
+      if (!pickupKey && !deliveryKey) return false;
+      return pickupKey === target || deliveryKey === target;
     });
   };
 
   const getRegionGroups = (dayLoads) => {
     const groups = {};
-    dayLoads.forEach((load) => {
-      const corridor = getCorridor(load.destination_state);
+    (Array.isArray(dayLoads) ? dayLoads : []).forEach((load) => {
+      const corridor = getCorridor(load.destination_state || load.origin_state);
       if (!groups[corridor]) groups[corridor] = [];
       groups[corridor].push(load);
     });
     return Object.entries(groups).sort((a, b) => b[1].length - a[1].length);
   };
 
-  const getBottleneckDates = () => {
-    const bottlenecks = [];
-    const daysInMonth = getDaysInMonth(currentDate);
-
-    for (let day = 1; day <= daysInMonth; day++) {
-      const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
-      const dayLoads = getLoadsForDate(date);
-      const regionGroups = getRegionGroups(dayLoads);
-      regionGroups.forEach(([corridor, corridorLoads]) => {
-        if (corridorLoads.length >= BOTTLENECK_THRESHOLD) bottlenecks.push({ day, corridor, count: corridorLoads.length });
-      });
-    }
-
-    return bottlenecks;
-  };
-
-  let bottleneckDates = [];
-  try {
-    bottleneckDates = getBottleneckDates();
-  } catch (error) {
-    console.error("Dispatch calendar bottleneck calculation failed", error);
-    logDispatcherEvent?.("DISPATCH_CALENDAR_RENDER_FAILED", {
-      entity_type: "DispatchCalendar",
-      title: "Dispatch calendar failed to calculate bottlenecks",
-      description: error.message,
-      loads_count: safeLoads.length,
-    }).catch(() => {});
-  }
-
-  const handleScheduleChange = async (loadId, newPickupDate, newDeliveryDate) => {
-    setLogging(true);
+  const bottleneckDates = useMemo(() => {
     try {
-      let currentUser = { id: "system", role: "dispatcher", full_name: "Dispatcher" };
-      try {
-        const user = await base44.auth.me();
-        Object.assign(currentUser, user);
-      } catch {}
+      const results = [];
+      const daysInMonth = getDaysInMonth(currentDate);
 
-      await base44.entities.Load.update(loadId, { pickup_date: newPickupDate, delivery_date: newDeliveryDate });
-
-      const load = safeLoads.find((item) => item.id === loadId);
-      if (load) {
-        await logTimelineEvent({
-          entityType: "Load",
-          entityId: loadId,
-          entityDisplay: load.load_number,
-          action: "updated",
-          summary: `Rescheduled ${load.load_number || load.id} to ${safeDate(newPickupDate)?.toLocaleDateString() || "new date"}`,
-          currentUser,
-        });
-
-        await base44.entities.Notification.create({
-          user_id: currentUser.id,
-          role: currentUser.role,
-          title: "Load Rescheduled",
-          message: `${load.load_number || load.id} has been rescheduled to ${safeDate(newPickupDate)?.toLocaleDateString() || "new date"}`,
-          type: "load_assigned",
-          related_entity_type: "Load",
-          related_entity_id: loadId,
+      for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+        const dayLoads = getLoadsForDate(date);
+        const regionGroups = getRegionGroups(dayLoads);
+        regionGroups.forEach(([corridor, corridorLoads]) => {
+          if (corridorLoads.length >= BOTTLENECK_THRESHOLD) results.push({ day, corridor, count: corridorLoads.length });
         });
       }
 
-      alert("Load rescheduled and notification sent!");
-    } catch (err) {
-      console.error("Failed to reschedule load:", err);
-      alert("Failed to reschedule load");
-    } finally {
-      setLogging(false);
+      return results;
+    } catch (error) {
+      console.error("Dispatch calendar bottleneck calculation failed", error);
+      logDispatcherEvent?.("DISPATCH_CALENDAR_RENDER_FAILED", {
+        entity_type: "DispatchCalendar",
+        title: "Dispatch calendar failed to calculate bottlenecks",
+        description: error.message,
+        loads_count: safeLoads.length,
+      }).catch(() => {});
+      return [];
     }
-  };
+  }, [currentDate, filteredLoads, safeLoads.length]);
+
+  const filteredConflicts = useMemo(() => conflicts.filter((conflict) => {
+    if (selectedDriverId && conflict.type !== "driver_double_booked") return false;
+    if (selectedTruckId && conflict.type !== "truck_double_booked") return false;
+    return true;
+  }), [conflicts, selectedDriverId, selectedTruckId]);
 
   const renderMonth = () => {
     const daysInMonth = getDaysInMonth(currentDate);
@@ -204,7 +191,7 @@ export default function DispatchCalendar({ loads = [], drivers = [], trucks = []
     const days = [];
 
     for (let i = 0; i < firstDay; i++) {
-      days.push(<div key={`empty-${i}`} className="bg-white/1 border border-white/5" />);
+      days.push(<div key={`empty-${i}`} className="bg-white/1 border border-white/5 rounded-lg min-h-24" />);
     }
 
     for (let day = 1; day <= daysInMonth; day++) {
@@ -227,9 +214,10 @@ export default function DispatchCalendar({ loads = [], drivers = [], trucks = []
             <span>{day}</span>
             {loadsForDay.length > 0 && <span className={`text-[9px] px-1 rounded-full ${hasBottleneck ? "bg-red-500/20 text-red-400" : "bg-white/10 text-slate-500"}`}>{loadsForDay.length}</span>}
           </div>
+
           <div className="space-y-1">
             {regionGroups.map(([corridor, corridorLoads]) => (
-              <div key={corridor} className={`rounded p-1 border ${CORRIDOR_COLORS[corridor] || CORRIDOR_COLORS.Other} ${corridorLoads.length >= BOTTLENECK_THRESHOLD ? "ring-1 ring-red-500/40" : ""}`} title={`${corridor}: ${corridorLoads.length} load${corridorLoads.length !== 1 ? "s" : ""} delivering`}>
+              <div key={corridor} className={`rounded p-1 border ${CORRIDOR_COLORS[corridor] || CORRIDOR_COLORS.Other} ${corridorLoads.length >= BOTTLENECK_THRESHOLD ? "ring-1 ring-red-500/40" : ""}`} title={`${corridor}: ${corridorLoads.length} load${corridorLoads.length !== 1 ? "s" : ""}`}>
                 <div className="text-[9px] font-bold uppercase tracking-wide opacity-80 truncate">{corridor.replace(/^I-\d+\s/, "")}</div>
                 <div className="text-[10px] font-medium flex items-center gap-0.5 flex-wrap">
                   {corridorLoads.slice(0, 3).map((load, index) => (
@@ -250,12 +238,6 @@ export default function DispatchCalendar({ loads = [], drivers = [], trucks = []
     return days;
   };
 
-  const filteredConflicts = conflicts.filter((conflict) => {
-    if (selectedDriverId && conflict.type !== "driver_double_booked") return false;
-    if (selectedTruckId && conflict.type !== "truck_double_booked") return false;
-    return true;
-  });
-
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
@@ -274,7 +256,7 @@ export default function DispatchCalendar({ loads = [], drivers = [], trucks = []
         {safeDrivers.length > 0 && (
           <select value={selectedDriverId || ""} onChange={(event) => setSelectedDriverId(event.target.value || null)} className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-slate-300 text-sm focus:outline-none focus:border-orange-500/40">
             <option value="">All Drivers</option>
-            {safeDrivers.map((driver) => <option key={driver.id} value={driver.id}>{driver.first_name || driver.name || "Driver"} {driver.last_name || ""}</option>)}
+            {safeDrivers.map((driver) => <option key={driver.id} value={driver.id}>{driverName(driver)}</option>)}
           </select>
         )}
 
@@ -287,7 +269,7 @@ export default function DispatchCalendar({ loads = [], drivers = [], trucks = []
 
         <select value={selectedStatus || ""} onChange={(event) => setSelectedStatus(event.target.value || null)} className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-slate-300 text-sm focus:outline-none focus:border-orange-500/40">
           <option value="">All Statuses</option>
-          {["available", "assigned", "in_transit", "delivered", "completed"].map((status) => <option key={status} value={status}>{status.replace("_", " ")}</option>)}
+          {CALENDAR_STATUSES.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}
         </select>
       </div>
 
@@ -325,8 +307,6 @@ export default function DispatchCalendar({ loads = [], drivers = [], trucks = []
         <div className="flex items-center gap-2"><div className="w-3 h-3 rounded border-2 border-red-500/40 bg-red-500/5" /><span>Bottleneck (3+ loads same region)</span></div>
         {Object.entries(CORRIDOR_COLORS).slice(0, 6).map(([corridor, cls]) => <div key={corridor} className="flex items-center gap-1.5"><div className={`w-3 h-3 rounded ${cls}`} /><span>{corridor.replace(/^I-\d+\s/, "")}</span></div>)}
       </div>
-
-      {logging && <div className="flex items-center gap-2 text-orange-400 text-sm"><Loader2 className="w-4 h-4 animate-spin" />Updating load and logging timeline event...</div>}
     </div>
   );
 }
