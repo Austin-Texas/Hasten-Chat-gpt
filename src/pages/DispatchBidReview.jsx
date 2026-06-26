@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { CheckCircle, Clock, Loader2, MessageSquare, RefreshCw, ShieldCheck, Truck, XCircle, X } from "lucide-react";
-import { getLoadEquipment } from "@/lib/equipmentMatching";
+import { CheckCircle, Clock, Loader2, MessageSquare, RefreshCw, ShieldCheck, Truck, X, XCircle } from "lucide-react";
+import { buildInternalLoadFromExternalLoad, getLoadEquipment } from "@/lib/equipmentMatching";
 import { getDriverReadiness, readinessClass } from "@/lib/driverReadiness";
 
 const REVIEWABLE_STATUSES = ["pending", "interested", "bid_submitted", "counter_offer", "counter_accepted"];
@@ -27,6 +27,53 @@ function acceptButtonLabel(bid = {}, locked) {
   if (locked) return "Locked";
   if (bid.status === "counter_accepted") return "Create Load";
   return "Accept";
+}
+
+async function safeCreate(entityName, payload) {
+  try {
+    const entity = base44.entities?.[entityName];
+    if (!entity?.create) return null;
+    return await entity.create(payload);
+  } catch (error) {
+    console.warn(`[DispatchBidReview] ${entityName} side-effect skipped`, error?.message || error);
+    return null;
+  }
+}
+
+async function createAssignmentArtifacts({ createdLoad, bid, externalLoad, driver, finalRate }) {
+  const now = new Date().toISOString();
+  const route = `${externalLoad.pickup_city || "Pickup"}, ${externalLoad.pickup_state || ""} → ${externalLoad.delivery_city || "Delivery"}, ${externalLoad.delivery_state || ""}`;
+
+  await safeCreate("TimelineEvent", {
+    entity_type: "Load",
+    entity_id: createdLoad.id,
+    load_id: createdLoad.id,
+    event_type: "external_load_assigned",
+    title: "External load converted and assigned",
+    description: `Accepted DriverLoadBid ${bid.id} for ${route}. Final internal rate $${Number(finalRate || 0).toLocaleString()}.`,
+    created_at: now,
+  });
+
+  await safeCreate("Notification", {
+    user_id: driver.user_id || bid.driver_id,
+    driver_id: bid.driver_id,
+    load_id: createdLoad.id,
+    type: "load_assigned",
+    title: "Load assigned",
+    message: `You were assigned ${createdLoad.load_number || "a HASTEN load"}. Broker/source rate remains hidden from driver view.`,
+    read: false,
+    created_at: now,
+  });
+
+  await safeCreate("Message", {
+    load_id: createdLoad.id,
+    driver_id: bid.driver_id,
+    sender_role: "dispatcher",
+    recipient_role: "driver",
+    type: "system",
+    body: `Dispatch accepted your offer and assigned ${createdLoad.load_number || "the load"}. Open the load detail for pickup and delivery steps.`,
+    created_at: now,
+  });
 }
 
 export default function DispatchBidReview() {
@@ -150,33 +197,23 @@ export default function DispatchBidReview() {
     setActioning(`${bid.id}-accept`);
     setNotice("");
     try {
-      const createdLoad = await base44.entities.Load.create({
-        load_number: `EXT-${String(externalLoad.external_load_id || externalLoad.id).slice(-6).toUpperCase()}`,
-        status: "assigned",
+      const loadPayload = buildInternalLoadFromExternalLoad(externalLoad, {
         driver_id: bid.driver_id,
-        origin_city: externalLoad.pickup_city,
-        origin_state: externalLoad.pickup_state,
-        origin_zip: externalLoad.pickup_zip,
-        destination_city: externalLoad.delivery_city,
-        destination_state: externalLoad.delivery_state,
-        destination_zip: externalLoad.delivery_zip,
-        equipment_type: getLoadEquipment(externalLoad),
-        commodity: externalLoad.commodity,
-        weight: externalLoad.weight,
-        miles: externalLoad.miles_total,
-        rate: finalRate,
-        total_revenue: finalRate,
-        broker_id: externalLoad.broker_customer_id,
+        status: "assigned",
+        finalRate,
         notes: isCounterAccepted
           ? `Created from driver-accepted counter offer. Dispatcher note: ${bid.dispatcher_notes || "none"}`
           : `Accepted from ${externalLoad.source_provider || "external marketplace"} bid review.`,
       });
+      const createdLoad = await base44.entities.Load.create(loadPayload);
 
       try {
         await base44.functions.invoke("updateLoadStatus", { load_id: createdLoad.id, status: "assigned", driver_id: bid.driver_id });
       } catch (error) {
         console.warn("[DispatchBidReview] updateLoadStatus skipped", error?.message || error);
       }
+
+      await createAssignmentArtifacts({ createdLoad, bid, externalLoad, driver, finalRate });
 
       await base44.entities.DriverLoadBid.update(bid.id, {
         status: "accepted_by_dispatch",
@@ -192,11 +229,11 @@ export default function DispatchBidReview() {
         updated_at: new Date().toISOString(),
       });
 
-      setNotice(isCounterAccepted ? "Counter accepted by driver. Internal assigned load created." : "Bid accepted and internal assigned load created.");
+      setNotice(isCounterAccepted ? "Counter accepted by driver. Internal assigned load created with timeline/message/notification attempt." : "Bid accepted. Internal assigned load created with timeline/message/notification attempt.");
       await fetchData();
     } catch (error) {
       console.error(error);
-      setNotice("Accept failed. Check Load, ExternalLoad, and DriverLoadBid setup.");
+      setNotice("Accept failed. Check Load, ExternalLoad, DriverLoadBid, and side-effect entity setup.");
     } finally {
       setActioning(null);
     }
@@ -207,7 +244,7 @@ export default function DispatchBidReview() {
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-bold text-white font-heading"><MessageSquare className="h-6 w-6 text-green-400" /> Bid Review</h1>
-          <p className="mt-1 text-sm text-slate-400">Review driver responses before assigning marketplace loads.</p>
+          <p className="mt-1 text-sm text-slate-400">Review driver responses before assigning marketplace loads. Driver-visible rate rules stay hidden until dispatch assignment.</p>
         </div>
         <button onClick={fetchData} className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-300 hover:text-white"><RefreshCw className="h-4 w-4" /> Refresh</button>
       </div>
