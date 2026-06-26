@@ -6,6 +6,7 @@ import {
   calculateDriverSafety,
   calculateDriverPerformance,
 } from "./enterpriseDriverDemo";
+import { importEnterpriseDemoBundleIntoDriverStore, resetDriverEnterpriseStore } from "./driverEnterpriseDataLayer";
 
 const STORAGE_KEY = "hasten_local_drivers";
 const ENTERPRISE_DEMO_KEY = "hasten_driver_enterprise_demo_bundle";
@@ -125,11 +126,13 @@ export function hasEnterpriseDriverDemoData() {
 
 export function importEnterpriseDriverDemoData({ force = false } = {}) {
   if (!force && hasEnterpriseDriverDemoData()) {
+    const existingBundle = getEnterpriseDriverDemoBundle();
+    if (existingBundle) importEnterpriseDemoBundleIntoDriverStore(existingBundle, "driver_demo_duplicate_guard_sync");
     return {
       imported: false,
       duplicatePrevented: true,
       seedVersion: DRIVER_DEMO_SEED_VERSION,
-      bundle: getEnterpriseDriverDemoBundle(),
+      bundle: existingBundle,
       drivers: readDrivers(),
     };
   }
@@ -142,6 +145,7 @@ export function importEnterpriseDriverDemoData({ force = false } = {}) {
   writeDrivers(drivers);
   writeJson(ENTERPRISE_DEMO_KEY, bundle);
   localStorage.setItem(ENTERPRISE_DEMO_SEED_KEY, DRIVER_DEMO_SEED_VERSION);
+  importEnterpriseDemoBundleIntoDriverStore(bundle, "driver_demo_import");
   dispatchEnterpriseBundle(bundle);
 
   return {
@@ -160,6 +164,7 @@ export function resetEnterpriseDriverDemoData() {
   writeDrivers(realDrivers.length ? realDrivers : defaultDrivers);
   localStorage.removeItem(ENTERPRISE_DEMO_KEY);
   localStorage.removeItem(ENTERPRISE_DEMO_SEED_KEY);
+  resetDriverEnterpriseStore();
   dispatchEnterpriseBundle(null);
 
   return {
@@ -204,6 +209,7 @@ export function recalculateEnterpriseDriverDemoData() {
 
   writeDrivers(recalculatedDrivers);
   writeJson(ENTERPRISE_DEMO_KEY, updatedBundle);
+  importEnterpriseDemoBundleIntoDriverStore(updatedBundle, "driver_demo_recalculate");
   dispatchEnterpriseBundle(updatedBundle);
 
   return {
@@ -228,6 +234,7 @@ export function generateWeeklyEnterpriseDemoSettlements() {
     weekly_settlements_generated_at: new Date().toISOString(),
   };
   writeJson(ENTERPRISE_DEMO_KEY, updatedBundle);
+  importEnterpriseDemoBundleIntoDriverStore(updatedBundle, "driver_demo_settlement_generation");
   dispatchEnterpriseBundle(updatedBundle);
   return {
     generated: true,
