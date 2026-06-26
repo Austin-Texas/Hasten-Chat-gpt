@@ -4,7 +4,6 @@ import {
   CheckCircle2,
   FileText,
   Home,
-  MapPin,
   MessageSquare,
   Moon,
   Package,
