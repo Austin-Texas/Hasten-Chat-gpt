@@ -47,7 +47,7 @@ export const featureGroups = [
   {
     key: "Driver App",
     label: "Driver App",
-    items: ["Driver Home", "Driver Loads", "Driver Scan", "Driver Chat", "Driver Profile", "Driver Settings", "Driver Support", "Driver Emergency"],
+    items: ["Driver Home", "Driver Loads", "Driver Scan", "Messages", "Driver Profile", "Driver Settings", "Driver Support", "Driver Emergency"],
   },
   {
     key: "Administration",
@@ -94,7 +94,6 @@ const driverAccess = {
   "Driver Home": true,
   "Driver Loads": true,
   "Driver Scan": true,
-  "Driver Chat": true,
   "Driver Profile": true,
   "Driver Settings": true,
   "Driver Support": true,
