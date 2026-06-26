@@ -1,4 +1,5 @@
 import { readDriverEnterpriseStore, writeDriverEnterpriseStore, upsertDriverEnterpriseRecord } from "./driverEnterpriseDataLayer";
+import { buildOcrReviewResult } from "./driverOcrExtractionEngine";
 
 export const DRIVER_DOCUMENT_TYPES = ["CDL", "Medical", "DQF", "MVR", "Drug Test", "Clearinghouse", "TWIC", "Hazmat", "BOL", "POD", "Receipt", "Scale Ticket", "Lumper Receipt"];
 export const DRIVER_DOCUMENT_OCR_STATES = ["queued", "uploaded", "ocr_processing", "needs_review", "approved", "rejected", "resubmit_required"];
@@ -93,6 +94,20 @@ export function runDriverDocumentOcr(documentId, extracted = {}) {
     auditEvents: [auditEvent, ...(store.auditEvents || [])],
   });
   return updated;
+}
+
+export function runDriverDocumentOcrFromText(documentId, rawText = "") {
+  const store = readDriverEnterpriseStore();
+  const documents = store.driverDocuments || [];
+  const target = documents.find((doc) => doc.id === documentId);
+  if (!target) throw new Error(`Driver document not found: ${documentId}`);
+  const result = buildOcrReviewResult(rawText, target.doc_type);
+  return runDriverDocumentOcr(documentId, {
+    ...result.extracted_fields,
+    confidence_score: result.confidence_score,
+    missing_fields: result.missing_fields,
+    raw_text_preview: String(rawText || "").slice(0, 500),
+  });
 }
 
 export function rejectDriverDocument(documentId, reason, actor = "dispatcher") {
