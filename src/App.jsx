@@ -107,6 +107,7 @@ import DriverAboutVehicle from '@/pages/driver/DriverAboutVehicle';
 import DriverCompanies from '@/pages/driver/DriverCompanies';
 import DriverFeedback from '@/pages/driver/DriverFeedback';
 import DriverSupport from '@/pages/driver/DriverSupport';
+import DriverIntelligenceCenter from '@/pages/driver/DriverIntelligenceCenter';
 import DriverPayrollView from '@/components/driver/DriverPayrollView';
 import DriverDocumentsSigningFlow from '@/components/driver/DriverDocumentsSigningFlow';
 
@@ -261,6 +262,7 @@ const AuthenticatedApp = () => {
         <Route path="/driver/settlement-preview" element={<MobileLayout user={user}><DriverSettlementPreview user={user} /></MobileLayout>} />
         <Route path="/driver/scan" element={<MobileLayout user={user}><DriverScan user={user} /></MobileLayout>} />
         <Route path="/driver/emergency" element={<MobileLayout user={user}><DriverEmergencyCenter user={user} /></MobileLayout>} />
+        <Route path="/driver/intelligence" element={<MobileLayout user={user}><DriverIntelligenceCenter user={user} /></MobileLayout>} />
 
         {/* AI Agent Conversations */}
         <Route path="/agent/:agentName" element={<AppLayout user={user}><AgentConversation /></AppLayout>} />
