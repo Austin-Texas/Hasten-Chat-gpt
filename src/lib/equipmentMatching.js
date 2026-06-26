@@ -3,8 +3,7 @@ export const EQUIPMENT_CLASSES = [
   "Cargo Van",
   "Box Truck",
   "Hot Shot",
-  "Gooseneck",
-  "Fifth Wheel",
+  "Gooseneck / Fifth Wheel",
   "Dry Van",
   "Power Only",
   "Flatbed",
@@ -20,8 +19,9 @@ const NORMALIZED_EQUIPMENT = {
   "box truck": "Box Truck",
   hotshot: "Hot Shot",
   "hot shot": "Hot Shot",
-  gooseneck: "Gooseneck",
-  "fifth wheel": "Fifth Wheel",
+  gooseneck: "Gooseneck / Fifth Wheel",
+  "fifth wheel": "Gooseneck / Fifth Wheel",
+  "gooseneck fifth wheel": "Gooseneck / Fifth Wheel",
   dryvan: "Dry Van",
   "dry van": "Dry Van",
   "power only": "Power Only",
@@ -34,15 +34,31 @@ const COMPATIBLE_EQUIPMENT = {
   Sprinter: ["Sprinter", "Cargo Van"],
   "Cargo Van": ["Cargo Van", "Sprinter"],
   "Box Truck": ["Box Truck"],
-  "Hot Shot": ["Hot Shot", "Gooseneck", "Fifth Wheel", "Flatbed"],
-  Gooseneck: ["Gooseneck", "Fifth Wheel", "Hot Shot", "Flatbed"],
-  "Fifth Wheel": ["Fifth Wheel", "Gooseneck", "Hot Shot"],
+  "Hot Shot": ["Hot Shot", "Gooseneck / Fifth Wheel", "Flatbed"],
+  "Gooseneck / Fifth Wheel": ["Gooseneck / Fifth Wheel", "Hot Shot", "Flatbed"],
   "Dry Van": ["Dry Van", "Power Only"],
   "Power Only": ["Power Only", "Dry Van", "Reefer"],
-  Flatbed: ["Flatbed", "Hot Shot", "Gooseneck"],
+  Flatbed: ["Flatbed", "Hot Shot", "Gooseneck / Fifth Wheel"],
   "Car Hauler": ["Car Hauler"],
   Reefer: ["Reefer", "Power Only"],
 };
+
+export const DRIVER_PRIVATE_EXTERNAL_LOAD_FIELDS = [
+  "rate_available",
+  "broker_rate_hidden",
+  "fuel_surcharge",
+  "accessorials",
+  "payment_terms",
+  "broker_customer_id",
+  "broker_name",
+  "contact_name",
+  "contact_phone",
+  "contact_email",
+  "raw_payload_json",
+  "internal_notes",
+  "customer_private_notes",
+  "factoring_risk",
+];
 
 function normalizeText(value) {
   return String(value || "").trim().toLowerCase();
@@ -155,5 +171,63 @@ export function getDriverSafeOffer(load) {
     pickup_time: load?.pickup_datetime_start,
     delivery_time: load?.delivery_datetime_start,
     broker_rate_hidden: true,
+    rate_hidden_reason: "Broker/source rate, HASTEN margin, factoring details, and private notes are hidden from drivers.",
   };
+}
+
+export function getDispatcherExternalLoadView(load) {
+  return {
+    ...load,
+    equipment_type: getLoadEquipment(load),
+    rate_available: Number(load?.rate_available || 0),
+    broker_rate_hidden: Boolean(load?.broker_rate_hidden),
+  };
+}
+
+export function buildInternalLoadFromExternalLoad(externalLoad = {}, options = {}) {
+  const finalRate = Number(options.finalRate ?? externalLoad.rate_available ?? 0);
+  const driverId = options.driver_id || options.driverId || externalLoad.assigned_driver_id || null;
+  const sourceLabel = externalLoad.source_provider || "external marketplace";
+  const sourceId = externalLoad.external_load_id || externalLoad.id || "external";
+
+  return {
+    load_number: options.load_number || `EXT-${String(sourceId).slice(-6).toUpperCase()}`,
+    status: options.status || (driverId ? "assigned" : "available"),
+    driver_id: driverId,
+    origin_city: externalLoad.pickup_city,
+    origin_state: externalLoad.pickup_state,
+    origin_zip: externalLoad.pickup_zip,
+    destination_city: externalLoad.delivery_city,
+    destination_state: externalLoad.delivery_state,
+    destination_zip: externalLoad.delivery_zip,
+    equipment_type: getLoadEquipment(externalLoad),
+    commodity: externalLoad.commodity,
+    weight: externalLoad.weight,
+    miles: externalLoad.miles_total,
+    rate: finalRate,
+    total_revenue: finalRate,
+    rate_per_mile: externalLoad.miles_total > 0 ? finalRate / externalLoad.miles_total : 0,
+    broker_id: externalLoad.broker_customer_id,
+    is_hazmat: externalLoad.hazmat,
+    source_provider: externalLoad.source_provider,
+    external_load_id: externalLoad.id,
+    external_reference: externalLoad.external_load_id,
+    notes: options.notes || `Created from ${sourceLabel} external load ${sourceId}.`,
+  };
+}
+
+export function buildDriverLoadBidPayload(load, match, overrides = {}) {
+  return {
+    external_load_id: load?.id,
+    driver_id: match?.driver_id,
+    status: overrides.status || "pending",
+    driver_notes: overrides.driver_notes || "Load offer sent by dispatcher from marketplace.",
+    match_score: match?.match_score,
+    submitted_at: overrides.submitted_at || new Date().toISOString(),
+    ...overrides,
+  };
+}
+
+export function assertDriverOfferIsRateSafe(offer = {}) {
+  return DRIVER_PRIVATE_EXTERNAL_LOAD_FIELDS.every((field) => offer[field] === undefined);
 }
