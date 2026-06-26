@@ -131,7 +131,7 @@ export default function UserAccess() {
   const [showAdd, setShowAdd] = useState(false);
   const [audit, setAudit] = useState([
     "Super Admin is now its own active role.",
-    "Role-only feature access supports main sections and sub-pages.",
+    "Role-only feature access now uses sub-page toggles only.",
     "Feature toggles broadcast immediately to the running app shell.",
   ]);
   const [newUser, setNewUser] = useState({ name: "", email: "", phone: "", role: "driver" });
@@ -203,15 +203,6 @@ export default function UserAccess() {
     updateFeatures({ ...featureAccess, [role]: roleAccess }, `${section} access ${roleAccess[section] ? "enabled" : "disabled"} for ${role}.`);
   };
 
-  const toggleGroup = (role, group) => {
-    if (group.key === "Administration") return;
-    const keys = [group.key, ...group.items].filter((key) => key !== "Users & Access");
-    const roleAccess = { ...(featureAccess[role] || defaultFeatureAccess[role] || {}) };
-    const allOn = keys.every((key) => roleAccess[key] !== false);
-    keys.forEach((key) => { roleAccess[key] = !allOn; });
-    updateFeatures({ ...featureAccess, [role]: roleAccess }, `${group.label} ${allOn ? "disabled" : "enabled"} for ${role}.`);
-  };
-
   const handleReset = () => {
     const next = resetFeatureAccess();
     setFeatureAccess(next);
@@ -225,7 +216,7 @@ export default function UserAccess() {
           <p className="text-sm font-semibold uppercase tracking-[0.3em] text-green-400">Administration</p>
           <h1 className="mt-2 text-3xl font-black text-white">Users & Access</h1>
           <p className="mt-2 max-w-3xl text-sm text-slate-400">
-            Role-only model for Super Admin, Admin, Dispatcher, Driver, and Customer. Enable or disable main sections and sub-pages without creating confusing per-user rules.
+            Role-only model for Super Admin, Admin, Dispatcher, Driver, and Customer. Enable or disable sub-pages without confusing per-user rules.
           </p>
         </div>
         <button onClick={() => setShowAdd(true)} className="inline-flex items-center justify-center gap-2 rounded-xl bg-green-500 px-4 py-3 text-sm font-bold text-slate-950 shadow-lg shadow-green-500/20 hover:bg-green-400" type="button">
@@ -332,7 +323,7 @@ export default function UserAccess() {
           <div className="flex flex-col gap-3 border-b border-white/10 p-5 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <div className="flex items-center gap-2 text-white"><Settings2 className="h-5 w-5 text-green-400" /><h2 className="text-xl font-bold">Feature Access Matrix</h2></div>
-              <p className="mt-2 text-sm text-slate-400">Main row controls the whole section. Sub-page rows control individual pages. Changes apply immediately to the sidebar and guarded navigation.</p>
+              <p className="mt-2 text-sm text-slate-400">Section rows are labels only. Sub-page rows control individual pages. Changes apply immediately to the sidebar and guarded navigation.</p>
             </div>
             <button onClick={handleReset} className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-sm font-semibold text-slate-300 hover:bg-white/10" type="button"><RotateCcw className="h-4 w-4" /> Reset defaults</button>
           </div>
@@ -342,7 +333,7 @@ export default function UserAccess() {
                 <tr><th className="px-4 py-3">Section / Sub-page</th>{roles.map((role) => <th key={role.value} className="px-4 py-3 text-center">{role.label}</th>)}</tr>
               </thead>
               <tbody className="divide-y divide-white/10">
-                {featureGroups.map((group) => <FragmentRows key={group.key} group={group} roles={roles} featureAccess={featureAccess} toggleGroup={toggleGroup} toggleFeature={toggleFeature} />)}
+                {featureGroups.map((group) => <FragmentRows key={group.key} group={group} roles={roles} featureAccess={featureAccess} toggleFeature={toggleFeature} />)}
               </tbody>
             </table>
           </div>
@@ -384,16 +375,14 @@ export default function UserAccess() {
   );
 }
 
-function FragmentRows({ group, roles, featureAccess, toggleGroup, toggleFeature }) {
-  const groupLocked = group.key === "Administration";
-
+function FragmentRows({ group, roles, featureAccess, toggleFeature }) {
   return (
     <>
       <tr className="bg-white/[0.035]">
-        <td className="px-4 py-4"><div className="font-black text-white">{group.label}</div><div className="text-xs text-slate-500">Main section</div></td>
+        <td className="px-4 py-4"><div className="font-black text-white">{group.label}</div><div className="text-xs text-slate-500">Section header only</div></td>
         {roles.map((role) => (
-          <td key={`${group.key}-${role.value}`} className="px-4 py-4 text-center">
-            <Toggle checked={featureAccess[role.value]?.[group.key] !== false} disabled={groupLocked} onClick={() => toggleGroup(role.value, group)} />
+          <td key={`${group.key}-${role.value}-header`} className="px-4 py-4 text-center">
+            <span className="inline-flex rounded-full border border-slate-600/30 bg-slate-800/50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-slate-500">No section toggle</span>
           </td>
         ))}
       </tr>
