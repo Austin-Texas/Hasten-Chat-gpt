@@ -9,6 +9,8 @@ const LOCAL_ENTITY_PREFIX = 'hasten_local_entity_';
 
 export const isLocalDemoMode = forceLocalAuth || (!disableLocalAuth && isLocalHost && !appParams.appId);
 
+const now = () => new Date().toISOString();
+
 const readLocalUser = () => {
   if (!isBrowser) return null;
 
@@ -27,11 +29,13 @@ const readLocalUser = () => {
       role: isDriver ? 'driver' : 'admin',
       businessRole: isDriver ? 'driver' : 'super_admin',
       accountType: isDriver ? 'driver' : 'admin',
+      linkedDriverId: isDriver ? 'local-driver-profile' : undefined,
       localDemo: true,
       ...parsed,
       role: isDriver ? 'driver' : 'admin',
       businessRole: isDriver ? 'driver' : 'super_admin',
-      accountType: isDriver ? 'driver' : 'admin'
+      accountType: isDriver ? 'driver' : 'admin',
+      linkedDriverId: isDriver ? 'local-driver-profile' : parsed.linkedDriverId
     };
   } catch (error) {
     console.warn('[base44Client] Invalid local HASTEN session. Clearing it.', error);
@@ -40,16 +44,184 @@ const readLocalUser = () => {
   }
 };
 
+const demoRecords = {
+  Driver: [
+    {
+      id: 'local-driver-profile',
+      user_id: 'local-driver-user',
+      name: 'Demo Driver',
+      full_name: 'Demo Driver',
+      email: 'driver@hasten.com',
+      phone: '(910) 555-0199',
+      driver_type: 'owner_operator',
+      vehicle_type: 'Sprinter',
+      trailer_type: 'Cargo Van',
+      max_payload: 3200,
+      cargo_length: 144,
+      cargo_width: 70,
+      cargo_height: 72,
+      dock_high: false,
+      liftgate: false,
+      reefer: false,
+      hazmat: false,
+      team_driver: false,
+      current_location: 'Fayetteville, NC',
+      home_location: 'Fayetteville, NC',
+      preferred_lanes: ['NC', 'SC', 'GA', 'VA'],
+      availability: 'available',
+      compliance_status: 'valid',
+      settlement_status: 'pending_review',
+      localDemoSeed: true,
+    },
+  ],
+  Load: [
+    {
+      id: 'local-load-sprinter-001',
+      load_number: 'HC-DEMO-001',
+      driver_id: 'local-driver-profile',
+      status: 'assigned',
+      origin_city: 'Fayetteville',
+      origin_state: 'NC',
+      destination_city: 'Raleigh',
+      destination_state: 'NC',
+      equipment_type: 'Sprinter',
+      required_equipment: 'Sprinter',
+      weight: 1800,
+      miles_total: 68,
+      pickup_datetime_start: '2026-06-25T09:00:00-04:00',
+      delivery_datetime_end: '2026-06-25T13:30:00-04:00',
+      broker_rate_hidden: true,
+      driver_rate: 450,
+      localDemoSeed: true,
+    },
+    {
+      id: 'local-load-hotshot-001',
+      load_number: 'HC-DEMO-002',
+      driver_id: 'local-driver-profile',
+      status: 'in_transit',
+      origin_city: 'Charlotte',
+      origin_state: 'NC',
+      destination_city: 'Columbia',
+      destination_state: 'SC',
+      equipment_type: 'Hot Shot',
+      required_equipment: 'Hot Shot',
+      weight: 6400,
+      miles_total: 93,
+      pickup_datetime_start: '2026-06-25T11:00:00-04:00',
+      delivery_datetime_end: '2026-06-25T18:00:00-04:00',
+      broker_rate_hidden: true,
+      driver_rate: 725,
+      localDemoSeed: true,
+    },
+  ],
+  ExternalLoad: [
+    {
+      id: 'local-external-load-001',
+      source_provider: 'DAT Sandbox',
+      external_load_id: 'DAT-DEMO-1001',
+      broker_name: 'Demo Broker LLC',
+      pickup_city: 'Fayetteville',
+      pickup_state: 'NC',
+      pickup_zip: '28301',
+      delivery_city: 'Raleigh',
+      delivery_state: 'NC',
+      delivery_zip: '27601',
+      required_equipment: 'Sprinter',
+      trailer_type: 'Cargo Van',
+      weight: 1800,
+      miles_total: 68,
+      rate_available: 650,
+      broker_rate_hidden: true,
+      normalized_status: 'available',
+      imported_at: now(),
+      expires_at: '2026-06-26T17:00:00-04:00',
+      raw_payload_json: { source: 'local-demo' },
+      localDemoSeed: true,
+    },
+    {
+      id: 'local-external-load-002',
+      source_provider: 'Truckstop Sandbox',
+      external_load_id: 'TS-DEMO-2001',
+      broker_name: 'Blue Ridge Shipper',
+      pickup_city: 'Charlotte',
+      pickup_state: 'NC',
+      pickup_zip: '28202',
+      delivery_city: 'Columbia',
+      delivery_state: 'SC',
+      delivery_zip: '29201',
+      required_equipment: 'Hot Shot',
+      trailer_type: 'Gooseneck / Fifth Wheel',
+      weight: 6400,
+      miles_total: 93,
+      rate_available: 980,
+      broker_rate_hidden: true,
+      normalized_status: 'available',
+      imported_at: now(),
+      expires_at: '2026-06-26T17:00:00-04:00',
+      raw_payload_json: { source: 'local-demo' },
+      localDemoSeed: true,
+    },
+  ],
+  Settlement: [
+    {
+      id: 'local-settlement-001',
+      driver_id: 'local-driver-profile',
+      load_id: 'local-load-sprinter-001',
+      gross_load_revenue: 650,
+      dispatch_company_fee: 130,
+      factoring_fee: 19.5,
+      fuel_advance: 0,
+      toll_advance: 0,
+      approved_deductions: 0,
+      bonus: 0,
+      final_driver_net_pay: 500.5,
+      HASTEN_net_revenue: 110.5,
+      payment_status: 'pending_review',
+      payout_recipient: 'Demo Driver',
+      localDemoSeed: true,
+    },
+  ],
+  LoadDocument: [
+    {
+      id: 'local-doc-001',
+      load_id: 'local-load-sprinter-001',
+      driver_id: 'local-driver-profile',
+      document_type: 'POD',
+      status: 'pending_review',
+      confidence_score: 94,
+      signature_detected: true,
+      localDemoSeed: true,
+    },
+  ],
+};
+
+const getLocalSeedRecords = (entityName) => (demoRecords[entityName] || []).map((record) => ({
+  created_date: record.created_date || now(),
+  updated_at: record.updated_at || now(),
+  localDemo: true,
+  ...record,
+}));
+
 const entityKey = (entityName) => `${LOCAL_ENTITY_PREFIX}${entityName}`;
 
 const readLocalEntityRecords = (entityName) => {
   if (!isBrowser) return [];
+
   try {
-    return JSON.parse(window.localStorage.getItem(entityKey(entityName)) || '[]');
+    const raw = window.localStorage.getItem(entityKey(entityName));
+    if (!raw) {
+      const seeds = getLocalSeedRecords(entityName);
+      if (seeds.length) {
+        window.localStorage.setItem(entityKey(entityName), JSON.stringify(seeds));
+      }
+      return seeds;
+    }
+
+    return JSON.parse(raw || '[]');
   } catch (error) {
     console.warn(`[base44Client] Invalid local records for ${entityName}. Resetting.`, error);
     window.localStorage.removeItem(entityKey(entityName));
-    return [];
+    return getLocalSeedRecords(entityName);
   }
 };
 
@@ -98,7 +270,7 @@ const makeLocalEntity = (entityName) => ({
     if (entityName === 'DriverLoadBid') {
       const duplicate = findDuplicateDriverLoadBid(existingRecords, payload);
       if (duplicate) {
-        const updated = { ...duplicate, ...payload, id: duplicate.id, updated_at: new Date().toISOString(), duplicateGuard: true, localDemo: true };
+        const updated = { ...duplicate, ...payload, id: duplicate.id, updated_at: now(), duplicateGuard: true, localDemo: true };
         writeLocalEntityRecords(entityName, existingRecords.map((record) => record.id === duplicate.id ? updated : record));
         return updated;
       }
@@ -106,8 +278,8 @@ const makeLocalEntity = (entityName) => ({
 
     const record = {
       id: payload.id || `local-${entityName.toLowerCase()}-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`,
-      created_date: payload.created_date || new Date().toISOString(),
-      updated_at: payload.updated_at || new Date().toISOString(),
+      created_date: payload.created_date || now(),
+      updated_at: payload.updated_at || now(),
       ...payload,
       localDemo: true
     };
@@ -117,8 +289,8 @@ const makeLocalEntity = (entityName) => ({
   },
   update: async (id, payload = {}) => {
     const records = readLocalEntityRecords(entityName);
-    const next = records.map((record) => record.id === id ? { ...record, ...payload, id, updated_at: new Date().toISOString(), localDemo: true } : record);
-    const updated = next.find((record) => record.id === id) || { id, ...payload, updated_at: new Date().toISOString(), localDemo: true };
+    const next = records.map((record) => record.id === id ? { ...record, ...payload, id, updated_at: now(), localDemo: true } : record);
+    const updated = next.find((record) => record.id === id) || { id, ...payload, updated_at: now(), localDemo: true };
     writeLocalEntityRecords(entityName, next.some((record) => record.id === id) ? next : [updated, ...records]);
     return updated;
   },
@@ -129,8 +301,8 @@ const makeLocalEntity = (entityName) => ({
   bulkCreate: async (items = []) => {
     const created = items.map((item, index) => ({
       id: item.id || `local-${entityName.toLowerCase()}-${Date.now()}-${index}`,
-      created_date: item.created_date || new Date().toISOString(),
-      updated_at: item.updated_at || new Date().toISOString(),
+      created_date: item.created_date || now(),
+      updated_at: item.updated_at || now(),
       ...item,
       localDemo: true
     }));
@@ -142,7 +314,7 @@ const makeLocalEntity = (entityName) => ({
     const records = readLocalEntityRecords(entityName);
     const next = records.map((record) => {
       const patch = items.find((item) => item.id === record.id);
-      return patch ? { ...record, ...patch, updated_at: new Date().toISOString(), localDemo: true } : record;
+      return patch ? { ...record, ...patch, updated_at: now(), localDemo: true } : record;
     });
     writeLocalEntityRecords(entityName, next);
     return { success: true, localDemo: true };
