@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { AlertTriangle, Brain, DollarSign, MessageSquare, Route, Sparkles, Truck } from "lucide-react";
 import { buildDispatcherEnterpriseSnapshot } from "@/lib/dispatcherEnterpriseEngine";
 import { buildDispatcherExtendedSnapshot } from "@/lib/dispatcherEnterpriseExtendedEngine";
 import { getDispatcherActionSummary } from "@/lib/dispatcherEnterpriseActions";
+import DispatchEnterpriseControls from "@/components/dispatch/DispatchEnterpriseControls";
 
 function Stat({ label, value, tone = "text-white" }) {
   return (
@@ -22,6 +24,7 @@ function Item({ title, subtitle }) {
 }
 
 export default function DispatchEnterprisePanel({ loads = [], drivers = [], trucks = [] }) {
+  const [refreshKey, setRefreshKey] = useState(0);
   const snapshot = buildDispatcherEnterpriseSnapshot({ loads, drivers, trucks });
   const extended = buildDispatcherExtendedSnapshot({ loads, drivers, snapshot });
   const actionSummary = getDispatcherActionSummary();
@@ -31,7 +34,7 @@ export default function DispatchEnterprisePanel({ loads = [], drivers = [], truc
   const topBrokerItems = extended.broker_communications.filter((item) => item.status === "update_due").slice(0, 3);
 
   return (
-    <div className="glass-card rounded-xl border border-green-500/20 bg-green-500/[0.04] p-4 space-y-4">
+    <div key={refreshKey} className="glass-card rounded-xl border border-green-500/20 bg-green-500/[0.04] p-4 space-y-4">
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
           <div className="text-white font-bold text-sm flex items-center gap-2">
@@ -58,6 +61,8 @@ export default function DispatchEnterprisePanel({ loads = [], drivers = [], truc
         <Stat label="Timeline" value={actionSummary.timeline_events} tone="text-purple-400" />
         <Stat label="Audit" value={actionSummary.audit_events} tone="text-slate-200" />
       </div>
+
+      <DispatchEnterpriseControls topMatch={topMatches[0]} topException={topExceptions[0] || topAlerts[0]} brokerItem={topBrokerItems[0]} onAction={() => setRefreshKey((value) => value + 1)} />
 
       <div className="grid lg:grid-cols-3 gap-3">
         <div className="rounded-xl border border-white/10 bg-white/[0.025] p-3">
