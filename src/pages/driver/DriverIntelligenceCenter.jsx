@@ -19,6 +19,7 @@ import {
   WifiOff,
 } from "lucide-react";
 import DriverEnterprisePortalPanels from "@/components/driver/DriverEnterprisePortalPanels";
+import DriverWorkflowControls from "@/components/driver/DriverWorkflowControls";
 import {
   buildDriverMasterRecord,
   buildDriverProfitability,
@@ -89,6 +90,7 @@ export default function DriverIntelligenceCenter({ user }) {
   const [trackingEvents, setTrackingEvents] = useState([]);
   const [claims, setClaims] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [workflowRefreshKey, setWorkflowRefreshKey] = useState(0);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -166,6 +168,7 @@ export default function DriverIntelligenceCenter({ user }) {
     );
   }
 
+  const activeLoad = loads.find((load) => ["assigned", "accepted", "en_route", "arrived_pickup", "loaded", "in_transit", "arrived_delivery"].includes(load.status)) || loads[0];
   const riskTone = intelligence.risk.severity === "critical" || intelligence.risk.severity === "high" ? "red" : intelligence.risk.severity === "medium" ? "amber" : "green";
 
   return (
@@ -186,7 +189,8 @@ export default function DriverIntelligenceCenter({ user }) {
         <Stat label="Fraud Alerts" value={intelligence.fraudAlerts.length} tone={intelligence.fraudAlerts.length ? "red" : "green"} />
       </div>
 
-      <DriverEnterprisePortalPanels driverId={driver.id} />
+      <DriverEnterprisePortalPanels key={workflowRefreshKey} driverId={driver.id} />
+      <DriverWorkflowControls driverId={driver.id} loadId={activeLoad?.id} onAction={() => setWorkflowRefreshKey((value) => value + 1)} />
 
       <Section icon={Gauge} title="Driver Risk Score Engine" subtitle={intelligence.risk.recommended_action} tone={riskTone}>
         <div className="grid grid-cols-3 gap-2">
