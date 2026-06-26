@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Database, GitBranch, ShieldCheck, Route, FileText, RefreshCw, Trash2, CheckCircle2 } from "lucide-react";
+import { AlertTriangle, Database, GitBranch, ShieldCheck, Route, FileText, RefreshCw, Trash2, CheckCircle2, Zap } from "lucide-react";
 import {
   DRIVER_COMPLIANCE_REQUIREMENTS,
   DRIVER_ENTERPRISE_ENTITIES,
@@ -8,11 +8,17 @@ import {
   readDriverEnterpriseStore,
   resetDriverEnterpriseStore,
 } from "@/lib/driverEnterpriseDataLayer";
+import {
+  DRIVER_AUTOMATION_RULES,
+  getDriverAutomationDashboard,
+  runDriverEnterpriseAutomations,
+} from "@/lib/driverEnterpriseAutomationEngine";
 
 export default function DriverEnterpriseDataCenter() {
   const [store, setStore] = useState(() => readDriverEnterpriseStore());
   const entityRows = useMemo(() => Object.entries(DRIVER_ENTERPRISE_ENTITIES), []);
   const base44Mapping = useMemo(() => buildDriverEnterpriseBase44Mapping(), []);
+  const automationDashboard = getDriverAutomationDashboard(store);
 
   useEffect(() => {
     const refresh = (event) => setStore(event?.detail || readDriverEnterpriseStore());
@@ -22,6 +28,7 @@ export default function DriverEnterpriseDataCenter() {
 
   const refreshStore = () => setStore(readDriverEnterpriseStore());
   const resetStore = () => setStore(resetDriverEnterpriseStore());
+  const runAutomations = () => setStore(runDriverEnterpriseAutomations());
 
   return (
     <div className="space-y-6 animate-slide-up">
@@ -33,7 +40,10 @@ export default function DriverEnterpriseDataCenter() {
             Local-first production data layer for HASTEN Cargo OS. These records run in localStorage now and are mapped for future Base44/native app migration.
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
+          <button onClick={runAutomations} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-500/10 border border-orange-500/20 text-orange-300 text-sm hover:text-white">
+            <Zap className="w-4 h-4" /> Run Automations
+          </button>
           <button onClick={refreshStore} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-slate-200 text-sm hover:text-white">
             <RefreshCw className="w-4 h-4" /> Refresh
           </button>
@@ -49,6 +59,26 @@ export default function DriverEnterpriseDataCenter() {
         <MetricCard icon={Route} label="Workflow Engines" value={Object.keys(DRIVER_WORKFLOW_DEFINITIONS).length} />
         <MetricCard icon={GitBranch} label="Audit Events" value={store.auditEvents?.length || 0} />
       </div>
+
+      <section className="glass-card rounded-2xl border border-white/5 p-5">
+        <h2 className="text-white font-semibold flex items-center gap-2 mb-4"><AlertTriangle className="w-5 h-5 text-orange-400" /> Automation Engine</h2>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-4">
+          <SmallStat label="Open Alerts" value={automationDashboard.open_alerts} />
+          <SmallStat label="Critical" value={automationDashboard.critical_alerts} />
+          <SmallStat label="Compliance" value={automationDashboard.compliance_alerts} />
+          <SmallStat label="Safety" value={automationDashboard.safety_alerts} />
+          <SmallStat label="Maintenance" value={automationDashboard.maintenance_alerts} />
+        </div>
+        <div className="grid lg:grid-cols-3 gap-3">
+          {DRIVER_AUTOMATION_RULES.map((rule) => (
+            <div key={rule.id} className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+              <div className="text-white text-sm font-semibold">{rule.name}</div>
+              <div className="text-slate-500 text-[10px] uppercase tracking-wide mt-1">{rule.category} • {rule.severity}</div>
+              <p className="text-slate-400 text-xs mt-2">{rule.trigger}</p>
+            </div>
+          ))}
+        </div>
+      </section>
 
       <section className="glass-card rounded-2xl border border-white/5 p-5">
         <h2 className="text-white font-semibold flex items-center gap-2 mb-4"><Database className="w-5 h-5 text-orange-400" /> Driver Data Models</h2>
@@ -146,6 +176,15 @@ function MetricCard({ icon: Icon, label, value }) {
         </div>
         <Icon className="w-8 h-8 text-slate-600" />
       </div>
+    </div>
+  );
+}
+
+function SmallStat({ label, value }) {
+  return (
+    <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+      <div className="text-slate-500 text-[10px] uppercase tracking-wider">{label}</div>
+      <div className="text-white text-xl font-bold mt-1">{value}</div>
     </div>
   );
 }
